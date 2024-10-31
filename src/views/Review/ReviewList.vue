@@ -1,16 +1,20 @@
 <template>
-  <div class="review-list">
-    <ReviewItem v-for="review in reviews" :key="review.review_id" :review="review" />
+  <div class="flex h-screen">
+    <Nav class="w-1/4 h-screen" />
+    <div class="w-3/4 overflow-y-scroll">
+      <ReviewItem v-for="review in reviews" :key="review.review_id" :review="review" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import ReviewItem from '@/components/Review/ReviewItem.vue'
+import Nav from '@/components/common/Nav.vue'
 import type { Review } from '@/types/Review'
 
 export default defineComponent({
-  components: { ReviewItem },
+  components: { ReviewItem, Nav },
   setup() {
     const reviews = ref<Review[]>([
       {

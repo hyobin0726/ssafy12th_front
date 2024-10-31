@@ -6,6 +6,7 @@
     }
   },
   "files": [],
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/types"],
   "references": [
     {
       "path": "./tsconfig.node.json"
