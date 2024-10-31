@@ -5,11 +5,11 @@
 
       <form @submit.prevent="handleSignIn">
         <div class="mb-4">
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label for="id" class="block text-sm font-medium text-gray-700 mb-1">Id</label>
           <input
-            type="email"
-            id="email"
-            v-model="email"
+            type="id"
+            id="id"
+            v-model="id"
             required
             class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -52,16 +52,16 @@ import { defineComponent, ref } from 'vue'
 export default defineComponent({
   name: 'Login',
   setup() {
-    const email = ref('')
+    const id = ref('')
     const password = ref('')
 
     const handleSignIn = () => {
-      console.log('Signing in with:', email.value, password.value)
+      console.log('Signing in with:', id.value, password.value)
       // 로그인 처리 로직을 여기에 추가하세요 (예: API 호출)
     }
 
     return {
-      email,
+      id,
       password,
       handleSignIn,
     }
