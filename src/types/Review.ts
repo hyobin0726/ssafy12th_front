@@ -7,7 +7,7 @@ export interface Review {
   latitude: number
   longitude: number
   created_at: Date
-  image_url: string
+  image_url: string[]
   order_index: number
   title: string
   like_count: number

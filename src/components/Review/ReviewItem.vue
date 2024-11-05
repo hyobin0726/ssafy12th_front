@@ -12,7 +12,7 @@
     </div>
 
     <div class="p-2 flex justify-center mb-4">
-      <img :src="review.image_url" alt="Review" class="h-96 w-96" />
+      <ReviewImage :imageUrls="review.image_url" />
     </div>
 
     <div class="w-full flex mb-4 justify-between items-center">
@@ -50,8 +50,10 @@ import More from '@/assets/Review/More.svg'
 import Chat from '@/assets/Review/Chat.svg'
 import Bookmark from '@/assets/Review/Bookmark.svg'
 import Location from '@/assets/Review/Location.svg'
+import ReviewImage from '@/components/Review/ReviewImage.vue'
+
 export default defineComponent({
-  components: { NonHeart, More, Chat, Bookmark, Location },
+  components: { NonHeart, More, Chat, Bookmark, Location, ReviewImage },
   props: {
     review: {
       type: Object as PropType<Review>,
