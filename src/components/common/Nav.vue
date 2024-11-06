@@ -3,41 +3,41 @@
     <div>
       <Logo class="h-28" />
     </div>
-    <ul class="flex flex-col space-y-5 overflow-y-auto ml-3">
+    <ul class="flex flex-col space-y-6 overflow-y-auto ml-3">
       <router-link to="/">
-        <li class="flex items-center space-x-2 cursor-pointer hover:text-[#8C735B]">
-          <Home class="h-6" />
-          <span>Home</span>
+        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+          <Home class="h-7" />
+          <span class="text-xl">Home</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-2 cursor-pointer hover:text-[#8C735B]">
-          <Search class="h-6" />
-          <span>Search</span>
+        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+          <Search class="h-7" />
+          <span class="text-xl">Search</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-2 cursor-pointer hover:text-[#8C735B]">
-          <Message class="h-6" />
-          <span>Message</span>
+        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+          <Message class="h-7" />
+          <span class="text-xl">Message</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-2 cursor-pointer hover:text-[#8C735B]">
-          <Write class="h-6" />
-          <span>Create</span>
+        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+          <Write class="h-7" />
+          <span class="text-xl">Create</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-2 cursor-pointer hover:text-[#8C735B]">
-          <Profile class="w-6" />
-          <span>Profile</span>
+        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+          <Profile class="w-7" />
+          <span class="text-xl">Profile</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-2 cursor-pointer hover:text-[#8C735B]">
-          <Settings class="h-6" />
-          <span>Settings</span>
+        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+          <Settings class="h-7" />
+          <span class="text-xl">Settings</span>
         </li>
       </router-link>
     </ul>

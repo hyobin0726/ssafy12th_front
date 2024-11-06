@@ -4,15 +4,15 @@
       :slidesPerView="1"
       :loop="true"
       :pagination="paginationOptions"
-      :Navigation="{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }"
+      :navigation="imageUrls.length > 1 ? navigationOptions : false"
       :modules="modules"
       class="w-full max-w-lg mb-4"
     >
       <swiper-slide v-for="(img, index) in imageUrls" :key="index">
-        <img :src="img" :alt="`이미지 ${index + 1}`" class="h-[50vh] w-[50vh] max-w-full object-cover" />
+        <img :src="img" :alt="`이미지 ${index + 1}`" class="object-cover h-[650px] w-full" />
       </swiper-slide>
-      <div class="swiper-button-next text-[#DAB692]"></div>
-      <div class="swiper-button-prev text-[#DAB692]"></div>
+      <div v-if="imageUrls.length > 1" class="swiper-button-next text-[#DAB692]"></div>
+      <div v-if="imageUrls.length > 1" class="swiper-button-prev text-[#DAB692]"></div>
     </swiper>
   </section>
 </template>
@@ -32,8 +32,9 @@ export default defineComponent({
     const paginationOptions: any = {
       clickable: true,
     }
+    const navigationOptions: any = { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }
 
-    return { modules, paginationOptions }
+    return { modules, paginationOptions, navigationOptions }
   },
   props: {
     imageUrls: {

@@ -20,7 +20,7 @@ export default defineComponent({
       {
         review_id: 1,
         content: '정말 좋아요!',
-        point: 5,
+        point: 3.5,
         latitude: 37.5665,
         longitude: 126.978,
         created_at: new Date('2024-10-31T12:34:56'),
@@ -42,7 +42,7 @@ export default defineComponent({
       {
         review_id: 2,
         content: '가격 대비 만족합니다.',
-        point: 4,
+        point: 4.5,
         latitude: 37.567,
         longitude: 126.979,
         created_at: new Date('2024-10-31T12:34:56'),

@@ -1,43 +1,15 @@
 <template>
-  <section class="p-5 flex flex-col items-center border-[1px]">
-    <div class="flex items-center w-full mb-4 justify-between">
-      <div class="flex">
-        <img :src="review.member.profile_url" alt="Profile" class="w-12 h-12 rounded-full mr-2" />
-        <div class="flex flex-col">
-          <span>{{ review.member.login_id }}</span>
-          <p>{{ formattedDate }}</p>
-        </div>
-      </div>
-      <More class="w-6 h-6" />
-    </div>
+  <section class="p-6 flex flex-col items-center border-[1px]">
+    <div class="flex items-center w-full mb-4 justify-between"><ReviewProfile :review="review" /></div>
 
-    <div class="p-2 flex justify-center mb-4">
+    <div class="p-2 flex justify-center mb-4 w-full">
       <ReviewImage :imageUrls="review.image_url" />
     </div>
 
     <div class="w-full flex mb-4 justify-between items-center">
-      <div class="flex items-center space-x-4">
-        <div class="flex items-center space-x-1">
-          <NonHeart class="w-6 h-6" />
-          <span>{{ review.like_count }} 개</span>
-        </div>
-        <div class="flex items-center space-x-1">
-          <Chat class="w-6 h-6" />
-          <span>{{ review.comment_count }} 개</span>
-        </div>
-      </div>
-      <Bookmark class="w-6 h-6" />
+      <ReviewLikeAndComment :review="review" />
     </div>
-
-    <div class="flex w-full items-center mb-4">
-      <Location class="h-6 mr-2" />
-      <h2 class="mr-2">{{ review.title }}</h2>
-      <span>별점: {{ review.point }}</span>
-    </div>
-
-    <div class="w-full mb-4">
-      <p>{{ review.content }}</p>
-    </div>
+    <ReviewContents :review="review" />
   </section>
 </template>
 
@@ -45,15 +17,12 @@
 import { defineComponent, computed } from 'vue'
 import type { PropType } from 'vue'
 import type { Review } from '@/types/Review'
-import NonHeart from '@/assets/Review/NonHeart.svg'
-import More from '@/assets/Review/More.svg'
-import Chat from '@/assets/Review/Chat.svg'
-import Bookmark from '@/assets/Review/Bookmark.svg'
-import Location from '@/assets/Review/Location.svg'
 import ReviewImage from '@/components/Review/ReviewImage.vue'
-
+import ReviewProfile from './ReviewProfile.vue'
+import ReviewLikeAndComment from './ReviewLikeAndComment.vue'
+import ReviewContents from './ReviewContents.vue'
 export default defineComponent({
-  components: { NonHeart, More, Chat, Bookmark, Location, ReviewImage },
+  components: { ReviewImage, ReviewProfile, ReviewLikeAndComment, ReviewContents },
   props: {
     review: {
       type: Object as PropType<Review>,
