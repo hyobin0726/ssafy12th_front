@@ -4,7 +4,6 @@ import Test from '../views/Test.vue'
 import Login from '../views/Account/Login.vue'
 import SignUp from '../views/Account/SignUp.vue'
 import ReviewList from '../views/Review/ReviewList.vue'
-
 const routes = [
   {
     path: '/',

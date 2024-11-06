@@ -3,39 +3,40 @@
     <div>
       <Logo class="h-28" />
     </div>
-    <ul class="flex flex-col space-y-6 overflow-y-auto ml-3">
+    <ul class="flex flex-col space-y-0 overflow-y-auto ml-3">
       <router-link to="/">
-        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]">
           <Home class="h-7" />
           <span class="text-xl">Home</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]">
           <Search class="h-7" />
           <span class="text-xl">Search</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]">
           <Message class="h-7" />
           <span class="text-xl">Message</span>
         </li>
       </router-link>
-      <router-link to="/">
-        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+      <div>
+        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]" @click="isModalOpen = true">
           <Write class="h-7" />
           <span class="text-xl">Create</span>
         </li>
-      </router-link>
+      </div>
+      <ReviewWrite :isVisible="isModalOpen" @close="isModalOpen = false" />
       <router-link to="/">
-        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]">
           <Profile class="w-7" />
           <span class="text-xl">Profile</span>
         </li>
       </router-link>
       <router-link to="/">
-        <li class="flex items-center space-x-3 cursor-pointer hover:text-[#8C735B]">
+        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]">
           <Settings class="h-7" />
           <span class="text-xl">Settings</span>
         </li>
@@ -45,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import Logo from '@/assets/logo.svg'
 import Home from '@/assets/Nav/home.svg'
 import Search from '@/assets/Nav/search.svg'
@@ -53,6 +54,7 @@ import Message from '@/assets/Nav/message.svg'
 import Write from '@/assets/Nav/Write.svg'
 import Profile from '@/assets/Nav/Profile.svg'
 import Settings from '@/assets/Nav/settings.svg'
+import ReviewWrite from '../Review/ReviewWrite.vue'
 
 export default defineComponent({
   components: {
@@ -63,6 +65,11 @@ export default defineComponent({
     Write,
     Profile,
     Settings,
+    ReviewWrite,
+  },
+  setup() {
+    const isModalOpen = ref(false)
+    return { isModalOpen }
   },
 })
 </script>
