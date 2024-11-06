@@ -55,7 +55,6 @@
               type="button"
               @click="sendEmailVerification"
               class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
-              :disabled="isTimerRunning"
             >
               Verify Email
             </button>
@@ -165,7 +164,7 @@ export default defineComponent({
     const isTimerRunning = ref(false)
     const minutes = ref(3)
     const seconds = ref(0)
-    let timer: NodeJS.Timeout
+    let timer: ReturnType<typeof setInterval> | undefined
 
     const checkIdAvailability = () => {
       isIdChecked.value = true
@@ -174,26 +173,23 @@ export default defineComponent({
     }
 
     const startTimer = () => {
-      // 기존 타이머가 실행 중이면 중지
+      // 기존 타이머 중지 및 초기화
       if (timer) {
         clearInterval(timer)
         timer = undefined
       }
 
-      console.log('Timer started') // 타이머 시작 여부 확인
-
-      // 타이머 초기화
+      // 새로운 타이머 시작
       minutes.value = 3
       seconds.value = 0
       isTimerRunning.value = true
 
-      // 새로운 타이머 시작
       timer = setInterval(() => {
         if (seconds.value === 0) {
           if (minutes.value === 0) {
             clearInterval(timer)
             timer = undefined
-            isTimerRunning.value = false
+            isTimerRunning.value = false // 타이머 종료 시 버튼 활성화
           } else {
             minutes.value -= 1
             seconds.value = 59
@@ -205,15 +201,8 @@ export default defineComponent({
     }
 
     const sendEmailVerification = () => {
-      // 버튼 클릭 시 바로 타이머 시작 가능하도록 설정
-      if (isTimerRunning.value) {
-        clearInterval(timer)
-        timer = undefined
-        isTimerRunning.value = false
-      }
-
-      console.log('Sending email verification to:', email.value)
-      startTimer() // 버튼을 누를 때마다 타이머가 리셋되며 새로 시작
+      console.log('sendEmailVerification 실행, isTimerRunning:', isTimerRunning.value)
+      startTimer() // 타이머 리셋 및 시작
     }
 
     const verifyCode = () => {
