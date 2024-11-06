@@ -1,20 +1,18 @@
 <template>
   <section>
     <swiper
-      :pagination="{ clickable: true }"
-      :navigation="{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }"
+      :slidesPerView="1"
+      :loop="true"
+      :pagination="paginationOptions"
+      :Navigation="{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }"
+      :modules="modules"
       class="w-full max-w-lg mb-4"
     >
       <swiper-slide v-for="(img, index) in imageUrls" :key="index">
         <img :src="img" :alt="`이미지 ${index + 1}`" class="h-[50vh] w-[50vh] max-w-full object-cover" />
       </swiper-slide>
-      <!-- 커스텀 네비게이션 버튼 -->
-      <div
-        class="swiper-button-next text-orange-500 text-3xl absolute right-4 top-1/2 transform -translate-y-1/2 hover:text-orange-400 cursor-pointer"
-      ></div>
-      <div
-        class="swiper-button-prev text-orange-500 text-3xl absolute left-4 top-1/2 transform -translate-y-1/2 hover:text-orange-400 cursor-pointer"
-      ></div>
+      <div class="swiper-button-next text-[#DAB692]"></div>
+      <div class="swiper-button-prev text-[#DAB692]"></div>
     </swiper>
   </section>
 </template>
@@ -25,9 +23,18 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
+import { Pagination } from 'swiper/modules'
 
 export default defineComponent({
   components: { Swiper, SwiperSlide },
+  setup() {
+    const modules = [Pagination]
+    const paginationOptions: any = {
+      clickable: true,
+    }
+
+    return { modules, paginationOptions }
+  },
   props: {
     imageUrls: {
       type: Array as PropType<string[]>,
