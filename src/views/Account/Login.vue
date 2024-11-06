@@ -55,6 +55,7 @@
 <script lang="ts">
 import Logo from '@/assets/logo.svg'
 import { defineComponent, ref } from 'vue'
+import axios from 'axios'
 
 export default defineComponent({
   components: {
@@ -65,9 +66,27 @@ export default defineComponent({
     const id = ref('')
     const password = ref('')
 
-    const handleSignIn = () => {
+    const handleSignIn = async () => {
       console.log('Signing in with:', id.value, password.value)
       // 로그인 처리 로직을 여기에 추가하세요 (예: API 호출)
+
+      try {
+        const response = await axios.post(
+          'http://localhost:8080/api/v1/auth/login',
+          {
+            loginId: id.value,
+            password: password.value,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        console.log('로그인 성공:', response.data)
+      } catch (error) {
+        console.error('로그인 실패:', error)
+      }
     }
 
     return {
