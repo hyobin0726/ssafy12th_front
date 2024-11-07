@@ -34,8 +34,8 @@ export default defineComponent({
         liked: false,
         comment_count: 3,
         member: {
-          login_id: 'hong',
-          name: '홍길동',
+          login_id: 'developHeo515',
+          name: '허준수',
           profile_url: 'https://i.pinimg.com/736x/03/57/fe/0357fe68523f7c5d76ea5c6fff3e24de.jpg',
         },
       },
@@ -53,8 +53,8 @@ export default defineComponent({
         liked: true,
         comment_count: 300,
         member: {
-          login_id: 'park',
-          name: '이순신',
+          login_id: 'hyobin',
+          name: '효빈',
           profile_url: 'https://i.pinimg.com/736x/03/57/fe/0357fe68523f7c5d76ea5c6fff3e24de.jpg',
         },
       },
