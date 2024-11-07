@@ -28,8 +28,8 @@
           <div class="flex">
             <input
               type="text"
-              id="id"
-              v-model="id"
+              id="loginId"
+              v-model="loginId"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -44,7 +44,7 @@
           <p v-if="isIdChecked" :class="isIdAvailable ? 'text-green-500' : 'text-red-500'">
             {{ idMessage }}
           </p>
-          <p v-if="id && !isIdValid" class="text-red-500 text-sm mt-1">
+          <p v-if="loginId && !isIdValid" class="text-red-500 text-sm mt-1">
             아이디는 8~20자, 숫자와 영문만 포함 가능, 특수문자 금지입니다.
           </p>
         </div>
@@ -179,6 +179,7 @@
 <script lang="ts">
 import Logo from '@/assets/logo.svg'
 import { defineComponent, ref, computed } from 'vue'
+import axios from 'axios'
 
 export default defineComponent({
   components: {
@@ -188,7 +189,7 @@ export default defineComponent({
   setup() {
     // Form field refs
     const name = ref('')
-    const id = ref('')
+    const loginId = ref('')
     const email = ref('')
     const password = ref('')
     const passwordConfirm = ref('')
@@ -209,7 +210,7 @@ export default defineComponent({
 
     // Validation Functions
     const isNameValid = computed<boolean>(() => /^[a-zA-Z가-힣]{1,255}$/.test(name.value))
-    const isIdValid = computed<boolean>(() => /^[a-zA-Z0-9]{8,20}$/.test(id.value))
+    const isIdValid = computed<boolean>(() => /^[a-zA-Z0-9]{8,20}$/.test(loginId.value))
     const isEmailValid = computed<boolean>(() => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.value))
     const isCodeValid = ref(false)
     const isPasswordValid = computed<boolean>(() =>
@@ -231,7 +232,7 @@ export default defineComponent({
 
     const checkIdAvailability = () => {
       isIdChecked.value = true
-      isIdAvailable.value = id.value !== 'existingId'
+      isIdAvailable.value = loginId.value !== 'existingId'
       idMessage.value = isIdAvailable.value ? 'ID is available' : 'ID is already taken'
     }
 
@@ -284,18 +285,40 @@ export default defineComponent({
       }
     }
 
-    const handleSignUp = () => {
+    const handleSignUp = async () => {
       alert('회원가입이 완료되었습니다.')
-
       // 비밀번호와 확인이 일치하면 회원가입 데이터 출력
       console.log('Signing up with:', {
         name: name.value,
-        id: id.value,
+        loginId: loginId.value,
         email: email.value,
         password: password.value,
         phone: phone.value,
         birth: birth.value,
       })
+
+      try {
+        const response = await axios.post(
+          'http://localhost:8080/api/v1/auth/join',
+          {
+            name: name.value,
+            loginId: loginId.value,
+            email: email.value,
+            password: password.value,
+            phone: phone.value,
+            birth: birth.value,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+
+        console.log('회원가입 성공:', response.data)
+      } catch (error) {
+        console.error('회원가입 실패:', error)
+      }
     }
 
     // const handleSignUp = () => {
@@ -318,7 +341,7 @@ export default defineComponent({
 
     return {
       name,
-      id,
+      loginId,
       email,
       password,
       passwordConfirm,
