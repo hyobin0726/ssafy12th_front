@@ -1,12 +1,15 @@
 <template>
   <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-[400px] p-8 bg-white rounded-lg shadow-md">
-      <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Create Your Account</h2>
+      <!-- <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Create Your Account</h2> -->
+      <div class="flex justify-center mb-6">
+        <Logo class="h-28" />
+      </div>
 
       <form @submit.prevent="handleSignUp">
-        <!-- Name Input -->
+        <!-- 이름 입력란 Name Input -->
         <div class="mb-4">
-          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
           <input
             type="text"
             id="name"
@@ -14,11 +17,14 @@
             required
             class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p v-if="name && !isNameValid" class="text-red-500 text-sm mt-1">
+            이름은 한글, 영어만 입력 가능합니다 (최대 255자).
+          </p>
         </div>
 
-        <!-- ID Input with Check Button -->
+        <!-- 아이디 입력란 ID Input with Check Button -->
         <div class="mb-4">
-          <label for="id" class="block text-sm font-medium text-gray-700 mb-1">ID</label>
+          <label for="id" class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
           <div class="flex">
             <input
               type="text"
@@ -32,17 +38,20 @@
               @click="checkIdAvailability"
               class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
             >
-              Check ID
+              아이디 체크
             </button>
           </div>
           <p v-if="isIdChecked" :class="isIdAvailable ? 'text-green-500' : 'text-red-500'">
             {{ idMessage }}
           </p>
+          <p v-if="id && !isIdValid" class="text-red-500 text-sm mt-1">
+            아이디는 8~20자, 숫자와 영문만 포함 가능, 특수문자 금지입니다.
+          </p>
         </div>
 
-        <!-- Email Input with Verification Button -->
+        <!-- 이메일 입력란 Email Input -->
         <div class="mb-4">
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
           <div class="flex">
             <input
               type="email"
@@ -56,14 +65,15 @@
               @click="sendEmailVerification"
               class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
             >
-              Verify Email
+              이메일 인증
             </button>
           </div>
+          <p v-if="email && !isEmailValid" class="text-red-500 text-sm mt-1">유효한 이메일 주소를 입력해주세요.</p>
         </div>
 
-        <!-- Verification Code Input with Timer -->
+        <!-- 이메일 인증번호 Verification Code Input with Timer -->
         <div v-if="isTimerRunning" class="mb-4">
-          <label for="verificationCode" class="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
+          <label for="verificationCode" class="block text-sm font-medium text-gray-700 mb-1">인증번호</label>
           <div class="flex items-center">
             <input
               type="text"
@@ -71,7 +81,7 @@
               v-model="verificationCode"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter code"
+              placeholder="인증번호 입력"
             />
             <span class="px-2 text-sm text-gray-500">{{ minutes }}:{{ seconds.toString().padStart(2, '0') }}</span>
             <button
@@ -79,15 +89,19 @@
               @click="verifyCode"
               class="px-4 py-2 bg-green-500 text-white rounded-r hover:bg-green-600"
             >
-              Confirm
+              확인
             </button>
           </div>
+          <!-- 인증번호 유효성 검사 메시지 -->
+          <p v-if="verificationCode && !isCodeValid" class="text-red-500 text-sm mt-1">
+            유효한 인증번호를 입력해주세요.
+          </p>
           <p class="text-gray-500 text-xs mt-2">Please enter the verification code sent to your email.</p>
         </div>
 
-        <!-- Password Input -->
+        <!-- 비밀번호 입력란 Password Input -->
         <div class="mb-4">
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
           <input
             type="password"
             id="password"
@@ -95,11 +109,29 @@
             required
             class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p v-if="password && !isPasswordValid" class="text-red-500 text-sm mt-1">
+            비밀번호는 8~20자, 숫자, 영문, 특수문자가 모두 포함되어야 합니다.
+          </p>
         </div>
 
-        <!-- Phone Input -->
+        <!-- 비밀번호 확인란 Password Confirmation Input -->
         <div class="mb-4">
-          <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <label for="passwordConfirm" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
+          <input
+            type="password"
+            id="passwordConfirm"
+            v-model="passwordConfirm"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <p v-if="passwordConfirm && password !== passwordConfirm" class="text-red-500 text-sm mt-1">
+            비밀번호가 일치하지 않습니다.
+          </p>
+        </div>
+
+        <!-- 휴대전화 입력란 Phone Input -->
+        <div class="mb-4">
+          <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대전화</label>
           <input
             type="tel"
             id="phone"
@@ -107,11 +139,14 @@
             required
             class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <p v-if="phone && !isPhoneValid" class="text-red-500 text-sm mt-1">
+            휴대전화는 10~11자리 숫자만 입력 가능합니다 (010-0000-0000 형식).
+          </p>
         </div>
 
-        <!-- Birth Input -->
+        <!-- 생년월일 입력란 Birth Input -->
         <div class="mb-6">
-          <label for="birth" class="block text-sm font-medium text-gray-700 mb-1">Birth</label>
+          <label for="birth" class="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
           <input
             type="date"
             id="birth"
@@ -125,25 +160,30 @@
         <button
           type="submit"
           class="w-full py-2 bg-[#C49E7B] text-white rounded hover:bg-[#ddb691] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          :disabled="!isFormValid"
         >
-          Sign Up
+          회원가입
         </button>
 
-        <button
+        <!-- <button
           type="button"
           class="w-full py-2 mt-4 border border-[#F9E9DA] text-[#dda677] rounded flex items-center justify-center"
         >
           Connect with <span class="ml-2 font-semibold">Facebook</span>
-        </button>
+        </button> -->
       </form>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import Logo from '@/assets/logo.svg'
+import { defineComponent, ref, computed } from 'vue'
 
 export default defineComponent({
+  components: {
+    Logo,
+  },
   name: 'Signup',
   setup() {
     // Form field refs
@@ -151,6 +191,7 @@ export default defineComponent({
     const id = ref('')
     const email = ref('')
     const password = ref('')
+    const passwordConfirm = ref('')
     const phone = ref('')
     const birth = ref('')
     const verificationCode = ref('')
@@ -166,6 +207,28 @@ export default defineComponent({
     const seconds = ref(0)
     let timer: ReturnType<typeof setInterval> | undefined
 
+    // Validation Functions
+    const isNameValid = computed<boolean>(() => /^[a-zA-Z가-힣]{1,255}$/.test(name.value))
+    const isIdValid = computed<boolean>(() => /^[a-zA-Z0-9]{8,20}$/.test(id.value))
+    const isEmailValid = computed<boolean>(() => /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.value))
+    const isCodeValid = ref(false)
+    const isPasswordValid = computed<boolean>(() =>
+      /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,20}$/.test(password.value),
+    )
+    const isPhoneValid = computed<boolean>(() => /^010-\d{4}-\d{4}$/.test(phone.value))
+
+    // Form Validation Check
+    const isFormValid = computed<boolean>(
+      () =>
+        isNameValid.value &&
+        isIdValid.value &&
+        isEmailValid.value &&
+        isPasswordValid.value &&
+        isCodeValid.value &&
+        password.value === passwordConfirm.value &&
+        isPhoneValid.value,
+    )
+
     const checkIdAvailability = () => {
       isIdChecked.value = true
       isIdAvailable.value = id.value !== 'existingId'
@@ -173,7 +236,6 @@ export default defineComponent({
     }
 
     const startTimer = () => {
-      // 기존 타이머 중지 및 초기화
       if (timer) {
         clearInterval(timer)
         timer = undefined
@@ -200,9 +262,14 @@ export default defineComponent({
       }, 1000)
     }
 
+    // const sendEmailVerification = () => {
+    //   console.log('sendEmailVerification 실행, isTimerRunning:', isTimerRunning.value)
+    //   startTimer() // 타이머 리셋 및 시작
+    // }
+
     const sendEmailVerification = () => {
-      console.log('sendEmailVerification 실행, isTimerRunning:', isTimerRunning.value)
-      startTimer() // 타이머 리셋 및 시작
+      if (!isEmailValid.value) return
+      startTimer()
     }
 
     const verifyCode = () => {
@@ -210,12 +277,17 @@ export default defineComponent({
         alert('Verification successful!')
         clearInterval(timer)
         isTimerRunning.value = false
+        isCodeValid.value = true // 인증번호가 맞을 경우 유효성 상태 업데이트
       } else {
         alert('Invalid verification code. Please try again.')
+        isCodeValid.value = false // 인증번호가 틀릴 경우 유효성 상태 업데이트
       }
     }
 
     const handleSignUp = () => {
+      alert('회원가입이 완료되었습니다.')
+
+      // 비밀번호와 확인이 일치하면 회원가입 데이터 출력
       console.log('Signing up with:', {
         name: name.value,
         id: id.value,
@@ -226,23 +298,50 @@ export default defineComponent({
       })
     }
 
+    // const handleSignUp = () => {
+    //   // 비밀번호 확인
+    //   if (password.value !== passwordConfirm.value) {
+    //     alert('비밀번호가 일치하지 않습니다.')
+    //     return
+    //   }
+
+    //   // 비밀번호와 확인이 일치하면 회원가입 데이터 출력
+    //   console.log('Signing up with:', {
+    //     name: name.value,
+    //     id: id.value,
+    //     email: email.value,
+    //     password: password.value,
+    //     phone: phone.value,
+    //     birth: birth.value,
+    //   })
+    // }
+
     return {
       name,
       id,
       email,
       password,
+      passwordConfirm,
       phone,
       birth,
       verificationCode,
-      handleSignUp,
-      checkIdAvailability,
-      isIdAvailable,
       isIdChecked,
+      isIdAvailable,
       idMessage,
-      sendEmailVerification,
       isTimerRunning,
       minutes,
       seconds,
+
+      isNameValid,
+      isIdValid,
+      isEmailValid,
+      isPasswordValid,
+      isCodeValid,
+      isPhoneValid,
+      isFormValid,
+      checkIdAvailability,
+      sendEmailVerification,
+      handleSignUp,
       verifyCode,
     }
   },
