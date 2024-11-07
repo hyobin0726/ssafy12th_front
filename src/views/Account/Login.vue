@@ -56,6 +56,7 @@
 import Logo from '@/assets/logo.svg'
 import { defineComponent, ref } from 'vue'
 import axios from 'axios'
+import { useCookies } from 'vue3-cookies'
 
 export default defineComponent({
   components: {
@@ -65,6 +66,7 @@ export default defineComponent({
   setup() {
     const id = ref('')
     const password = ref('')
+    const { cookies } = useCookies()
 
     const handleSignIn = async () => {
       console.log('Signing in with:', id.value, password.value)
@@ -83,7 +85,17 @@ export default defineComponent({
             },
           },
         )
+
         console.log('로그인 성공:', response.data)
+        // 받은 엑세스 토큰과 리프레시 토큰
+        const { accessToken, refreshToken } = response.data
+
+        // 엑세스 토큰을 세션 스토리지에 저장
+        sessionStorage.setItem('accessToken', accessToken)
+
+        // refreshToken을 쿠키에 저장 (7일 동안 저장)
+        cookies.set('refreshToken', refreshToken, '7d')
+        // console.log('refreshToken이 쿠키에 저장됨:', cookies.get('refreshToken'))
       } catch (error) {
         console.error('로그인 실패:', error)
       }
@@ -93,6 +105,7 @@ export default defineComponent({
       id,
       password,
       handleSignIn,
+      cookies,
     }
   },
 })
