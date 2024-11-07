@@ -3,10 +3,15 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "module": "esnext", // Enables `import.meta` and dynamic imports
+    "target": "esnext", // Compiles to the latest ECMAScript version
+    "moduleResolution": "node", // Resolves modules similar to Node.js
+    "strict": true, // Optional: enables strict type-checking options
+    "jsx": "preserve", // For Vue projects using JSX (optional)
+    "esModuleInterop": true // Enables compatibility with CommonJS modules
   },
-  "files": [],
-  "include": ["src/**/*.ts", "src/**/*.vue", "src/types"],
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/types", "env.d.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"
