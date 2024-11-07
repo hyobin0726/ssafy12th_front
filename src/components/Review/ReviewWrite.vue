@@ -1,76 +1,127 @@
 <template>
   <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-5 rounded-lg shadow-lg w-1/2 h-3/4 flex flex-col">
+    <div class="bg-white p-5 rounded-lg shadow-lg w-3/4 h-3/4 flex flex-col">
       <div class="flex justify-between items-center mb-4">
         <Back @click="closeModal" class="w-6 h-6" />
         <span class="text-xl">새 리뷰 작성</span>
-        <button class="text-xl" @click="submitImage">다음</button>
+        <button class="text-xl" @click="submitReview">업로드</button>
       </div>
+      <div class="flex h-full">
+        <div class="flex justify-center items-center w-1/2">
+          <label
+            v-if="previews.length === 0"
+            for="inputFile"
+            class="bg-[#A8B087] rounded-md px-4 py-2 font-semibold text-white"
+          >
+            사진 추가
+          </label>
+          <Swiper
+            v-if="previews.length > 0"
+            class="relative w-full h-full overflow-hidden rounded-md"
+            :slidesPerView="1"
+            :loop="true"
+            :navigation="previews.length > 1 ? navigationOptions : false"
+          >
+            <SwiperSlide v-for="(preview, index) in previews" :key="index">
+              <img :src="preview" alt="미리보기 이미지" class="absolute inset-0 w-full h-full object-cover" />
+              <button
+                class="absolute top-1 right-1 bg-red-400 text-white w-6 h-6 rounded-full flex justify-center items-center"
+                @click="removeImage(index)"
+              >
+                x
+              </button>
+              <label
+                for="inputFile"
+                class="absolute bottom-2 right-2 font-semibold p-4 rounded-2xl bg-[#A8B087] text-white"
+              >
+                사진 추가
+              </label>
+            </SwiperSlide>
+            <div v-if="previews.length > 1" class="swiper-button-next text-[#DAB692]"></div>
+            <div v-if="previews.length > 1" class="swiper-button-prev text-[#DAB692]"></div>
+          </Swiper>
 
-      <div class="flex justify-center items-center h-screen">
-        <label
-          v-if="previews.length === 0"
-          for="inputFile"
-          class="bg-[#A8B087] rounded-md px-4 py-2 font-semibold text-white"
-        >
-          사진 추가
-        </label>
-        <Swiper
-          v-if="previews.length > 0"
-          class="relative w-full h-full overflow-hidden rounded-md"
-          :slidesPerView="1"
-          :loop="true"
-          :navigation="previews.length > 1 ? navigationOptions : false"
-        >
-          <SwiperSlide v-for="(preview, index) in previews" :key="index">
-            <img :src="preview" alt="미리보기 이미지" class="absolute inset-0 w-full h-full object-cover" />
-            <button
-              class="absolute top-1 right-1 bg-red-500 text-white w-7 h-7 rounded-full flex justify-center items-center"
-              @click="removeImage(index)"
-            >
-              x
-            </button>
-            <label
-              for="inputFile"
-              class="absolute bottom-2 right-2 font-semibold p-4 rounded-2xl bg-[#A8B087] text-white"
-            >
-              사진 추가
-            </label>
-          </SwiperSlide>
-          <div v-if="previews.length > 1" class="swiper-button-next text-[#DAB692]"></div>
-          <div v-if="previews.length > 1" class="swiper-button-prev text-[#DAB692]"></div>
-        </Swiper>
+          <input
+            type="file"
+            id="inputFile"
+            ref="fileInput"
+            style="display: none"
+            multiple
+            @change="handleFileUpload"
+            accept="image/*"
+          />
+        </div>
+        <div class="w-1/2 p-5 space-y-4">
+          <div class="flex items-center space-x-2">
+            <span v-for="n in 5" :key="n" @click="setRating(n)" class="cursor-pointer">
+              <component :is="n <= form.rating ? 'FullStar' : 'EmptyStar'" class="w-6 h-6" />
+            </span>
+          </div>
+          <p v-if="formErrors.rating" class="text-red-500 text-sm">{{ formErrors.rating }}</p>
+
+          <textarea
+            placeholder="해당 장소의 리뷰를 작성해주세요."
+            class="w-full h-52 p-3 border rounded-md outline-none resize-none focus:border-[#A8B087]"
+            maxlength="1000"
+            v-model="form.content"
+          />
+
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="(hashTag, index) in form.hashTags"
+                :key="index"
+                class="bg-[#A8B087] text-white px-3 py-1 rounded-full flex items-center space-x-2"
+              >
+                <span>#{{ hashTag }}</span>
+                <button @click="removeHashTag(index)" class="text-white text-xs">x</button>
+              </span>
+            </div>
+            <input
+              type="text"
+              placeholder="#해시태그를 등록해보세요."
+              v-model="inputHashTag"
+              @keyup.enter="addHashTag"
+              @keyup.space="addHashTag"
+              class="w-full h-12 p-3 border rounded-md outline-none focus:border-[#A8B087]"
+              :disabled="form.hashTags.length >= 5"
+            />
+          </div>
+          <input
+            type="text"
+            placeholder="위치 추가"
+            class="w-full h-12 p-3 border rounded-md outline-none focus:border-[#A8B087]"
+          />
+          <select class="w-full p-3 border rounded-md outline-none focus:border-[#A8B087]">
+            <option value="">공개범위</option>
+            <option value="public">전체공개</option>
+            <option value="private">비공개</option>
+          </select>
+        </div>
       </div>
-
-      <input
-        type="file"
-        id="inputFile"
-        ref="fileInput"
-        style="display: none"
-        multiple
-        @change="handleFileUpload"
-        accept="image/*"
-      />
     </div>
-    <ReviewWriteContent :isOpen="isNextModalOpen" :imageUrls="uploadedUrls" @close="isNextModalOpen = false" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import axios from 'axios'
 import Back from '@/assets/Nav/Back.svg'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import ReveiewWriteContent from './ReveiewWriteContent.vue'
+import FullStar from '@/assets/Review/FullStar.svg'
+import EmptyStar from '@/assets/Review/EmptyStar.svg'
+
 export default defineComponent({
   name: 'ImageUploader',
   components: {
     Back,
     Swiper,
     SwiperSlide,
-    ReveiewWriteContent,
+    FullStar,
+    EmptyStar,
   },
   props: {
     isVisible: {
@@ -81,11 +132,51 @@ export default defineComponent({
   emits: ['close', 'submitImages'],
 
   setup(props, { emit }) {
-    const isNextModalOpen = ref(false)
     const navigationOptions: any = { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }
     const fileInput = ref<HTMLInputElement | null>(null)
     const previews = ref<string[]>([])
     const uploadedUrls = ref<string[]>([])
+
+    // Form state
+    const form = ref({
+      content: '',
+      hashTags: [] as string[],
+      location: '',
+      visibility: 'public',
+      rating: 0,
+    })
+
+    const formErrors = ref({
+      rating: '',
+      image: '',
+    })
+
+    const inputHashTag = ref('')
+    const validateForm = () => {
+      formErrors.value.rating = form.value.rating > 0 ? '' : '별점을 선택해주세요.'
+      formErrors.value.image = previews.value.length > 0 ? '' : '한 장 이상 이미지를 추가해 주세요.'
+      // console.log(formErrors.value.image)
+      if (previews.value.length === 0) {
+        alert(formErrors.value.image)
+      }
+      return formErrors.value.rating === '' && formErrors.value.image === ''
+    }
+
+    const setRating = (value: number) => {
+      form.value.rating = value
+    }
+    const addHashTag = () => {
+      const tag = inputHashTag.value.trim()
+      if (tag && !form.value.hashTags.includes(tag) && form.value.hashTags.length < 5) {
+        form.value.hashTags.push(tag)
+      }
+      inputHashTag.value = ''
+    }
+
+    const removeHashTag = (index: number) => {
+      form.value.hashTags.splice(index, 1)
+    }
+
     // S3 클라이언트 설정
     const s3Client = new S3Client({
       region: import.meta.env.VITE_AWS_S3_REGION,
@@ -135,20 +226,52 @@ export default defineComponent({
         }
       }
     }
-
+    // console.log(
+    //   'uploadedUrls:',
+    //   uploadedUrls.value.map((url) => url),
+    // )
     const removeImage = (index: number) => {
       previews.value.splice(index, 1)
       uploadedUrls.value.splice(index, 1)
     }
-    const submitImage = () => {
-      emit('submitImages', uploadedUrls.value)
-      isNextModalOpen.value = true
-      console.log('이미지 업로드 완료:', uploadedUrls.value)
+
+    const submitReview = async () => {
+      if (!validateForm()) return
+
+      const reviewData = {
+        userId: 1, //임시값
+        imageUrls: uploadedUrls.value.map((url) => url),
+        point: form.value.rating,
+        content: form.value.content,
+        // hashTags: form.value.hashTags,
+        visibility: 0, //임시값
+      }
+      console.log('리뷰 데이터:', reviewData)
+
+      try {
+        await axios.post('http://localhost:8080/api/v1/reviews/write', reviewData, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        console.log('리뷰가 성공적으로 업로드되었습니다.')
+        closeModal()
+      } catch (error) {
+        console.error('리뷰 업로드 실패:', error)
+      }
     }
+
     const closeModal = () => {
       emit('close')
       previews.value = []
       uploadedUrls.value = []
+      form.value = {
+        content: '',
+        hashTags: [],
+        location: '',
+        visibility: 'public',
+        rating: 0,
+      }
     }
 
     return {
@@ -158,14 +281,16 @@ export default defineComponent({
       previews,
       navigationOptions,
       removeImage,
-      submitImage,
-      isNextModalOpen,
       uploadedUrls,
+      form,
+      formErrors,
+      setRating,
+      inputHashTag,
+      addHashTag,
+      removeHashTag,
+      validateForm,
+      submitReview,
     }
   },
 })
 </script>
-
-<style scoped>
-/* 필요한 추가 스타일 */
-</style>
