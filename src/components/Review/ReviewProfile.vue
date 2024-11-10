@@ -1,6 +1,6 @@
 <template>
   <div class="flex">
-    <img :src="review.member.profile_url" alt="Profile" class="w-12 h-12 rounded-full mr-2" />
+    <!-- <img :src="review.member.profile_url" alt="Profile" class="w-12 h-12 rounded-full mr-2" /> -->
     <div class="flex flex-col">
       <span class="font-bold">{{ review.member.login_id }}</span>
       <p>{{ formattedDate }}</p>

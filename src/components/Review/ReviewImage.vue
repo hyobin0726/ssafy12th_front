@@ -9,7 +9,7 @@
       class="w-full max-w-lg mb-4"
     >
       <swiper-slide v-for="(img, index) in imageUrls" :key="index">
-        <img :src="img" :alt="`이미지 ${index + 1}`" class="object-cover h-[650px] w-full" />
+        <img :src="img" :alt="`이미지 ${index + 1}`" class="max-h-[80vh] w-full object-cover" />
       </swiper-slide>
       <div v-if="imageUrls.length > 1" class="swiper-button-next text-[#DAB692]"></div>
       <div v-if="imageUrls.length > 1" class="swiper-button-prev text-[#DAB692]"></div>

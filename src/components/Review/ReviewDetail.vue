@@ -6,11 +6,12 @@
         <span class="text-xl">리뷰 자세히 보기</span>
         <div class="text-3xl mr-2" @click="closeModal">x</div>
       </div>
-      <div class="flex h-full p-5">
-        <div class="w-1/2 flex justify-center items-center">
-          <ReviewImage :imageUrls="review.image_url" />
+      <hr />
+      <div class="flex h-full">
+        <div class="w-1/2 p-3">
+          <ReviewImage :imageUrls="review.image_url" class="" />
         </div>
-        <div class="w-1/2 space-y-4">
+        <div class="w-1/2 space-y-4 mt-3">
           <div class="w-full">
             <ReviewContents :review="review" />
           </div>

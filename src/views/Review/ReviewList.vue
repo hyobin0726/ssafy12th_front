@@ -8,57 +8,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
+import axios from 'axios'
 import ReviewItem from '@/components/Review/ReviewItem.vue'
 import Nav from '@/components/common/Nav.vue'
 import type { Review } from '@/types/Review'
-
 export default defineComponent({
   components: { ReviewItem, Nav },
   setup() {
-    const reviews = ref<Review[]>([
-      {
-        review_id: 1,
-        content: '정말 좋아요!',
-        point: 3.5,
-        latitude: 37.5665,
-        longitude: 126.978,
-        created_at: new Date('2024-10-31T12:34:56'),
-        image_url: [
-          'https://i.pinimg.com/564x/95/6a/de/956ade4ba29c2351f66c6c9ea982aaa3.jpg',
-          'https://i.pinimg.com/736x/03/57/fe/0357fe68523f7c5d76ea5c6fff3e24de.jpg',
-        ],
-        order_index: 0,
-        title: '부산역',
-        like_count: 10,
-        liked: false,
-        comment_count: 3,
-        member: {
-          login_id: 'developHeo515',
-          name: '허준수',
-          profile_url: 'https://i.pinimg.com/736x/03/57/fe/0357fe68523f7c5d76ea5c6fff3e24de.jpg',
-        },
-      },
-      {
-        review_id: 2,
-        content: '가격 대비 만족합니다.',
-        point: 4.5,
-        latitude: 37.567,
-        longitude: 126.979,
-        created_at: new Date('2024-10-31T12:34:56'),
-        image_url: ['https://i.pinimg.com/564x/95/6a/de/956ade4ba29c2351f66c6c9ea982aaa3.jpg'],
-        order_index: 0,
-        title: '구미역',
-        like_count: 1000,
-        liked: true,
-        comment_count: 300,
-        member: {
-          login_id: 'hyobin',
-          name: '효빈',
-          profile_url: 'https://i.pinimg.com/736x/03/57/fe/0357fe68523f7c5d76ea5c6fff3e24de.jpg',
-        },
-      },
-    ])
+    const reviews = ref<Review[]>([])
+
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/v1/reviews/list')
+        reviews.value = response.data
+        console.log('리뷰 데이터를 가져왔습니다:', reviews.value)
+      } catch (error) {
+        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
+      }
+    }
+
+    onMounted(() => {
+      fetchReviews()
+    })
 
     return { reviews }
   },
