@@ -1,6 +1,8 @@
 <template>
   <section class="p-6 flex flex-col items-center border-[1px]">
-    <!-- <div class="flex items-center w-full mb-4 justify-between"><ReviewProfile :profile="profile" /></div> -->
+    <div class="flex items-center w-full mb-4 justify-between">
+      <ReviewProfile :review="review" />
+    </div>
 
     <div class="p-2 flex justify-center mb-4 w-full" @click="isModalOpen = true">
       <ReviewImage :imageUrls="review.imageUrls" />
@@ -17,8 +19,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted } from 'vue'
-import axios from 'axios'
+import { defineComponent, ref } from 'vue'
+
 import type { PropType } from 'vue'
 import type { Review } from '@/types/Review'
 import type { Member } from '@/types/Member'
@@ -36,38 +38,9 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const formattedDate = computed(() => {
-      const date = props.review.created_at
-      return (
-        date.toLocaleDateString('ko-KR', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }) +
-        ' ' +
-        date.toLocaleTimeString('ko-KR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      )
-    })
     const isModalOpen = ref(false)
 
-    const profile = ref<Member[]>([])
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/v1/member/${props.review.userId}`)
-        profile.value = response.data
-        console.log('리뷰 데이터를 가져왔습니다:', profile.value)
-      } catch (error) {
-        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
-      }
-    }
-    onMounted(() => {
-      fetchProfile()
-    })
-
-    return { formattedDate, isModalOpen, profile }
+    return { isModalOpen }
   },
 })
 </script>

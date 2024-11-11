@@ -1,8 +1,8 @@
 <template>
   <div class="flex">
-    <!-- <img :src="review.member.profile_url" alt="Profile" class="w-12 h-12 rounded-full mr-2" /> -->
+    <img :src="profileImageUrl" alt="Profile" class="w-12 h-12 rounded-full mr-2" />
     <div class="flex flex-col">
-      <span class="font-bold">{{ review.member.login_id }}</span>
+      <span class="font-bold">{{ profile?.loginId }}</span>
       <p>{{ formattedDate }}</p>
     </div>
   </div>
@@ -11,11 +11,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue'
+import { defineComponent, computed, ref, onMounted } from 'vue'
 import type { PropType } from 'vue'
+import type { Member } from '@/types/Member'
 import type { Review } from '@/types/Review'
 import More from '@/assets/Review/More.svg'
 import ReviewModal from '@/components/Review/ReviewModal.vue'
+import axios from 'axios'
+import ProfileImage from '@/assets/Profile.png'
 export default defineComponent({
   components: { More, ReviewModal },
   props: {
@@ -26,9 +29,10 @@ export default defineComponent({
   },
   setup(props) {
     const isModalOpen = ref(false)
-
+    // console.log(typeof props.review.createdAt)
+    // console.log(props.member.loginId)
     const formattedDate = computed(() => {
-      const date = props.review.created_at
+      const date = new Date(props.review.createdAt)
       return (
         date.toLocaleDateString('ko-KR', {
           year: 'numeric',
@@ -42,8 +46,24 @@ export default defineComponent({
         })
       )
     })
-    // console.log(isModalOpen)
-    return { formattedDate, isModalOpen }
+    const profile = ref<Member>()
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/v1/member/${props.review.userId}`)
+        profile.value = response.data
+        console.log('프로필 데이터를 가져왔습니다:', profile.value)
+      } catch (error) {
+        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
+      }
+    }
+    onMounted(() => {
+      fetchProfile()
+    })
+    const profileImageUrl = computed(() => {
+      return profile.value?.profileUrl || ProfileImage
+    })
+
+    return { formattedDate, isModalOpen, profile, fetchProfile, profileImageUrl, ProfileImage }
   },
 })
 </script>

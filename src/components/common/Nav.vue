@@ -1,7 +1,7 @@
 <template>
   <section class="flex flex-col p-5 h-screen space-y-4 bg-[#C49E7B] bg-opacity-30">
     <div>
-      <Logo class="h-28" />
+      <router-link to="/"> <Logo class="h-28" /></router-link>
     </div>
     <ul class="flex flex-col space-y-0 overflow-y-auto ml-3">
       <router-link to="/">

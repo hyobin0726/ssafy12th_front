@@ -5,5 +5,6 @@ export interface Member {
   email: string
   phone: string
   birth: string
-  profile_url: string
+  oneLiner: string
+  profileUrl: string
 }
