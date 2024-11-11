@@ -23,7 +23,7 @@
         </li>
       </router-link>
       <div>
-        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]" @click="isModalOpen = true">
+        <li class="flex items-center space-x-3 mb-6 cursor-pointer hover:text-[#8C735B]" @click="handleCreateClick">
           <Write class="h-7" />
           <span class="text-xl">Create</span>
         </li>
@@ -55,7 +55,7 @@ import Write from '@/assets/Nav/Write.svg'
 import Profile from '@/assets/Nav/Profile.svg'
 import Settings from '@/assets/Nav/settings.svg'
 import ReviewWrite from '../Review/ReviewWrite.vue'
-
+import { useRouter } from 'vue-router'
 export default defineComponent({
   components: {
     Logo,
@@ -68,8 +68,21 @@ export default defineComponent({
     ReviewWrite,
   },
   setup() {
+    const router = useRouter()
     const isModalOpen = ref(false)
-    return { isModalOpen }
+
+    const handleCreateClick = () => {
+      const token = sessionStorage.getItem('accessToken')
+      if (!token) {
+        alert('로그인 후 이용해주세요.')
+        // console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+        router.push('/login')
+        return
+      }
+      isModalOpen.value = true
+    }
+
+    return { isModalOpen, handleCreateClick }
   },
 })
 </script>

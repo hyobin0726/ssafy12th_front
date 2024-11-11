@@ -6,7 +6,7 @@
       <p>{{ formattedDate }}</p>
     </div>
   </div>
-  <More class="w-8 h-8" @click="isModalOpen = true" />
+  <More class="w-8 h-8" @click="isModalOpen = true" v-if="token" />
   <ReviewModal :isVisible="isModalOpen" @close="isModalOpen = false" :review="review" />
 </template>
 
@@ -28,6 +28,7 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const token = sessionStorage.getItem('accessToken')
     const isModalOpen = ref(false)
     // console.log(typeof props.review.createdAt)
     // console.log(props.member.loginId)
@@ -63,7 +64,7 @@ export default defineComponent({
       return profile.value?.profileUrl || ProfileImage
     })
 
-    return { formattedDate, isModalOpen, profile, fetchProfile, profileImageUrl, ProfileImage }
+    return { formattedDate, isModalOpen, profile, fetchProfile, profileImageUrl, ProfileImage, token }
   },
 })
 </script>

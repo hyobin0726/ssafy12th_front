@@ -30,6 +30,7 @@ export default defineComponent({
       required: true,
     },
   },
+
   emits: ['close', 'post-edit', 'post-delete'],
   setup(props) {
     const fetchDeleteReview = async () => {
@@ -66,6 +67,7 @@ export default defineComponent({
       console.log('게시글 삭제')
       this.fetchDeleteReview()
       this.closeModal()
+      location.reload()
     },
   },
 })

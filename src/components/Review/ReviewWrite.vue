@@ -249,6 +249,7 @@ export default defineComponent({
       const token = sessionStorage.getItem('accessToken')
       if (!token) {
         console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+
         return
       }
       try {
@@ -260,6 +261,7 @@ export default defineComponent({
         })
         console.log('리뷰가 성공적으로 업로드되었습니다.')
         closeModal()
+        location.reload()
       } catch (error) {
         console.error('리뷰 업로드 실패:', error)
       }

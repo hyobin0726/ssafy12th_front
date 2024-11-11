@@ -1,7 +1,9 @@
 <template>
   <div class="flex w-full items-center mb-4">
-    <Location class="h-6 mr-2" />
-    <h2 class="mr-2 text-lg font-semibold mb-1">{{ review.title }}</h2>
+    <div v-if="review.title">
+      <Location class="h-6 mr-2" />
+      <h2 class="mr-2 text-lg font-semibold mb-1">{{ review.title }}</h2>
+    </div>
     <span v-for="(star, index) in stars" :key="index" class="w-6 h-6">
       <component :is="star" />
     </span>
