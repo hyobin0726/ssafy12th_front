@@ -57,7 +57,7 @@ import Logo from '@/assets/logo.svg'
 import { defineComponent, ref } from 'vue'
 import axios from 'axios'
 import { useCookies } from 'vue3-cookies'
-
+import { useRouter } from 'vue-router'
 export default defineComponent({
   components: {
     Logo,
@@ -67,7 +67,7 @@ export default defineComponent({
     const id = ref('')
     const password = ref('')
     const { cookies } = useCookies()
-
+    const router = useRouter()
     const handleSignIn = async () => {
       console.log('Signing in with:', id.value, password.value)
       // 로그인 처리 로직을 여기에 추가하세요 (예: API 호출)
@@ -95,6 +95,7 @@ export default defineComponent({
 
         // refreshToken을 쿠키에 저장 (7일 동안 저장)
         cookies.set('refreshToken', refreshToken, '7d')
+        router.push('/')
         // console.log('refreshToken이 쿠키에 저장됨:', cookies.get('refreshToken'))
       } catch (error) {
         console.error('로그인 실패:', error)

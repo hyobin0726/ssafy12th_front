@@ -180,13 +180,14 @@
 import Logo from '@/assets/logo.svg'
 import { defineComponent, ref, computed } from 'vue'
 import axios from 'axios'
-
+import { useRouter } from 'vue-router'
 export default defineComponent({
   components: {
     Logo,
   },
   name: 'Signup',
   setup() {
+    const router = useRouter()
     // Form field refs
     const name = ref('')
     const loginId = ref('')
@@ -316,6 +317,7 @@ export default defineComponent({
         )
 
         console.log('회원가입 성공:', response.data)
+        router.push('/')
       } catch (error) {
         console.error('회원가입 실패:', error)
       }
