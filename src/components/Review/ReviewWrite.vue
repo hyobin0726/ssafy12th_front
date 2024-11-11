@@ -239,19 +239,23 @@ export default defineComponent({
       if (!validateForm()) return
 
       const reviewData = {
-        userId: 1, //임시값
         imageUrls: uploadedUrls.value.map((url) => url),
         point: form.value.rating,
         content: form.value.content,
         // hashTags: form.value.hashTags,
         visibility: 0, //임시값
       }
-      console.log('리뷰 데이터:', reviewData)
-
+      // console.log('리뷰 데이터:', reviewData)
+      const token = sessionStorage.getItem('accessToken')
+      if (!token) {
+        console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+        return
+      }
       try {
-        await axios.post('http://localhost:8080/api/v1/reviews/write', reviewData, {
+        await axios.post(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/write`, reviewData, {
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         })
         console.log('리뷰가 성공적으로 업로드되었습니다.')

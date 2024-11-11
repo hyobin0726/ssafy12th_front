@@ -7,7 +7,7 @@
     </div>
   </div>
   <More class="w-8 h-8" @click="isModalOpen = true" />
-  <ReviewModal :isVisible="isModalOpen" @close="isModalOpen = false" />
+  <ReviewModal :isVisible="isModalOpen" @close="isModalOpen = false" :review="review" />
 </template>
 
 <script lang="ts">
@@ -51,7 +51,7 @@ export default defineComponent({
       try {
         const response = await axios.get(`http://localhost:8080/api/v1/member/${props.review.userId}`)
         profile.value = response.data
-        console.log('프로필 데이터를 가져왔습니다:', profile.value)
+        // console.log('프로필 데이터를 가져왔습니다:', profile.value)
       } catch (error) {
         console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
       }

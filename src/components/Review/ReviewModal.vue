@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import axios from 'axios'
 
 export default defineComponent({
   props: {
@@ -24,18 +25,51 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
+    review: {
+      type: Object,
+      required: true,
+    },
   },
-  emits: ['close'],
+  emits: ['close', 'post-edit', 'post-delete'],
+  setup(props) {
+    const fetchDeleteReview = async () => {
+      try {
+        const token = sessionStorage.getItem('accessToken')
+        if (!token) {
+          console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+          return
+        }
+
+        await axios.delete(`http://localhost:8080/api/v1/reviews/remove/${props.review.reviewId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        console.log('게시글이 성공적으로 삭제되었습니다.')
+
+        // 부모 컴포넌트에 삭제 완료 이벤트 전송
+        // this.$emit('post-deleted', this.reviewId)
+
+        // closeModal()
+      } catch (error) {
+        console.error('게시글 삭제 실패:', error)
+      }
+    }
+    return { fetchDeleteReview }
+  },
   methods: {
     closeModal() {
       this.$emit('close') // 부모 컴포넌트에 모달 닫기 이벤트 전송
     },
     editPost() {
-      console.log('게시글 수정') // 수정 로직 추가
+      console.log('게시글 수정')
+      // 수정 로직 추가
       this.closeModal()
     },
     deletePost() {
-      console.log('게시글 삭제') // 삭제 로직 추가
+      console.log('게시글 삭제')
+      this.fetchDeleteReview()
       this.closeModal()
     },
   },

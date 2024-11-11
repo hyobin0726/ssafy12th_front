@@ -27,7 +27,7 @@ export default defineComponent({
         reviews.value = response.data
         console.log('리뷰 데이터를 가져왔습니다:', reviews.value)
       } catch (error) {
-        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
+        // console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
       }
     }
 
