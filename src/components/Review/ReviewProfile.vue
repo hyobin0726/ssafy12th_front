@@ -49,7 +49,7 @@ export default defineComponent({
     const profile = ref<Member>()
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/member/${props.review.userId}`)
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/member/${props.review.userId}`)
         profile.value = response.data
         // console.log('프로필 데이터를 가져왔습니다:', profile.value)
       } catch (error) {

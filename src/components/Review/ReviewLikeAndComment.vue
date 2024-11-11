@@ -4,7 +4,7 @@
       <div @click="toggleLike">
         <component :is="isLiked ? 'FullHeart' : 'NonHeart'" class="w-6 h-6" />
       </div>
-      <span class="text-xl">{{ review.like_count }} 개</span>
+      <span class="text-xl">{{ likeCount }} 개</span>
     </div>
     <div class="flex items-center space-x-2">
       <Chat class="w-6 h-6" />
@@ -17,7 +17,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
+import axios from 'axios'
 import type { PropType } from 'vue'
 import type { Review } from '@/types/Review'
 import NonHeart from '@/assets/Review/NonHeart.svg'
@@ -34,7 +35,7 @@ export default defineComponent({
       required: true,
     },
   },
-  setup() {
+  setup(props) {
     const isLiked = ref(false)
     const isBookmarked = ref(false)
     const toggleLike = () => {
@@ -43,7 +44,23 @@ export default defineComponent({
     const toggleBookmark = () => {
       isBookmarked.value = !isBookmarked.value
     }
-    return { isLiked, toggleLike, isBookmarked, toggleBookmark }
+    // console.log(props.review, '??')
+    const likeCount = ref(0)
+    const fetchLikeCount = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/love/${props.review.reviewId}`,
+        )
+        likeCount.value = response.data
+      } catch (error) {
+        console.error('좋아요 개수를 가져오는데 실패했습니다:', error)
+      }
+    }
+    onMounted(() => {
+      fetchLikeCount()
+    })
+
+    return { isLiked, toggleLike, isBookmarked, toggleBookmark, likeCount, fetchLikeCount }
   },
 })
 </script>

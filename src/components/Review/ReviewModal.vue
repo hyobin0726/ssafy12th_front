@@ -47,11 +47,6 @@ export default defineComponent({
         })
 
         console.log('게시글이 성공적으로 삭제되었습니다.')
-
-        // 부모 컴포넌트에 삭제 완료 이벤트 전송
-        // this.$emit('post-deleted', this.reviewId)
-
-        // closeModal()
       } catch (error) {
         console.error('게시글 삭제 실패:', error)
       }

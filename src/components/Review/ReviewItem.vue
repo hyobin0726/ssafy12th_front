@@ -23,7 +23,6 @@ import { defineComponent, ref } from 'vue'
 
 import type { PropType } from 'vue'
 import type { Review } from '@/types/Review'
-import type { Member } from '@/types/Member'
 import ReviewImage from '@/components/Review/ReviewImage.vue'
 import ReviewProfile from './ReviewProfile.vue'
 import ReviewLikeAndComment from './ReviewLikeAndComment.vue'

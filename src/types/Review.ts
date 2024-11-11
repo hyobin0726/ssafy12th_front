@@ -1,7 +1,7 @@
 import type { Member } from './Member'
 
 export interface Review {
-  review_id: number
+  reviewId: number
   userId: number
   content: String
   point: number
