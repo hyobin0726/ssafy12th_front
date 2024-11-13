@@ -60,7 +60,7 @@ export default defineComponent({
     },
     editPost() {
       console.log('게시글 수정')
-      // 수정 로직 추가
+      this.$emit('post-edit', this.review)
       this.closeModal()
     },
     deletePost() {

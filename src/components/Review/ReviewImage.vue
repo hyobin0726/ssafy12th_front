@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section v-if="imageUrls && imageUrls.length">
     <swiper
       :slidesPerView="1"
       :loop="true"
@@ -40,6 +40,9 @@ export default defineComponent({
     imageUrls: {
       type: Array as PropType<string[]>,
       required: true,
+      default() {
+        return []
+      },
     },
   },
 })

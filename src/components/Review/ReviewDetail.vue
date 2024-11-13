@@ -7,11 +7,11 @@
         <div class="text-3xl mr-2" @click="closeModal">x</div>
       </div>
       <hr />
-      <div class="flex h-full">
+      <div class="flex h-full overflow-y-auto">
         <div class="w-1/2 p-3">
-          <ReviewImage :imageUrls="review.image_url" class="" />
+          <ReviewImage :imageUrls="review.imageUrls" class="" />
         </div>
-        <div class="w-1/2 space-y-4 mt-3">
+        <div class="w-1/2 space-y-4 mt-3 flex flex-col">
           <div class="w-full">
             <ReviewContents :review="review" />
           </div>
@@ -19,8 +19,18 @@
             <ReviewLikeAndComment :review="review" />
           </div>
           <hr />
-          <div class="w-full">
+          <div class="flex-grow overflow-y-auto">
             <ReviewComment />
+          </div>
+          <div class="w-full mt-4 flex items-center space-x-3">
+            <input
+              v-model="newComment"
+              type="text"
+              placeholder="댓글을 입력하세요..."
+              class="w-full border rounded p-2"
+              @keyup.enter="submitComment"
+            />
+            <Send class="h-6 w-6" @click="submitComment" />
           </div>
         </div>
       </div>
@@ -36,6 +46,7 @@ import ReviewImage from '@/components/Review/ReviewImage.vue'
 import ReviewLikeAndComment from './ReviewLikeAndComment.vue'
 import ReviewContents from './ReviewContents.vue'
 import ReviewComment from './ReviewComment.vue'
+import Send from '@/assets/Review/send.svg'
 export default defineComponent({
   name: 'ImageUploader',
   components: {
@@ -43,6 +54,7 @@ export default defineComponent({
     ReviewLikeAndComment,
     ReviewContents,
     ReviewComment,
+    Send,
   },
   props: {
     isVisible: {
@@ -55,13 +67,21 @@ export default defineComponent({
     },
   },
   emits: ['close'],
-
   setup(props, { emit }) {
+    const newComment = ref('')
+
     const closeModal = () => {
       emit('close')
     }
 
-    return { closeModal }
+    const submitComment = () => {
+      if (newComment.value.trim()) {
+        console.log('댓글 등록:', newComment.value)
+        newComment.value = ''
+      }
+    }
+
+    return { closeModal, newComment, submitComment }
   },
 })
 </script>

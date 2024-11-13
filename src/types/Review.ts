@@ -11,8 +11,5 @@ export interface Review {
   imageUrls: string[]
   order_index: number
   title: string
-  like_count: number
-  liked: boolean
-  comment_count: number
   member: Member
 }
