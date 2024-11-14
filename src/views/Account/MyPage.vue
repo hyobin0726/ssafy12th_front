@@ -65,54 +65,84 @@
             <p class="text-gray-600 text-sm mt-1">{{ saved.date }}</p>
           </div>
         </div>
+
+        <!-- 탭 메뉴 및 리뷰 목록 -->
+        <div v-if="selectedTab === 'reviews'" class="grid grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <div v-for="review in userReviews" :key="review.id" class="bg-white p-4 rounded-lg shadow-md">
+            <Logo alt="Review Image" class="w-full h-40 object-cover rounded-md mb-2" />
+            <p class="text-gray-800 font-semibold">{{ review.title }}</p>
+            <p class="text-gray-600 text-sm mt-1">{{ review.date }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import axios from 'axios'
 import Logo from '@/assets/logo.svg'
 import Nav from '@/components/common/Nav.vue'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 
 export default defineComponent({
   components: { Logo, Nav },
   name: 'MyPage',
   setup() {
-    // 더미 데이터
     const userData = ref({
-      profileImage: 'https://via.placeholder.com/150',
-      name: '허준수',
-      username: 'junsu515',
-      bio: '당나기당나기당당나기.',
+      profileImage: 'https://via.placeholder.com/150', // 기본 이미지
+      name: '',
+      loginId: '',
+      email: '',
+      phone: '',
+      birth: '',
+      oneLiner: '상태 메시지가 없습니다.', // 기본 메시지
     })
 
     const userReviews = ref([
-      { id: 1, title: '리뷰 1', date: '2023-09-01', image: 'https://via.placeholder.com/150' },
-      { id: 2, title: '리뷰 2', date: '2023-09-10', image: 'https://via.placeholder.com/150' },
-      { id: 3, title: '리뷰 3', date: '2023-09-15', image: 'https://via.placeholder.com/150' },
-      { id: 4, title: '리뷰 4', date: '2023-09-19', image: 'https://via.placeholder.com/150' },
+      // 리뷰 데이터는 예시 데이터 유지
+      { id: 1, title: '리뷰 1', date: '2023-09-01' },
+      { id: 2, title: '리뷰 2', date: '2023-09-10' },
     ])
-
     const savedReviews = ref([
-      { id: 4, title: '저장된 리뷰 1', date: '2023-08-20', image: 'https://via.placeholder.com/150' },
-      { id: 5, title: '저장된 리뷰 2', date: '2023-08-25', image: 'https://via.placeholder.com/150' },
-      { id: 6, title: '저장된 리뷰 3', date: '2023-09-05', image: 'https://via.placeholder.com/150' },
+      { id: 4, title: '저장된 리뷰 1', date: '2023-08-20' },
+      { id: 5, title: '저장된 리뷰 2', date: '2023-08-25' },
     ])
-
     const selectedTab = ref('reviews')
 
-    // 함수
+    const fetchMyPageData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/v1/member', {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
+          },
+        })
+
+        const { loginId, name, email, phone, birth, profileUrl, oneLiner } = response.data
+
+        // 데이터 업데이트
+        userData.value = {
+          profileImage: profileUrl || 'https://via.placeholder.com/150',
+          name,
+          loginId,
+          email,
+          phone,
+          birth,
+          oneLiner: oneLiner || '상태 메시지가 없습니다.',
+        }
+      } catch (error) {
+        console.error('마이페이지 데이터 조회 실패:', error)
+      }
+    }
+
+    onMounted(fetchMyPageData)
+
     const shareProfile = () => {
       alert('URL이 클립보드에 복사되었습니다.')
     }
 
     const editProfile = () => {
       alert('프로필 수정 페이지로 이동합니다.')
-    }
-
-    const deleteAccount = () => {
-      alert('정말로 회원 탈퇴하시겠습니까?')
     }
 
     return {
@@ -122,7 +152,6 @@ export default defineComponent({
       selectedTab,
       shareProfile,
       editProfile,
-      deleteAccount,
     }
   },
 })
