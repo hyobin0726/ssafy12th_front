@@ -199,9 +199,10 @@ export default defineComponent({
     const verificationCode = ref('')
 
     // ID Check
-    const isIdAvailable = ref(false)
     const isIdChecked = ref(false)
+    const isIdAvailable = ref(false)
     const idMessage = ref('')
+    const isIdValidCheck = ref(true)
 
     // Timer for email verification
     const isTimerRunning = ref(false)
@@ -231,10 +232,33 @@ export default defineComponent({
         isPhoneValid.value,
     )
 
-    const checkIdAvailability = () => {
+    const checkIdAvailability = async () => {
+      // ID 중복 체크 활성화
       isIdChecked.value = true
-      isIdAvailable.value = loginId.value !== 'existingId'
-      idMessage.value = isIdAvailable.value ? 'ID is available' : 'ID is already taken'
+
+      try {
+        // Axios GET 요청으로 아이디 중복 확인
+        const response = await axios.get('http://localhost:8080/api/v1/auth/duplication', {
+          params: { login_id: loginId.value },
+        })
+
+        // 성공적으로 사용 가능한 아이디일 경우
+        if (response.status === 200) {
+          isIdAvailable.value = true
+          idMessage.value = '사용 가능한 아이디입니다.'
+        }
+      } catch (error) {
+        console.error('아이디 중복입니다:', error)
+        isIdAvailable.value = false
+        idMessage.value = '이미 사용 중인 아이디입니다.'
+        // 에러 응답일 경우 이미 사용 중인 아이디로 간주
+        // if (error.response && error.response.status === 409) {
+        //   isIdAvailable.value = false
+        //   idMessage.value = '이미 사용 중인 아이디입니다.'
+        // } else {
+        //   console.error('아이디 체크 중 오류 발생:', error)
+        // }
+      }
     }
 
     const startTimer = () => {
@@ -269,20 +293,45 @@ export default defineComponent({
     //   startTimer() // 타이머 리셋 및 시작
     // }
 
-    const sendEmailVerification = () => {
+    // 인증 코드 전송 함수
+    const sendEmailVerification = async () => {
       if (!isEmailValid.value) return
-      startTimer()
+
+      try {
+        // 인증 코드 전송 API 요청
+        const response = await axios.post('http://localhost:8080/api/v1/auth/email', {
+          email: email.value,
+        })
+
+        if (response.status === 200) {
+          alert('인증 코드가 이메일로 전송되었습니다.')
+          startTimer() // 타이머 시작
+        }
+      } catch (error) {
+        console.error('이메일 인증 코드 전송 실패:', error)
+        alert('이메일 인증 코드 전송에 실패했습니다. 다시 시도해 주세요.')
+      }
     }
 
-    const verifyCode = () => {
-      if (verificationCode.value === '123456') {
-        alert('Verification successful!')
-        clearInterval(timer)
-        isTimerRunning.value = false
-        isCodeValid.value = true // 인증번호가 맞을 경우 유효성 상태 업데이트
-      } else {
-        alert('Invalid verification code. Please try again.')
-        isCodeValid.value = false // 인증번호가 틀릴 경우 유효성 상태 업데이트
+    // 인증 코드 확인 함수
+    const verifyCode = async () => {
+      try {
+        // 인증 코드 확인 API 요청
+        const response = await axios.post('http://localhost:8080/api/v1/auth/email/verify', {
+          email: email.value,
+          code: verificationCode.value,
+        })
+
+        if (response.status === 200) {
+          alert('인증이 완료되었습니다!')
+          clearInterval(timer)
+          isTimerRunning.value = false // 타이머 중지
+          isCodeValid.value = true // 인증 성공 시 유효성 업데이트
+        }
+      } catch (error) {
+        console.error('인증 코드 확인 실패:', error)
+        alert('인증 코드가 올바르지 않습니다. 다시 확인해 주세요.')
+        isCodeValid.value = false // 인증 실패 시 유효성 업데이트
       }
     }
 
