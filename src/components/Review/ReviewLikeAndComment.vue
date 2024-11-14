@@ -17,7 +17,7 @@
       <div class="flex items-center cursor-pointer hover:scale-110 transition-transform duration-200">
         <Chat class="w-7 h-7" />
       </div>
-      <!-- <span class="text-xl">{{ commentCount }} 개</span> -->
+      <span class="text-xl">{{ commentCount }} 개</span>
     </div>
   </section>
   <section @click="toggleBookmark" class="cursor-pointer hover:scale-110 transition-transform duration-200">
@@ -161,10 +161,22 @@ export default defineComponent({
         console.error('좋아요 개수를 가져오는데 실패했습니다:', error)
       }
     }
+    const commentCount = ref(0)
+    const fetchCommentCount = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/comments/${props.review.reviewId}/count`,
+        )
+        commentCount.value = response.data
+      } catch (error) {
+        console.error('댓글 개수를 가져오는데 실패했습니다:', error)
+      }
+    }
     onMounted(() => {
       fetchLikeCount()
       fetchLikeStatus()
       fetchBookmarkStatus()
+      fetchCommentCount()
     })
 
     return {
@@ -177,6 +189,7 @@ export default defineComponent({
       fetchLikeStatus,
       token,
       fetchBookmarkStatus,
+      commentCount,
     }
   },
 })

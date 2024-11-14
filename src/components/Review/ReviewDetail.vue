@@ -7,7 +7,7 @@
         <div class="text-3xl mr-2" @click="closeModal">x</div>
       </div>
       <hr />
-      <div class="flex h-full overflow-y-auto">
+      <div class="flex h-full overflow-y-auto p-3">
         <div class="w-1/2 p-3 flex justify-center items-center">
           <ReviewImage :imageUrls="review.imageUrls" class="" />
         </div>
@@ -16,17 +16,15 @@
             <ReviewProfile :review="review" />
           </div>
           <hr />
-
           <div class="w-full">
             <ReviewContents :review="review" />
           </div>
-
           <hr />
           <div class="w-full flex justify-between items-center mt-3">
             <ReviewLikeAndComment :review="review" />
           </div>
           <div class="flex-grow overflow-y-auto">
-            <ReviewComment :review="review" />
+            <ReviewComment ref="reviewComment" :review="review" />
           </div>
           <div class="w-full mt-4 flex items-center space-x-3">
             <input
@@ -47,6 +45,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import type { PropType } from 'vue'
+import axios from 'axios'
 import type { Review } from '@/types/Review'
 import ReviewImage from '@/components/Review/ReviewImage.vue'
 import ReviewLikeAndComment from './ReviewLikeAndComment.vue'
@@ -54,6 +53,7 @@ import ReviewContents from './ReviewContents.vue'
 import ReviewComment from './ReviewComment.vue'
 import ReviewProfile from './ReviewProfile.vue'
 import Send from '@/assets/Review/send.svg'
+
 export default defineComponent({
   name: 'ImageUploader',
   components: {
@@ -77,19 +77,42 @@ export default defineComponent({
   emits: ['close'],
   setup(props, { emit }) {
     const newComment = ref('')
+    const reviewComment = ref<InstanceType<typeof ReviewComment> | null>(null) // ReviewComment에 대한 ref 설정
+
+    const fetchPostComment = async () => {
+      try {
+        const token = sessionStorage.getItem('accessToken')
+        if (!token) {
+          alert('로그인 후 다시 시도하세요.')
+          return
+        }
+        await axios.post(
+          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/comments/${props.review.reviewId}`,
+          { content: newComment.value },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+      } catch (error) {
+        console.error('댓글 등록에 실패했습니다:', error)
+      }
+    }
 
     const closeModal = () => {
       emit('close')
     }
 
-    const submitComment = () => {
+    const submitComment = async () => {
       if (newComment.value.trim()) {
-        console.log('댓글 등록:', newComment.value)
+        await fetchPostComment()
         newComment.value = ''
+        reviewComment.value?.fetchComment()
       }
     }
 
-    return { closeModal, newComment, submitComment }
+    return { closeModal, newComment, submitComment, reviewComment }
   },
 })
 </script>
