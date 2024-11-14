@@ -12,13 +12,19 @@
           <ReviewImage :imageUrls="review.imageUrls" class="" />
         </div>
         <div class="w-1/2 space-y-4 mt-3 flex flex-col">
+          <div class="flex items-center w-full justify-between">
+            <ReviewProfile :review="review" />
+          </div>
+          <hr />
+
           <div class="w-full">
             <ReviewContents :review="review" />
           </div>
+
+          <hr />
           <div class="w-full flex justify-between items-center mt-3">
             <ReviewLikeAndComment :review="review" />
           </div>
-          <hr />
           <div class="flex-grow overflow-y-auto">
             <ReviewComment :review="review" />
           </div>
@@ -46,6 +52,7 @@ import ReviewImage from '@/components/Review/ReviewImage.vue'
 import ReviewLikeAndComment from './ReviewLikeAndComment.vue'
 import ReviewContents from './ReviewContents.vue'
 import ReviewComment from './ReviewComment.vue'
+import ReviewProfile from './ReviewProfile.vue'
 import Send from '@/assets/Review/send.svg'
 export default defineComponent({
   name: 'ImageUploader',
@@ -53,6 +60,7 @@ export default defineComponent({
     ReviewImage,
     ReviewLikeAndComment,
     ReviewContents,
+    ReviewProfile,
     ReviewComment,
     Send,
   },

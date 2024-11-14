@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center space-x-4">
+  <section class="flex items-center space-x-4">
     <div class="flex items-center space-x-2">
       <div
         @click="toggleLike"
@@ -19,10 +19,10 @@
       </div>
       <!-- <span class="text-xl">{{ commentCount }} 개</span> -->
     </div>
-  </div>
-  <div @click="toggleBookmark" class="cursor-pointer hover:scale-110 transition-transform duration-200">
+  </section>
+  <section @click="toggleBookmark" class="cursor-pointer hover:scale-110 transition-transform duration-200">
     <component :is="isBookmarked ? 'Bookmark' : 'NonBookmark'" class="w-7 h-7" />
-  </div>
+  </section>
 </template>
 
 <script lang="ts">
