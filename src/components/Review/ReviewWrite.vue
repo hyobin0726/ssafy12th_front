@@ -242,7 +242,7 @@ export default defineComponent({
         imageUrls: uploadedUrls.value.map((url) => url),
         point: form.value.rating,
         content: form.value.content,
-        // hashTags: form.value.hashTags,
+        hashtags: form.value.hashTags,
         visibility: 0, //임시값
       }
       // console.log('리뷰 데이터:', reviewData)

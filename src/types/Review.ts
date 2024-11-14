@@ -12,4 +12,5 @@ export interface Review {
   order_index: number
   title: string
   member: Member
+  hashtags: string[]
 }

@@ -8,7 +8,7 @@
       </div>
       <hr />
       <div class="flex h-full overflow-y-auto">
-        <div class="w-1/2 p-3">
+        <div class="w-1/2 p-3 flex justify-center items-center">
           <ReviewImage :imageUrls="review.imageUrls" class="" />
         </div>
         <div class="w-1/2 space-y-4 mt-3 flex flex-col">
@@ -20,7 +20,7 @@
           </div>
           <hr />
           <div class="flex-grow overflow-y-auto">
-            <ReviewComment />
+            <ReviewComment :review="review" />
           </div>
           <div class="w-full mt-4 flex items-center space-x-3">
             <input

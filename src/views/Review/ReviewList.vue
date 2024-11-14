@@ -3,7 +3,7 @@
     <Nav class="w-1/4 h-screen" />
     <div class="w-3/4 overflow-y-scroll">
       <template v-if="reviews.length > 0">
-        <ReviewItem v-for="review in reviews" :key="review.review_id" :review="review" />
+        <ReviewItem v-for="review in reviews" :key="review.reviewId" :review="review" />
       </template>
       <p v-else class="text-center text-gray-500 flex justify-center items-center h-screen">작성된 리뷰가 없습니다.</p>
     </div>

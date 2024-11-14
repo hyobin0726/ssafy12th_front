@@ -3,7 +3,7 @@
     <div v-for="(comment, index) in comments" :key="index" class="pb-2 flex items-center">
       <img :src="profileImageUrl" alt="Profile" class="w-12 h-12 rounded-full mr-2" />
       <div>
-        <p class="text-sm font-semibold">{{ profile?.name }}</p>
+        <p class="text-sm font-semibold">{{ profile?.loginId }}</p>
         <p class="text-sm text-gray-700">{{ comment.content }}</p>
       </div>
     </div>

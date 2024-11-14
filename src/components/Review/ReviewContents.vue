@@ -11,10 +11,20 @@
   <div class="w-full mb-4">
     <p>{{ review.content }}</p>
   </div>
+  <div class="w-full flex items-center space-x-2 mt-4">
+    <span
+      v-for="(hashTag, index) in hashTags"
+      :key="index"
+      class="bg-[#A8B087] text-white px-4 py-2 rounded-md text-sm font-medium shadow-md hover:bg-[#8c9d74] transition-colors duration-300"
+    >
+      #{{ hashTag }}
+    </span>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, ref, onMounted } from 'vue'
+import axios from 'axios'
 import type { PropType } from 'vue'
 import type { Review } from '@/types/Review'
 import Location from '@/assets/Review/Location.svg'
@@ -41,8 +51,23 @@ export default defineComponent({
         ...Array(emptyStars).fill('EmptyStar'),
       ]
     })
+    const hashTags = ref<string[]>([])
+    const fetchHashTags = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/hashtag/${props.review.reviewId}`,
+        )
+        hashTags.value = response.data
+        console.log('해시태그 데이터를 가져왔습니다:', hashTags.value)
+      } catch (error) {
+        console.error('해시태그 데이터를 가져오는데 실패했습니다:', error)
+      }
+    }
+    onMounted(() => {
+      fetchHashTags()
+    })
 
-    return { stars }
+    return { stars, hashTags, fetchHashTags }
   },
 })
 </script>

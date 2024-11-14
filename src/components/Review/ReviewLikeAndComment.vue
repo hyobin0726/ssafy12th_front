@@ -1,18 +1,27 @@
 <template>
   <div class="flex items-center space-x-4">
     <div class="flex items-center space-x-2">
-      <div @click="toggleLike">
-        <component :is="isLiked ? 'FullHeart' : 'NonHeart'" class="w-6 h-6" />
+      <div
+        @click="toggleLike"
+        class="flex items-center cursor-pointer hover:scale-110 transition-transform duration-200"
+      >
+        <component
+          :is="isLiked ? 'FullHeart' : 'NonHeart'"
+          class="w-7 h-7"
+          :class="{ 'animate-bounce-heart': isLiked }"
+        />
       </div>
       <span class="text-xl">{{ likeCount }} 개</span>
     </div>
     <div class="flex items-center space-x-2">
-      <Chat class="w-6 h-6" />
-      <span class="text-xl">{{ review.comment_count }} 개</span>
+      <div class="flex items-center cursor-pointer hover:scale-110 transition-transform duration-200">
+        <Chat class="w-7 h-7" />
+      </div>
+      <!-- <span class="text-xl">{{ commentCount }} 개</span> -->
     </div>
   </div>
-  <div @click="toggleBookmark">
-    <component :is="isBookmarked ? 'Bookmark' : 'NonBookmark'" class="w-6 h-6" />
+  <div @click="toggleBookmark" class="cursor-pointer hover:scale-110 transition-transform duration-200">
+    <component :is="isBookmarked ? 'Bookmark' : 'NonBookmark'" class="w-7 h-7" />
   </div>
 </template>
 
@@ -41,6 +50,10 @@ export default defineComponent({
     //좋아요 상태
     const token = sessionStorage.getItem('accessToken')
     const fetchLikeStatus = async () => {
+      if (!token) {
+        console.log('토큰이 없습니다. 좋아요 상태를 조회할 수 없습니다.')
+        return
+      }
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/love/${props.review.reviewId}/check`,
@@ -57,6 +70,10 @@ export default defineComponent({
       }
     }
     const toggleLike = () => {
+      if (!token) {
+        alert('로그인이 필요합니다.')
+        return
+      }
       try {
         if (isLiked.value) {
           axios.delete(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/love/${props.review.reviewId}`, {
@@ -85,6 +102,10 @@ export default defineComponent({
     }
     //북마크 상태
     const fetchBookmarkStatus = async () => {
+      if (!token) {
+        console.log('토큰이 없습니다. 북마크 상태를 조회할 수 없습니다.')
+        return
+      }
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/bookmark/${props.review.reviewId}/check`,
@@ -100,6 +121,10 @@ export default defineComponent({
       }
     }
     const toggleBookmark = () => {
+      if (!token) {
+        alert('로그인이 필요합니다.')
+        return
+      }
       try {
         if (isBookmarked.value) {
           axios.delete(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/bookmark/${props.review.reviewId}`, {
@@ -157,4 +182,26 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+@keyframes bounce-heart {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  30% {
+    transform: scale(1.2) translateY(-10px); /* 상단으로 튕기는 효과 */
+  }
+  50% {
+    transform: scale(0.9) translateY(0); /* 축소되며 다시 원래 위치로 돌아옴 */
+  }
+  70% {
+    transform: scale(1.1) translateY(-4px); /* 다시 조금 튕김 */
+  }
+  100% {
+    transform: scale(1) translateY(0); /* 원래 크기와 위치로 돌아옴 */
+  }
+}
+
+.animate-bounce-heart {
+  animation: bounce-heart 0.6s ease-in-out; /* 0.6초 동안 애니메이션 */
+}
+</style>
