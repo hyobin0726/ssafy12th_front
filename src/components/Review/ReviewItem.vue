@@ -1,5 +1,5 @@
 <template>
-  <section class="p-6 flex flex-col items-center border-[1px]">
+  <section class="p-6 flex flex-col items-center border-[2px] item bg-white">
     <div class="flex items-center w-full mb-4 justify-between">
       <ReviewProfile :review="review" />
     </div>
@@ -43,3 +43,14 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped>
+.item {
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+  counter-increment: item-counter;
+}
+.item:hover {
+  transform: scale(1.07);
+}
+</style>
