@@ -58,7 +58,7 @@ export default defineComponent({
           `${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/hashtag/${props.review.reviewId}`,
         )
         hashTags.value = response.data
-        console.log('해시태그 데이터를 가져왔습니다:', hashTags.value)
+        // console.log('해시태그 데이터를 가져왔습니다:', hashTags.value)
       } catch (error) {
         console.error('해시태그 데이터를 가져오는데 실패했습니다:', error)
       }

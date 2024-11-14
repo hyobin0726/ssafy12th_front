@@ -13,13 +13,16 @@
       </button>
     </div>
   </div>
+  <ReviewUpdate :isVisible="isReviewUpdate" :reviewData="review" @close="isReviewUpdate = false" />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import axios from 'axios'
+import ReviewUpdate from './ReviewUpdate.vue'
 
 export default defineComponent({
+  components: { ReviewUpdate },
   props: {
     isVisible: {
       type: Boolean,
@@ -33,6 +36,8 @@ export default defineComponent({
 
   emits: ['close', 'post-edit', 'post-delete'],
   setup(props) {
+    const isReviewUpdate = ref(false)
+    const isModalOpen = ref(false)
     const fetchDeleteReview = async () => {
       try {
         const token = sessionStorage.getItem('accessToken')
@@ -52,7 +57,7 @@ export default defineComponent({
         console.error('게시글 삭제 실패:', error)
       }
     }
-    return { fetchDeleteReview }
+    return { fetchDeleteReview, isModalOpen, isReviewUpdate }
   },
   methods: {
     closeModal() {
@@ -60,6 +65,7 @@ export default defineComponent({
     },
     editPost() {
       console.log('게시글 수정')
+      this.isReviewUpdate = true
       this.$emit('post-edit', this.review)
       this.closeModal()
     },

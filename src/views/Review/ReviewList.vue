@@ -25,9 +25,9 @@ export default defineComponent({
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/list`)
         reviews.value = response.data
-        console.log('리뷰 데이터를 가져왔습니다:', reviews.value)
+        // console.log('리뷰 데이터를 가져왔습니다:', reviews.value)
       } catch (error) {
-        // console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
+        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
       }
     }
 

@@ -259,7 +259,7 @@ export default defineComponent({
             Authorization: `Bearer ${token}`,
           },
         })
-        console.log('리뷰가 성공적으로 업로드되었습니다.')
+        // console.log('리뷰가 성공적으로 업로드되었습니다.', reviewData)
         closeModal()
         location.reload()
       } catch (error) {

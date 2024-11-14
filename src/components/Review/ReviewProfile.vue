@@ -19,6 +19,7 @@ import More from '@/assets/Review/More.svg'
 import ReviewModal from '@/components/Review/ReviewModal.vue'
 import axios from 'axios'
 import ProfileImage from '@/assets/Profile.png'
+
 export default defineComponent({
   components: { More, ReviewModal },
   props: {
@@ -29,6 +30,7 @@ export default defineComponent({
   },
   setup(props) {
     const token = sessionStorage.getItem('accessToken')
+
     const isModalOpen = ref(false)
     // console.log(typeof props.review.createdAt)
     // console.log(props.member.loginId)
