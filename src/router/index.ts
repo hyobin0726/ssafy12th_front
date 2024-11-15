@@ -5,6 +5,7 @@ import Login from '../views/Account/Login.vue'
 import SignUp from '../views/Account/SignUp.vue'
 import ReviewList from '../views/Review/ReviewList.vue'
 import MyPage from '@/views/Account/MyPage.vue'
+import Map from '@/views/Map/Map.vue'
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/reviewList',
     name: 'ReviewList',
     component: ReviewList,
+  },
+  {
+    path: '/map',
+    name: 'Map',
+    component: Map,
   },
 ]
 

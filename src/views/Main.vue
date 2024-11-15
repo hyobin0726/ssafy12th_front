@@ -10,6 +10,8 @@
     <router-link to="/reviewList">리뷰 목록 보기</router-link>
     <br />
     <router-link to="/MyPage">마이페이지</router-link>
+    <br />
+    <router-link to="/map">지도</router-link>
   </div>
 </template>
 
