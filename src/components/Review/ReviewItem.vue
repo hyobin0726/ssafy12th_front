@@ -1,9 +1,8 @@
 <template>
-  <section class="p-6 flex flex-col items-center border-[2px] item bg-white">
+  <section class="p-6 flex flex-col items-center border-[1px]">
     <div class="flex items-center w-full mb-4 justify-between">
       <ReviewProfile :review="review" />
     </div>
-
     <div class="p-2 flex justify-center mb-4 w-full" @click="isModalOpen = true">
       <ReviewImage :imageUrls="review.imageUrls" />
     </div>
@@ -14,8 +13,8 @@
     <div class="w-full" @click="isModalOpen = true">
       <ReviewContents :review="review" />
     </div>
+    <ReviewDetail :review="review" :isVisible="isModalOpen" @close="isModalOpen = false" />
   </section>
-  <ReviewDetail :review="review" :isVisible="isModalOpen" @close="isModalOpen = false" />
 </template>
 
 <script lang="ts">
@@ -43,12 +42,13 @@ export default defineComponent({
   },
 })
 </script>
+
 <style scoped>
 .item {
   box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease-in-out;
-  cursor: pointer;
-  counter-increment: item-counter;
+  /* transition: transform 0.3s ease-in-out; */
+  /* cursor: pointer; */
+  /* counter-increment: item-counter; */
 }
 .item:hover {
   transform: scale(1.07);
