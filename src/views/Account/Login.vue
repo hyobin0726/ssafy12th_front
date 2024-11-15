@@ -54,10 +54,11 @@
 
 <script lang="ts">
 import Logo from '@/assets/logo.svg'
-import { defineComponent, ref } from 'vue'
-import axios, { AxiosError } from 'axios' // AxiosError 타입 임포트
+import { defineComponent, ref, onMounted } from 'vue'
+import axios, { AxiosError } from 'axios'
 import { useCookies } from 'vue3-cookies'
 import { useRouter } from 'vue-router'
+
 export default defineComponent({
   components: {
     Logo,
@@ -69,9 +70,70 @@ export default defineComponent({
     const { cookies } = useCookies()
     const router = useRouter()
 
+    // accessToken을 새로 고침하는 함수
+    const refreshAccessToken = async () => {
+      const refreshToken = cookies.get('refreshToken')
+      if (!refreshToken) throw new Error('No refresh token available')
+      console.log('리프래쉬 토큰 실행')
+      const response = await axios.post('http://localhost:8080/api/v1/auth/re-token', { refreshToken })
+
+      console.log('리프래쉬 반응' + response)
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data
+      sessionStorage.setItem('accessToken', newAccessToken)
+      cookies.set('refreshToken', newRefreshToken, '7d')
+      return newAccessToken
+    }
+
+    // 초기 설정 및 인터셉터 등록
+    onMounted(() => {
+      // Axios 요청 인터셉터 설정
+      axios.interceptors.request.use(
+        async (config) => {
+          let accessToken = sessionStorage.getItem('accessToken')
+          if (accessToken) {
+            config.headers['Authorization'] = `Bearer ${accessToken}`
+          }
+          return config
+        },
+        (error) => {
+          return Promise.reject(error)
+        },
+      )
+
+      // Axios 응답 인터셉터 설정
+      axios.interceptors.response.use(
+        (response) => {
+          return response
+        },
+        async (error) => {
+          const axiosError = error as AxiosError
+
+          // 토큰 만료 시, 재발급 요청 처리
+          if (axiosError.response && axiosError.response.status === 401) {
+            try {
+              const newAccessToken = await refreshAccessToken()
+              axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`
+
+              // 새로운 토큰으로 원래 요청을 재시도
+              const originalRequest = error.config
+              originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
+              return axios(originalRequest)
+            } catch (refreshError) {
+              console.error('토큰 재발급 실패:', refreshError)
+              cookies.remove('refreshToken')
+              sessionStorage.removeItem('accessToken')
+              router.push('/login')
+              return Promise.reject(refreshError)
+            }
+          }
+          return Promise.reject(error)
+        },
+      )
+    })
+
+    // 로그인 요청 함수
     const handleSignIn = async () => {
       console.log('Signing in with:', id.value, password.value)
-      // 로그인 처리 로직을 여기에 추가하세요 (예: API 호출)
 
       try {
         const response = await axios.post(
@@ -80,71 +142,16 @@ export default defineComponent({
             loginId: id.value,
             password: password.value,
           },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
+          { headers: { 'Content-Type': 'application/json' } },
         )
 
         console.log('로그인 성공:', response.data)
-        // 받은 엑세스 토큰과 리프레시 토큰
         const { accessToken, refreshToken } = response.data
-
-        // 엑세스 토큰을 세션 스토리지에 저장
         sessionStorage.setItem('accessToken', accessToken)
-
-        // refreshToken을 쿠키에 저장 (7일 동안 저장)
         cookies.set('refreshToken', refreshToken, '7d')
         router.push('/')
-        // console.log('refreshToken이 쿠키에 저장됨:', cookies.get('refreshToken'))
       } catch (error) {
-        const axiosError = error as AxiosError // error를 AxiosError로 캐스팅
-        if (axiosError.response && axiosError.response.status === 401) {
-          console.log('토큰이 만료되어 새 토큰을 발급받습니다.')
-
-          try {
-            const refreshToken = cookies.get('refreshToken')
-            const refreshResponse = await axios.post(
-              'http://localhost:8080/api/v1/auth/re-token',
-              { refreshToken },
-              {
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              },
-            )
-
-            const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshResponse.data
-            sessionStorage.setItem('accessToken', newAccessToken)
-            cookies.set('refreshToken', newRefreshToken, '7d')
-
-            // 새 토큰을 사용하여 원래 요청 재시도
-            const retryResponse = await axios.post(
-              'http://localhost:8080/api/v1/auth/login',
-              {
-                loginId: id.value,
-                password: password.value,
-              },
-              {
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${newAccessToken}`,
-                },
-              },
-            )
-
-            console.log('재로그인 성공:', retryResponse.data)
-            router.push('/')
-          } catch (refreshError) {
-            console.error('토큰 재발급 실패:', refreshError)
-            cookies.remove('refreshToken')
-            sessionStorage.removeItem('accessToken')
-            router.push('/login')
-          }
-        } else {
-          console.error('로그인 실패:', error)
-        }
+        console.error('로그인 실패:', error)
       }
     }
 
@@ -152,7 +159,7 @@ export default defineComponent({
       id,
       password,
       handleSignIn,
-      cookies,
+      //cookies,
     }
   },
 })

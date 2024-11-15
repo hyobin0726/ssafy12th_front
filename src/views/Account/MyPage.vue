@@ -11,8 +11,8 @@
             <Logo class="w-24 h-24 rounded-full object-cover" />
             <div>
               <h2 class="text-2xl font-semibold">{{ userData.name }}</h2>
-              <p class="text-gray-500">{{ userData.username }}</p>
-              <p class="text-gray-700">{{ userData.bio }}</p>
+              <!-- <p class="text-gray-500">{{ userData.username }}</p>
+              <p class="text-gray-700">{{ userData.bio }}</p> -->
             </div>
           </div>
 

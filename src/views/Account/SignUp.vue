@@ -299,9 +299,17 @@ export default defineComponent({
 
       try {
         // 인증 코드 전송 API 요청
-        const response = await axios.post('http://localhost:8080/api/v1/auth/email', {
-          email: email.value,
-        })
+        const response = await axios.post(
+          'http://localhost:8080/api/v1/auth/email',
+          {
+            email: email.value,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+        )
 
         if (response.status === 200) {
           alert('인증 코드가 이메일로 전송되었습니다.')
@@ -317,10 +325,18 @@ export default defineComponent({
     const verifyCode = async () => {
       try {
         // 인증 코드 확인 API 요청
-        const response = await axios.post('http://localhost:8080/api/v1/auth/email/verify', {
-          email: email.value,
-          code: verificationCode.value,
-        })
+        const response = await axios.post(
+          'http://localhost:8080/api/v1/auth/email/verify',
+          {
+            email: email.value,
+            code: verificationCode.value,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          },
+        )
 
         if (response.status === 200) {
           alert('인증이 완료되었습니다!')
