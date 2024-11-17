@@ -1,7 +1,7 @@
 <template>
   <KakaoMap :lat="lat" :lng="lng" :width="'100%'" :height="'100vh'" v-if="loaded">
-    <div class="fixed z-50 p-5">
-      <MapModal class="" />
+    <div class="fixed z-50 p-5 h-full">
+      <MapModal />
     </div>
   </KakaoMap>
 </template>
@@ -41,20 +41,4 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-.modal {
-  /* position: fixed; */
-  /* top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  padding: 20px;
-  text-align: center; */
-  /* z-index: 9999; */
-}
-</style>
+<style scoped></style>
