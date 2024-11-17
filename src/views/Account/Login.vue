@@ -77,7 +77,7 @@ export default defineComponent({
       console.log('리프래쉬 토큰 실행')
       const response = await axios.post('http://localhost:8080/api/v1/auth/re-token', { refreshToken })
 
-      console.log('리프래쉬 반응' + response)
+      console.log('리프래쉬 반응:', response.data)
       const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data
       sessionStorage.setItem('accessToken', newAccessToken)
       cookies.set('refreshToken', newRefreshToken, '7d')
@@ -108,14 +108,23 @@ export default defineComponent({
         async (error) => {
           const axiosError = error as AxiosError
 
-          // 토큰 만료 시, 재발급 요청 처리
+          // 토큰 만료 처리: 로그인 요청인지 확인
+          // const originalRequest = axiosError.config
+          const originalRequest = error.config
+          const isLoginRequest = originalRequest.url?.includes('/auth/login')
+
+          // 로그인 요청에서 발생한 401 에러는 무시
+          if (isLoginRequest) {
+            return Promise.reject(error)
+          }
+
+          // 토큰 만료 시 리프레시 토큰 사용
           if (axiosError.response && axiosError.response.status === 401) {
             try {
               const newAccessToken = await refreshAccessToken()
               axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`
 
               // 새로운 토큰으로 원래 요청을 재시도
-              const originalRequest = error.config
               originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
               return axios(originalRequest)
             } catch (refreshError) {
@@ -151,6 +160,7 @@ export default defineComponent({
         cookies.set('refreshToken', refreshToken, '7d')
         router.push('/')
       } catch (error) {
+        alert('로그인에 실패하였습니다.')
         console.error('로그인 실패:', error)
       }
     }
