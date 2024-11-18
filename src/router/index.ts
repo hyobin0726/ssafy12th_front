@@ -7,6 +7,8 @@ import ReviewList from '../views/Review/ReviewList.vue'
 import MyPage from '@/views/Account/MyPage.vue'
 import Map from '@/views/Map/Map.vue'
 import Search from '@/views/Search/Search.vue'
+import CrewPage from '@/views/Crew/CrewPage.vue'
+// import CrewRecord from '@/views/Crew/CrewRecord.vue'
 
 const routes = [
   {
@@ -49,6 +51,16 @@ const routes = [
     name: 'Search',
     component: Search,
   },
+  {
+    path: '/crewPage',
+    name: 'CrewPage',
+    component: CrewPage,
+  },
+  // {
+  //   path: '/crewRecord',
+  //   name: 'CrewRecord',
+  //   component: CrewRecord,
+  // },
 ]
 
 const router = createRouter({
