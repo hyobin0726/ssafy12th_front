@@ -4,4 +4,6 @@ export interface Map {
   contentTypeId: number
   firstImage1: String
   title: String
+  latitude: number
+  longitude: number
 }
