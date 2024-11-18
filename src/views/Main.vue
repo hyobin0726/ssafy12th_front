@@ -15,9 +15,9 @@
     <br />
     <router-link to="/search">검색</router-link>
     <br />
-    <router-link to="/crewPage">모임생성</router-link>
+    <router-link to="/crewCreate">모임생성</router-link>
     <br />
-    <!-- <router-link to="/crewRecord">모임페이지</router-link> -->
+    <router-link to="/crewPage">모임페이지</router-link>
   </div>
 </template>
 
