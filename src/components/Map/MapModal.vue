@@ -1,120 +1,167 @@
 <template>
-  <div class="bg-white w-[300px] h-[850px] p-4 flex flex-col">
-    <h2 class="text-lg font-bold mb-4">장소 검색</h2>
+  <div class="flex h-full w-full bg-white">
+    <div class="flex flex-col w-[300px] h-full p-4">
+      <div class="mb-4">
+        <div class="flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="검색어를 입력하세요"
+            class="flex-grow p-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-[#A8B087]"
+          />
+          <button @click="search" class="bg-[#A8B087] p-2 rounded-md hover:bg-[#BCC199] flex justify-items-center">
+            <Search class="w-6 h-6" />
+          </button>
+        </div>
+      </div>
 
-    <!-- 카테고리 선택 -->
-    <label for="category-select" class="text-sm font-semibold mb-2">카테고리 선택</label>
-    <select id="category-select" v-model="selectedCategory" class="w-full border p-2 mb-4">
-      <option disabled value="">카테고리 선택</option>
-      <option v-for="category in categories" :key="category" :value="category">
-        {{ category }}
-      </option>
-    </select>
+      <!-- 검색 결과 -->
+      <div class="flex-grow overflow-y-auto">
+        <div v-if="filteredPlaces.length > 0" class="space-y-2">
+          <div
+            v-for="place in filteredPlaces"
+            :key="place.id"
+            class="flex items-center gap-4 p-2 border rounded-md cursor-pointer hover:bg-gray-100"
+            @click="selectPlace(place)"
+          >
+            <img :src="place.icon" alt="place" class="w-12 h-12 rounded-md" />
+            <div>
+              <h4 class="font-medium">{{ place.name }}</h4>
+              <p class="text-sm text-gray-600">{{ place.category }}</p>
+              <p class="text-sm text-gray-500">{{ place.address }}</p>
+            </div>
+          </div>
+        </div>
+        <p v-else class="text-sm text-gray-500">검색 결과가 없습니다.</p>
+      </div>
 
-    <!-- 장소 검색 -->
-    <label for="search" class="text-sm font-semibold mb-2">장소 검색</label>
-    <div class="flex mb-4">
-      <input id="search" v-model="searchQuery" type="text" placeholder="검색어 입력" class="flex-grow border p-2" />
-      <button @click="searchPlaces" class="bg-blue-500 text-white p-2 ml-2">검색</button>
+      <!-- 선택된 장소 상세 정보 -->
+      <div v-if="selectedPlace" class="mt-4 p-4 bg-gray-50 border rounded-md">
+        <h2 class="text-lg font-semibold mb-2">{{ selectedPlace.name }}</h2>
+        <p class="text-sm"><strong>카테고리:</strong> {{ selectedPlace.category }}</p>
+        <p class="text-sm"><strong>주소:</strong> {{ selectedPlace.address }}</p>
+        <p class="text-sm"><strong>설명:</strong> {{ selectedPlace.description }}</p>
+      </div>
     </div>
 
-    <!-- 검색 결과 -->
-    <div class="flex-grow overflow-y-auto border p-2">
-      <h3 class="text-sm font-semibold mb-2">검색 결과</h3>
-      <ul v-if="filteredPlaces.length > 0">
-        <li
-          v-for="place in filteredPlaces"
-          :key="place.id"
-          @click="selectPlace(place)"
-          class="p-2 border-b cursor-pointer hover:bg-gray-100"
-        >
-          {{ place.name }} ({{ place.category }})
-        </li>
-      </ul>
-      <p v-else class="text-sm text-gray-500">검색 결과가 없습니다.</p>
-    </div>
-
-    <!-- 선택된 장소 정보 -->
-    <div v-if="selectedPlace" class="mt-4 p-4 border-t">
-      <h3 class="text-lg font-semibold mb-2">선택된 장소</h3>
-      <p><strong>이름:</strong> {{ selectedPlace.name }}</p>
-      <p><strong>주소:</strong> {{ selectedPlace.address }}</p>
-      <p><strong>카테고리:</strong> {{ selectedPlace.category }}</p>
-      <p><strong>설명:</strong> {{ selectedPlace.description }}</p>
+    <div class="flex flex-col items-center justify-start gap-4 w-16 bg-white shadow-lg p-2">
+      <button
+        v-for="(option, index) in options"
+        :key="index"
+        :class="[
+          'flex flex-col items-center gap-1 p-2 rounded-2xl text-sm w-14',
+          selectedCategory === option.contentType ? 'bg-[#F9E9DA] text-slate-500 ' : 'bg-gray-100 text-gray-700',
+          'hover:bg-blue-200',
+        ]"
+        @click="selectCategory(option.contentType)"
+      >
+        <component :is="option.icon" class="w-8 h-8" />
+        <span class="text-xs text-center whitespace-nowrap">{{ option.name }}</span>
+      </button>
     </div>
   </div>
 </template>
+
 <script lang="ts">
-import { ref } from 'vue'
-
-// 장소 데이터 타입 정의
-interface Place {
-  id: number
-  name: string
-  address: string
-  category: string
-  description: string
-}
-
-export default {
+import { ref, defineComponent } from 'vue'
+import Attractions from '@/assets/Map/1.svg'
+import Culture from '@/assets/Map/2.svg'
+import Festivals from '@/assets/Map/3.svg'
+import Courses from '@/assets/Map/4.svg'
+import Leports from '@/assets/Map/5.svg'
+import Accommodations from '@/assets/Map/6.svg'
+import Shopping from '@/assets/Map/7.svg'
+import Restaurants from '@/assets/Map/8.svg'
+import Search from '@/assets/Map/search.svg'
+export default defineComponent({
+  components: { Search },
   setup() {
-    // 카테고리 데이터
-    const categories = ref<string[]>(['음식점', '카페', '공원', '쇼핑몰', '기타'])
-
-    // 선택된 카테고리와 검색어
-    const selectedCategory = ref<string>('')
-    const searchQuery = ref<string>('')
-
-    // 장소 데이터 (더미 데이터)
-    const places = ref<Place[]>([
-      { id: 1, name: '서울역', address: '서울 중구 봉래동', category: '기타', description: '서울의 중심 역' },
-      { id: 2, name: '광안리 해변', address: '부산 수영구', category: '공원', description: '부산의 아름다운 해변' },
+    const searchQuery = ref('')
+    const selectedCategory = ref(0)
+    const options = ref([
+      { name: '관광지', icon: Attractions, contentType: 12 },
+      { name: '문화시설', icon: Culture, contentType: 14 },
+      { name: '축제', icon: Festivals, contentType: 15 },
+      { name: '여행코스', icon: Courses, contentType: 25 },
+      { name: '레포츠', icon: Leports, contentType: 28 },
+      { name: '숙박', icon: Accommodations, contentType: 32 },
+      { name: '쇼핑', icon: Shopping, contentType: 38 },
+      { name: '음식점', icon: Restaurants, contentType: 39 },
+    ])
+    const places = ref([
       {
-        id: 3,
-        name: '스타벅스 강남점',
-        address: '서울 강남구',
-        category: '카페',
-        description: '강남에 위치한 스타벅스',
-      },
-      { id: 4, name: '롯데백화점', address: '서울 소공동', category: '쇼핑몰', description: '서울의 대표적인 백화점' },
-      { id: 5, name: '한강공원', address: '서울 영등포구', category: '공원', description: '서울 시민들의 쉼터' },
-      {
-        id: 6,
-        name: '삼겹살집',
-        address: '서울 마포구',
+        id: 1,
+        name: '광주복집',
         category: '음식점',
-        description: '맛있는 삼겹살을 먹을 수 있는 곳',
+        contentType: 39,
+        address: '서울특별시 강서구 강서로 375-8',
+        description: '맛있는 복요리 전문점',
+        icon: 'https://pup-review-phinf.pstatic.net/MjAyNDA3MjBfMjEy/MDAxNzIxNDQ3MzkwOTU4.L4pKyeU3XpcfV-5BtQesq9lkVJHABCSF0tyF9hIETqQg.C2lbl78L3nE3RbMyj6B7A4rVrY4v_BPGLiKzSVtdDvQg.JPEG/C8DD015B-54AB-4D75-B684-C06033F2A9F3.jpeg?type=f912_608',
+      },
+      {
+        id: 2,
+        name: '한강공원',
+        category: '문화시설',
+        contentType: 14,
+        address: '서울특별시 영등포구 여의동로',
+        description: '서울 시민들의 쉼터',
+        icon: '/assets/icons/park.png',
       },
     ])
+    const filteredPlaces = ref<
+      {
+        id: number
+        name: string
+        category: string
+        address: string
+        description: string
+        icon: string
+        contentType: number
+      }[]
+    >([])
+    const selectedPlace = ref<{
+      id: number
+      name: string
+      category: string
+      address: string
+      description: string
+      icon: string
+      contentType: number
+    } | null>(null)
 
-    // 검색 결과 및 선택된 장소
-    const filteredPlaces = ref<Place[]>([])
-    const selectedPlace = ref<Place | null>(null)
-
-    // 장소 검색
-    const searchPlaces = () => {
-      filteredPlaces.value = places.value.filter((place) => {
-        const matchesSearch = place.name.includes(searchQuery.value)
-        const matchesCategory = !selectedCategory.value || place.category === selectedCategory.value
-        return matchesSearch && matchesCategory
-      })
+    const selectCategory = (category: number) => {
+      selectedCategory.value = category
+      filterPlaces()
     }
 
-    // 장소 선택
-    const selectPlace = (place: Place) => {
+    const search = () => {
+      filterPlaces()
+    }
+
+    const filterPlaces = () => {
+      filteredPlaces.value = places.value.filter(
+        (place) =>
+          place.contentType === selectedCategory.value &&
+          (!selectedCategory.value || place.contentType === selectedCategory.value),
+      )
+    }
+
+    const selectPlace = (place: any) => {
       selectedPlace.value = place
     }
 
     return {
-      categories,
-      selectedCategory,
       searchQuery,
+      selectedCategory,
+      options,
       places,
       filteredPlaces,
       selectedPlace,
-      searchPlaces,
+      selectCategory,
+      search,
       selectPlace,
     }
   },
-}
+})
 </script>
+
+<style scoped></style>
