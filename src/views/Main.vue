@@ -12,6 +12,8 @@
     <router-link to="/MyPage">마이페이지</router-link>
     <br />
     <router-link to="/map">지도</router-link>
+    <br />
+    <router-link to="/search">검색</router-link>
   </div>
 </template>
 
