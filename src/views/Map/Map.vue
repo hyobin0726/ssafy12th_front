@@ -6,6 +6,7 @@
       :width="'100%'"
       :height="'100vh'"
       :scrollwheel="false"
+      @onLoadKakaoMap="onLoadKakaoMap"
       v-if="loaded"
     >
       <div class="w-[450px] fixed z-[10] p-5 h-full flex flex-col">
@@ -79,7 +80,7 @@
       <button
         class="fixed left-[50%] top-[5%] bg-[#A8B087] text-white p-2 rounded z-[9] bg-opacity-70"
         style="round: 10px"
-        @click="searchCurrentArea"
+        @click="getInfo"
       >
         이 지역에서 검색
       </button>
@@ -115,6 +116,50 @@ export default defineComponent({
     const area = ref<area[]>([])
     const sigungu = ref<sigungu[]>([])
     const check = ref(true)
+    const map = ref()
+
+    const onLoadKakaoMap = (mapRef: any) => {
+      map.value = mapRef
+      // 일반 지도와 스카이뷰로 지도 타입을 전환할 수 있는 지도타입 컨트롤을 생성합니다
+      const mapTypeControl = new kakao.maps.MapTypeControl()
+      // 지도 타입 컨트롤을 지도에 표시합니다
+      map.value.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
+    }
+
+    const getInfo = async () => {
+      if (map.value) {
+        // 지도의 현재 중심좌표를 얻어옵니다
+        const center = map.value.getCenter()
+        const latitude = center.getLat()
+        const longitude = center.getLng()
+        const radius = 3000 // 반경 3km 설정
+
+        // 중심 좌표를 mapStore에 업데이트
+        mapStore.setCoordinates(latitude, longitude)
+
+        // console.log('현재 중심 좌표:', latitude, longitude)
+
+        try {
+          // API 호출
+          const response = await axios.get('http://localhost:8080/api/v1/map/search/nearby', {
+            params: { latitude, longitude, radius },
+          })
+
+          const attractions = response.data || []
+          filteredPlaces.value = attractions.map((place: any) => ({
+            ...place,
+            Image: place.firstImage1 ? place.firstImage1 : AlterImg,
+          }))
+          check.value = !filteredPlaces.value.length
+
+          // console.log('근처 검색 결과:', filteredPlaces.value)
+        } catch (error) {
+          console.error('근처 검색 중 오류가 발생했습니다:', error)
+          filteredPlaces.value = []
+        }
+      }
+    }
+
     const currentPosition = ref({
       lat: 37.566826,
       lng: 126.9786567,
@@ -158,13 +203,6 @@ export default defineComponent({
       }
     }
 
-    // const searchCurrentArea = () => {
-    //   console.log('현재 중심에서 검색:', {
-    //     lat: mapStore.lat,
-    //     lng: mapStore.lng,
-    //   })
-    //   // 현재 중심에서의 검색 API 호출 추가 가능
-    // }
     const searchByRegion = async (areaCode: number, siGunGuCode: number | null) => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/map/search/region`, {
@@ -192,12 +230,6 @@ export default defineComponent({
       }
     }
 
-    const searchCurrentArea = () => {
-      console.log('현재 중심에서 검색:', {
-        lat: mapStore.lat,
-        lng: mapStore.lng,
-      })
-    }
     onMounted(() => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -227,11 +259,12 @@ export default defineComponent({
       mapStore,
       loaded,
       search,
-      searchCurrentArea,
       area,
       sigungu,
       check,
       searchByRegion,
+      onLoadKakaoMap,
+      getInfo,
     }
   },
 })

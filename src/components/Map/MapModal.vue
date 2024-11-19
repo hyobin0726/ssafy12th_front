@@ -12,7 +12,7 @@
             <img :src="place.Image" alt="place" class="w-72 h-56 rounded-md" />
           </div>
           <div class="mt-3">
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
               <div class="flex items-end">
                 <h4 class="text-lg">
                   {{ place.title.length > 9 ? place.title.slice(0, 9) + '...' : place.title }}
@@ -23,7 +23,7 @@
                   <span>4.8</span>
                 </div>
               </div>
-              <NonBookMark class="w-5 h-5" />
+              <NonBookMark class="w-4 h-4" />
             </div>
             <p class="text-sm text-gray-500 mt-1">{{ place.addr1 }}</p>
           </div>
