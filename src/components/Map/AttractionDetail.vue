@@ -3,10 +3,10 @@
     <div class="bg-white w-3/4 h-5/6 p-4 rounded-lg shadow-lg flex flex-col">
       <div class="text-3xl justify-end flex cursor-pointer" @click="closeModal">x</div>
       <div class="flex flex-col items-center mb-6 mt-3">
-        <img :src="place.Image" alt="place" class="w-full h-48 object-cover rounded-md mb-4" />
+        <img :src="place.firstImage1 || alterImg" alt="place" class="w-full h-48 object-cover rounded-md mb-4" />
         <div class="w-full">
           <h2 class="text-xl font-bold mt-2">{{ place.title }}</h2>
-          <p class="text-sm text-gray-600 mt-1">{{ place.addr1 }}</p>
+          <p class="text-sm text-gray-600 mt-1">{{ place.addr1 || '주소 정보가 없습니다.' }}</p>
         </div>
       </div>
 
@@ -40,12 +40,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { Map } from '@/types/Map'
+import AlterImg from '@/assets/Map/AlterImg.jpg'
 
 export default defineComponent({
   props: {
     place: {
-      type: Object as () => Map,
+      type: Object,
       required: true,
     },
   },
@@ -79,7 +79,7 @@ export default defineComponent({
       },
     ]
 
-    return { closeModal, reviews }
+    return { closeModal, reviews, alterImg: AlterImg }
   },
 })
 </script>
@@ -87,12 +87,12 @@ export default defineComponent({
 <style scoped>
 /* 스크롤바 숨기기 */
 .scrollbar-hide {
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 
 .fixed {
