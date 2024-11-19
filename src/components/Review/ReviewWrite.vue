@@ -92,10 +92,9 @@
             placeholder="위치 추가"
             class="w-full h-12 p-3 border rounded-md outline-none focus:border-[#A8B087]"
           />
-          <select class="w-full p-3 border rounded-md outline-none focus:border-[#A8B087]">
-            <option value="">공개범위</option>
-            <option value="public">전체공개</option>
-            <option value="private">비공개</option>
+          <select class="w-full p-3 border rounded-md outline-none focus:border-[#A8B087]" v-model="form.visibility">
+            <option value="0">전체공개</option>
+            <option v-for="crew in crews" :key="crew.crewId" :value="crew.crewId">{{ crew.name }}</option>
           </select>
         </div>
       </div>
@@ -142,7 +141,7 @@ export default defineComponent({
       content: '',
       hashTags: [] as string[],
       location: '',
-      visibility: 'public',
+      visibility: 0,
       rating: 0,
     })
 
@@ -243,7 +242,7 @@ export default defineComponent({
         point: form.value.rating,
         content: form.value.content,
         hashtags: form.value.hashTags,
-        visibility: 0, //임시값
+        visibility: form.value.visibility,
       }
       // console.log('리뷰 데이터:', reviewData)
       const token = sessionStorage.getItem('accessToken')
@@ -263,6 +262,7 @@ export default defineComponent({
         closeModal()
         location.reload()
       } catch (error) {
+        console.log(reviewData)
         console.error('리뷰 업로드 실패:', error)
       }
     }
@@ -270,7 +270,7 @@ export default defineComponent({
     const fetchCrew = async () => {
       const token = sessionStorage.getItem('accessToken')
       if (!token) {
-        console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+        // console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
         return
       }
       try {
@@ -299,7 +299,7 @@ export default defineComponent({
         content: '',
         hashTags: [],
         location: '',
-        visibility: 'public',
+        visibility: 0,
         rating: 0,
       }
     }
@@ -320,6 +320,7 @@ export default defineComponent({
       removeHashTag,
       validateForm,
       submitReview,
+      crews,
     }
   },
 })
