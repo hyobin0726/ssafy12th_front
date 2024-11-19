@@ -87,18 +87,26 @@
               :disabled="form.hashTags.length >= 5"
             />
           </div>
-          <input
-            type="text"
-            placeholder="위치 추가"
-            class="w-full h-12 p-3 border rounded-md outline-none focus:border-[#A8B087]"
-          />
+          <div>
+            <input
+              type="text"
+              placeholder="위치 추가"
+              class="w-full h-12 p-3 border rounded-md outline-none focus:border-[#A8B087] cursor-pointer"
+              readonly
+              v-model="form.location"
+              @click="openLocationModal"
+            />
+          </div>
+          <p v-if="formErrors.location" class="text-red-500 text-sm">{{ formErrors.location }}</p>
           <select class="w-full p-3 border rounded-md outline-none focus:border-[#A8B087]" v-model="form.visibility">
             <option value="0">전체공개</option>
             <option v-for="crew in crews" :key="crew.crewId" :value="crew.crewId">{{ crew.name }}</option>
           </select>
+          <p v-if="formErrors.visibility" class="text-red-500 text-sm">{{ formErrors.visibility }}</p>
         </div>
       </div>
     </div>
+    <LocationSearchModal v-if="isLocationModalVisible" @close="closeLocationModal" @select="setLocation" />
   </div>
 </template>
 
@@ -113,6 +121,9 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import FullStar from '@/assets/Review/FullStar.svg'
 import EmptyStar from '@/assets/Review/EmptyStar.svg'
 import type { Crew } from '@/types/Crew'
+import LocationSearchModal from '@/components/Review/LocationSearchModal.vue'
+import type { Map } from '@/types/Map'
+
 export default defineComponent({
   name: 'ImageUploader',
   components: {
@@ -121,6 +132,7 @@ export default defineComponent({
     SwiperSlide,
     FullStar,
     EmptyStar,
+    LocationSearchModal,
   },
   props: {
     isVisible: {
@@ -135,30 +147,58 @@ export default defineComponent({
     const fileInput = ref<HTMLInputElement | null>(null)
     const previews = ref<string[]>([])
     const uploadedUrls = ref<string[]>([])
+    const isLocationModalVisible = ref(false)
+    const openLocationModal = () => {
+      isLocationModalVisible.value = true
+    }
+    const closeLocationModal = () => {
+      isLocationModalVisible.value = false
+    }
+    const setLocation = (location: any) => {
+      form.value.location = location.title
+      form.value.attractionId = location.attractionId
+      form.value.gugunId = location.siGunGuCode
+      form.value.gugunSidoId = location.areaCode
+      // console.log('선택한 위치:', location)
+      closeLocationModal()
+    }
 
-    // Form state
     const form = ref({
       content: '',
       hashTags: [] as string[],
       location: '',
       visibility: 0,
       rating: 0,
+      title: '',
+      attractionId: null,
+      gugunId: null,
+      gugunSidoId: null,
     })
 
     const formErrors = ref({
       rating: '',
       image: '',
+      location: '',
+      visibility: '',
     })
 
     const inputHashTag = ref('')
     const validateForm = () => {
       formErrors.value.rating = form.value.rating > 0 ? '' : '별점을 선택해주세요.'
       formErrors.value.image = previews.value.length > 0 ? '' : '한 장 이상 이미지를 추가해 주세요.'
+      formErrors.value.location = form.value.location && form.value.location.length > 0 ? '' : '위치를 선택해주세요.'
+      formErrors.value.visibility = form.value.visibility > 0 ? '' : '공개 범위를 선택해주세요.'
       // console.log(formErrors.value.image)
+      // console.log(formErrors.value.location)
       if (previews.value.length === 0) {
         alert(formErrors.value.image)
       }
-      return formErrors.value.rating === '' && formErrors.value.image === ''
+      return (
+        formErrors.value.rating === '' &&
+        formErrors.value.image === '' &&
+        formErrors.value.location === '' &&
+        formErrors.value.visibility === ''
+      )
     }
 
     const setRating = (value: number) => {
@@ -243,6 +283,10 @@ export default defineComponent({
         content: form.value.content,
         hashtags: form.value.hashTags,
         visibility: form.value.visibility,
+        title: form.value.location,
+        attractionId: form.value.attractionId,
+        gugunId: form.value.gugunId,
+        gugunSidoId: form.value.gugunSidoId,
       }
       // console.log('리뷰 데이터:', reviewData)
       const token = sessionStorage.getItem('accessToken')
@@ -281,7 +325,7 @@ export default defineComponent({
           },
         })
         crews.value = response.data
-        console.log('크루 데이터를 가져왔습니다:', crews.value)
+        // console.log('크루 데이터를 가져왔습니다:', crews.value)
       } catch (error) {
         console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
       }
@@ -301,6 +345,10 @@ export default defineComponent({
         location: '',
         visibility: 0,
         rating: 0,
+        title: '',
+        attractionId: null,
+        gugunId: null,
+        gugunSidoId: null,
       }
     }
 
@@ -321,6 +369,10 @@ export default defineComponent({
       validateForm,
       submitReview,
       crews,
+      openLocationModal,
+      isLocationModalVisible,
+      closeLocationModal,
+      setLocation,
     }
   },
 })
