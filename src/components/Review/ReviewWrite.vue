@@ -104,7 +104,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import axios from 'axios'
 import Back from '@/assets/Nav/Back.svg'
 import { Swiper, SwiperSlide } from 'swiper/vue'
@@ -113,7 +113,7 @@ import 'swiper/css/navigation'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import FullStar from '@/assets/Review/FullStar.svg'
 import EmptyStar from '@/assets/Review/EmptyStar.svg'
-
+import type { Crew } from '@/types/Crew'
 export default defineComponent({
   name: 'ImageUploader',
   components: {
@@ -266,6 +266,30 @@ export default defineComponent({
         console.error('리뷰 업로드 실패:', error)
       }
     }
+    const crews = ref<Crew[]>([])
+    const fetchCrew = async () => {
+      const token = sessionStorage.getItem('accessToken')
+      if (!token) {
+        console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+        return
+      }
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/crew/myCrew`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        crews.value = response.data
+        console.log('크루 데이터를 가져왔습니다:', crews.value)
+      } catch (error) {
+        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
+      }
+    }
+
+    onMounted(() => {
+      fetchCrew()
+    })
 
     const closeModal = () => {
       emit('close')
