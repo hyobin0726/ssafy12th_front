@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full bg-white rounded-lg">
+  <div class="flex w-full">
     <div class="flex-grow overflow-y-auto p-3">
       <div v-if="filteredPlaces.length > 0" class="space-y-2">
         <div
@@ -12,7 +12,7 @@
             <img :src="place.Image" alt="place" class="w-72 h-56 rounded-md" />
           </div>
           <div class="mt-3">
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
               <div class="flex items-end">
                 <h4 class="text-lg">
                   {{ place.title.length > 9 ? place.title.slice(0, 9) + '...' : place.title }}
@@ -23,13 +23,12 @@
                   <span>4.8</span>
                 </div>
               </div>
-              <NonBookMark class="w-5 h-5" />
+              <NonBookMark class="w-4 h-4" />
             </div>
             <p class="text-sm text-gray-500 mt-1">{{ place.addr1 }}</p>
           </div>
         </div>
       </div>
-      <p v-else class="text-sm text-gray-500">검색 결과가 없습니다.</p>
     </div>
 
     <!-- 카테고리 필터 버튼 -->
@@ -50,7 +49,7 @@
         <span class="text-xs text-center whitespace-nowrap">{{ option.name }}</span>
       </button>
     </div>
-    <AttractionDetail v-if="isModalOpen" :place="selectedPlace" @close="isModalOpen = false" />
+    <AttractionDetail v-if="isModalOpen && selectedPlace" :place="selectedPlace" @close="isModalOpen = false" />
   </div>
 </template>
 
@@ -102,20 +101,14 @@ export default defineComponent({
       if (selectedCategory.value === 0) {
         return props.map.map((place) => ({
           ...place,
-          Image:
-            place.firstImage1 && typeof place.firstImage1 === 'string' && place.firstImage1.trim() !== ''
-              ? place.firstImage1
-              : AlterImg,
+          Image: place.firstImage1 ? place.firstImage1 : AlterImg,
         }))
       }
       return props.map
         .filter((place) => place.contentTypeId === selectedCategory.value)
         .map((place) => ({
           ...place,
-          Image:
-            place.firstImage1 && typeof place.firstImage1 === 'string' && place.firstImage1.trim() !== ''
-              ? place.firstImage1
-              : AlterImg,
+          Image: place.firstImage1 ? place.firstImage1 : AlterImg,
         }))
     })
 

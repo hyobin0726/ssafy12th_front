@@ -6,6 +6,7 @@
       :width="'100%'"
       :height="'100vh'"
       :scrollwheel="false"
+      @onLoadKakaoMap="onLoadKakaoMap"
       v-if="loaded"
     >
       <div class="w-[450px] fixed z-[10] p-5 h-full flex flex-col">
@@ -21,7 +22,35 @@
             <Search class="w-6 h-6" />
           </button>
         </div>
-        <div class="mt-4 flex-grow overflow-y-auto">
+
+        <div class="mt-4 flex-grow overflow-y-auto bg-white rounded-lg flex flex-col scrollbar-hide">
+          <div class="p-3 space-y-2">
+            <div v-if="area.length > 0">
+              <div
+                v-for="(item, index) in area"
+                :key="index"
+                class="flex items-center p-2 border rounded-md cursor-pointer hover:bg-gray-100 mb-2"
+                @click="searchByRegion(item.areaCode, null)"
+              >
+                <Location class="w-6 h-6 mr-2" />
+                <p>{{ item.title }} 로 검색하시겠습니까?</p>
+              </div>
+            </div>
+
+            <div v-if="sigungu.length > 0">
+              <div
+                v-for="(item, index) in sigungu"
+                :key="index"
+                class="flex items-center p-2 border rounded-md cursor-pointer hover:bg-gray-100 mb-2"
+                @click="searchByRegion(item.areaCode, item.siGunGuCode)"
+              >
+                <Location class="w-6 h-6 mr-2" />
+                <p>{{ item.title }} 로 검색하시겠습니까?</p>
+              </div>
+            </div>
+          </div>
+
+          <p v-if="check" class="text-sm text-gray-500 p-3">검색 결과가 없습니다.</p>
           <MapModal class="h-full" :map="filteredPlaces" />
         </div>
       </div>
@@ -51,7 +80,7 @@
       <button
         class="fixed left-[50%] top-[5%] bg-[#A8B087] text-white p-2 rounded z-[9] bg-opacity-70"
         style="round: 10px"
-        @click="searchCurrentArea"
+        @click="getInfo"
       >
         이 지역에서 검색
       </button>
@@ -60,55 +89,145 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, markRaw, onMounted } from 'vue'
+import { ref, defineComponent, onMounted } from 'vue'
 import axios from 'axios'
 import { KakaoMap, KakaoMapMarker } from 'vue3-kakao-maps'
 import Search from '@/assets/Map/search.svg'
 import { useMapStore } from '@/stores/Map'
 import MapModal from '@/components/Map/MapModal.vue'
 import type { Map } from '@/types/Map'
-
+import type { area } from '@/types/Map'
+import type { sigungu } from '@/types/Map'
+import AlterImg from '@/assets/Map/AlterImg.jpg'
+import Location from '@/assets/Map/Location.svg'
 export default defineComponent({
   components: {
     Search,
     KakaoMap,
     KakaoMapMarker,
     MapModal,
+    Location,
   },
   setup() {
     const mapStore = useMapStore()
     const searchQuery = ref('')
     const loaded = ref(false)
     const filteredPlaces = ref<Map[]>([])
+    const area = ref<area[]>([])
+    const sigungu = ref<sigungu[]>([])
+    const check = ref(true)
+    const map = ref()
+
+    const onLoadKakaoMap = (mapRef: any) => {
+      map.value = mapRef
+      // 일반 지도와 스카이뷰로 지도 타입을 전환할 수 있는 지도타입 컨트롤을 생성합니다
+      const mapTypeControl = new kakao.maps.MapTypeControl()
+      // 지도 타입 컨트롤을 지도에 표시합니다
+      map.value.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
+    }
+
+    const getInfo = async () => {
+      if (map.value) {
+        // 지도의 현재 중심좌표를 얻어옵니다
+        const center = map.value.getCenter()
+        const latitude = center.getLat()
+        const longitude = center.getLng()
+        const radius = 3000 // 반경 3km 설정
+
+        // 중심 좌표를 mapStore에 업데이트
+        mapStore.setCoordinates(latitude, longitude)
+
+        // console.log('현재 중심 좌표:', latitude, longitude)
+
+        try {
+          // API 호출
+          const response = await axios.get('http://localhost:8080/api/v1/map/search/nearby', {
+            params: { latitude, longitude, radius },
+          })
+
+          const attractions = response.data || []
+          filteredPlaces.value = attractions.map((place: any) => ({
+            ...place,
+            Image: place.firstImage1 ? place.firstImage1 : AlterImg,
+          }))
+          check.value = !filteredPlaces.value.length
+
+          // console.log('근처 검색 결과:', filteredPlaces.value)
+        } catch (error) {
+          console.error('근처 검색 중 오류가 발생했습니다:', error)
+          filteredPlaces.value = []
+        }
+      }
+    }
+
     const currentPosition = ref({
       lat: 37.566826,
       lng: 126.9786567,
     })
-
     const search = async () => {
+      if (!searchQuery.value.trim()) {
+        console.warn('검색어를 입력해주세요.')
+        return
+      }
+
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/map/search/title`, {
           params: { title: searchQuery.value },
         })
-        filteredPlaces.value = response.data
+
+        const attractions = response.data.attractions || []
+        const areaData = response.data.area || []
+        const sigunguData = response.data.sigungu || []
+        filteredPlaces.value = attractions.map((place: any) => ({
+          ...place,
+          Image: place.firstImage1 ? place.firstImage1 : AlterImg,
+        }))
+
         if (filteredPlaces.value.length > 0) {
           const lat = filteredPlaces.value[0].latitude
           const lng = filteredPlaces.value[0].longitude
           mapStore.setCoordinates(lat, lng)
         }
-        // console.log('검색 결과:', filteredPlaces.value)
+
+        area.value = areaData
+        sigungu.value = sigunguData
+
+        // 검색 결과가 없는 경우
+        check.value = !(areaData.length || sigunguData.length || filteredPlaces.value.length)
       } catch (error) {
         console.error('검색 중 오류가 발생했습니다:', error)
         filteredPlaces.value = []
+        area.value = []
+        sigungu.value = []
+        check.value = true
       }
     }
 
-    const searchCurrentArea = () => {
-      console.log('현재 중심에서 검색:', {
-        lat: mapStore.lat,
-        lng: mapStore.lng,
-      })
-      // 현재 중심에서의 검색 API 호출 추가 가능
+    const searchByRegion = async (areaCode: number, siGunGuCode: number | null) => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/map/search/region`, {
+          params: { areaCode, siGunGuCode },
+        })
+        // console.log(response.data)
+
+        const attractions = response.data || []
+        filteredPlaces.value = attractions.map((place: any) => ({
+          ...place,
+          Image: place.firstImage1 ? place.firstImage1 : AlterImg,
+        }))
+
+        if (filteredPlaces.value.length > 0) {
+          const lat = filteredPlaces.value[0].latitude
+          const lng = filteredPlaces.value[0].longitude
+          mapStore.setCoordinates(lat, lng)
+        }
+
+        check.value = !filteredPlaces.value.length
+      } catch (error) {
+        console.error('지역 검색 중 오류가 발생했습니다:', error)
+        filteredPlaces.value = []
+        check.value = true
+      }
     }
 
     onMounted(() => {
@@ -140,10 +259,25 @@ export default defineComponent({
       mapStore,
       loaded,
       search,
-      searchCurrentArea,
+      area,
+      sigungu,
+      check,
+      searchByRegion,
+      onLoadKakaoMap,
+      getInfo,
     }
   },
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+</style>
