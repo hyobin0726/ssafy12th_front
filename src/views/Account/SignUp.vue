@@ -32,20 +32,22 @@
               v-model="loginId"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+              @input="clearIdMessage"
             />
             <button
               type="button"
               @click="checkIdAvailability"
+              :disabled="!isIdValid"
               class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
             >
               아이디 체크
             </button>
           </div>
-          <p v-if="isIdChecked" :class="isIdAvailable ? 'text-green-500' : 'text-red-500'">
-            {{ idMessage }}
-          </p>
           <p v-if="loginId && !isIdValid" class="text-red-500 text-sm mt-1">
             아이디는 8~20자, 숫자와 영문만 포함 가능, 특수문자 금지입니다.
+          </p>
+          <p v-if="isIdChecked" :class="isIdAvailable ? 'text-green-500' : 'text-red-500'">
+            {{ idMessage }}
           </p>
         </div>
 
@@ -178,7 +180,7 @@
 
 <script lang="ts">
 import Logo from '@/assets/logo.svg'
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 export default defineComponent({
@@ -232,6 +234,7 @@ export default defineComponent({
         isPhoneValid.value,
     )
 
+    // 아이디 중복 체크 함수
     const checkIdAvailability = async () => {
       // ID 중복 체크 활성화
       isIdChecked.value = true
@@ -259,6 +262,11 @@ export default defineComponent({
         //   console.error('아이디 체크 중 오류 발생:', error)
         // }
       }
+    }
+
+    //메세지를 초기화
+    const clearIdMessage = () => {
+      idMessage.value = '' // 메시지를 초기화
     }
 
     const startTimer = () => {
@@ -430,6 +438,7 @@ export default defineComponent({
       isPhoneValid,
       isFormValid,
       checkIdAvailability,
+      clearIdMessage,
       sendEmailVerification,
       handleSignUp,
       verifyCode,
