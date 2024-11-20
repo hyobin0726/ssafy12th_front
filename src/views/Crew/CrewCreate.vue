@@ -133,6 +133,7 @@ import { ref } from 'vue'
 import { Globe, Lock } from 'lucide-vue-next'
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
 const isModalOpen = ref(false)
@@ -154,7 +155,7 @@ const closeModal = () => {
   createBoard.value = false
 }
 
-const handleCreateChannel = () => {
+const handleCreateChannel = async () => {
   if (!channelName.value) return
 
   // Here you would typically make an API call to create the channel
@@ -165,9 +166,35 @@ const handleCreateChannel = () => {
     createBoard: createBoard.value,
   })
 
-  // Close modal and navigate to new channel page
-  closeModal()
-  router.push('/crewPage')
+  // API 요청에 필요한 데이터
+  const requestBody = {
+    name: channelName.value,
+    users: [{ userId: 1 }],
+  }
+
+  // Access Token 가져오기
+  const accessToken = sessionStorage.getItem('accessToken')
+  if (!accessToken) {
+    console.error('Access token is missing')
+    return
+  }
+
+  try {
+    // API 호출
+    const response = await axios.post('http://localhost:8080/api/v1/crew/create', requestBody, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+
+    console.log('Crew created successfully:', response.data)
+
+    // 모달 닫고 다른 페이지로 이동
+    closeModal()
+    router.push('/crewPage')
+  } catch (error) {
+    console.error('Failed to create crew:', error)
+  }
 }
 </script>
 
