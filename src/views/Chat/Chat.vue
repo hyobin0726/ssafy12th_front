@@ -13,18 +13,19 @@
       <ul>
         <li
           v-for="chat in filteredChats"
-          :key="chat.userId"
+          :key="chat.roomId"
           class="p-2 flex items-center gap-3 cursor-pointer hover:bg-gray-200"
           @click="selectChat(chat)"
         >
-          <img :src="chat.profileUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
-          <div class="flex-1">
-            <p class="text-sm font-medium">{{ chat.name }}</p>
+          <img :src="chat.participant?.profileUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
+          <div class="flex flex-col">
+            <p class="text-sm font-medium">{{ chat.participant?.loginId }}</p>
             <p class="text-xs text-gray-500 truncate">{{ chat.lastMessage }}</p>
           </div>
-          <span class="text-xs text-gray-400">{{ chat.time }}</span>
+          <span class="text-xs text-gray-400">{{ formatTimestamp(chat.timestamp) }}</span>
         </li>
       </ul>
+
       <!-- + 버튼 -->
       <button
         @click="toggleModal"
@@ -36,34 +37,36 @@
 
     <!-- Chat Panel -->
     <main class="flex-1 flex flex-col">
-      <!-- Header -->
       <header class="p-4 border-b flex items-center gap-3">
-        <img :src="selectedChat?.profileUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
-        <div>
-          <h1 class="text-lg font-medium">{{ selectedChat?.name }}</h1>
-          <p class="text-xs text-gray-500">Last seen {{ selectedChat?.lastSeen }}</p>
+        <div v-if="selectedChat">
+          <img :src="selectedChat?.participant?.profileUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
+          <div>
+            <h1 class="text-lg font-medium">{{ selectedChat?.participant?.name }}</h1>
+            <p class="text-xs text-gray-500">{{ selectedChat?.participant?.loginId }}</p>
+          </div>
+        </div>
+        <div v-else>
+          <p class="text-lg font-medium text-center">채팅 시작하기</p>
         </div>
       </header>
 
       <!-- Chat Messages -->
       <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
         <div
-          v-for="(message, index) in selectedChat?.messages"
+          v-for="(message, index) in messages"
           :key="index"
-          :class="message.isOwn ? 'text-right' : 'text-left'"
+          :class="message.senderId === currentUserId ? 'text-right' : 'text-left'"
           class="mb-4"
         >
           <div
             :class="[
               'inline-block px-4 py-2 rounded-lg',
-              message.isOwn ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800',
+              message.senderId === currentUserId ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800',
             ]"
           >
-            {{ message.text }}
+            {{ message.message }}
           </div>
-          <p class="text-xs text-gray-500 mt-1">
-            {{ message.time }}
-          </p>
+          <p class="text-xs text-gray-500 mt-1">{{ formatTimestamp(message.timestamp) }}</p>
         </div>
       </div>
 
@@ -74,7 +77,6 @@
           placeholder="메시지를 입력해주세요"
           class="flex-1 p-2 border rounded-md focus:outline-none focus:ring focus:ring-green-300"
           v-model="newMessage"
-          @keyup.enter="sendMessage"
         />
         <button class="p-2 bg-green-500 text-white rounded-full hover:bg-green-600" @click="sendMessage">➤</button>
       </footer>
@@ -93,6 +95,7 @@
             placeholder="아이디를 입력해주세요"
             v-model="searchLoginId"
             class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-green-300"
+            @keyup.enter="searchUser"
           />
           <button class="w-1/6 bg-green-400 text-white p-2 rounded-md hover:bg-green-500" @click="searchUser">
             검색
@@ -118,69 +121,145 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
-import axios from 'axios'
+import { defineComponent, ref, computed, onMounted } from 'vue'
+import {
+  collection,
+  doc,
+  getFirestore,
+  addDoc,
+  query,
+  onSnapshot,
+  updateDoc,
+  serverTimestamp,
+  where,
+  getDocs,
+  Timestamp,
+  orderBy,
+} from 'firebase/firestore'
+import type { ChatRoom, Message } from '@/types/Chat'
 import type { Member } from '@/types/Member'
+import { db } from '@/services/firebase'
+import axios from 'axios'
+
 export default defineComponent({
   name: 'ChatApp',
   setup() {
-    const chats = ref([
-      {
-        userId: 3,
-        name: '허준수',
-        profileUrl: 'https://via.placeholder.com/40',
-        lastMessage: '입력중..',
-        time: '5m ago',
-        lastSeen: '5 minutes ago',
-        messages: [],
-      },
-      {
-        userId: 4,
-        name: '박효빈',
-        profileUrl: 'https://via.placeholder.com/40',
-        lastMessage: '메롱',
-        time: '2h ago',
-        lastSeen: '2 hours ago',
-        messages: [
-          { text: '안녕', time: '12:24 PM', isOwn: true },
-          { text: '안녕하세요', time: '12:26 PM', isOwn: false },
-          { text: '메롱', time: '12:28 PM', isOwn: true },
-        ],
-      },
-    ])
-
-    const selectedChat = ref(chats.value[0])
+    const chats = ref<ChatRoom[]>([])
+    const messages = ref<Message[]>([])
+    const selectedChat = ref<ChatRoom | null>(null)
     const searchQuery = ref('')
     const newMessage = ref('')
     const isModalOpen = ref(false)
-    const searchLoginId = ref('') // 검색어
+    const searchLoginId = ref('')
     const searchResults = ref<Member | null>(null)
-    const filteredChats = computed(() => {
-      return chats.value.filter((chat) => chat.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
-    })
+    const currentUserId = ref<number>(0)
+    const formatTimestamp = (timestamp: Timestamp) => {
+      if (!timestamp) return ''
 
-    const selectChat = (chat: (typeof chats.value)[0]) => {
+      const date = timestamp.toDate()
+      return date.toLocaleString('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+    }
+    const filteredChats = computed(() =>
+      chats.value.filter((chat) => chat.participant.loginId.toLowerCase().includes(searchQuery.value.toLowerCase())),
+    )
+
+    const fetchChatRooms = async () => {
+      const q = query(
+        collection(db, 'chatRooms'),
+        where('participants', 'array-contains', currentUserId.value),
+        orderBy('timestamp', 'desc'),
+      )
+
+      onSnapshot(q, async (snapshot) => {
+        const rooms = await Promise.all(
+          snapshot.docs.map(async (doc) => {
+            const room = doc.data()
+            const otherUserId = room.participants.find((id: number) => id !== currentUserId.value)
+
+            let userData = null
+            try {
+              const response = await axios.get(`http://localhost:8080/api/v1/member/${otherUserId}`)
+              userData = response.data
+            } catch (error) {
+              console.error(`Failed to fetch user data for userId: ${otherUserId}`, error)
+              userData = {
+                userId: otherUserId,
+                name: '알 수 없음',
+                profileUrl: '',
+                loginId: 'unknown',
+              }
+            }
+
+            return {
+              roomId: doc.id,
+              lastMessage: room.lastMessage,
+              timestamp: room.timestamp,
+              participant: userData,
+              participants: room.participants,
+            }
+          }),
+        )
+
+        chats.value = rooms as ChatRoom[]
+      })
+    }
+    const selectChat = async (chat: ChatRoom) => {
       selectedChat.value = chat
+      const messagesRef = collection(db, 'chatRooms', chat.roomId, 'messages')
+      const messagesQuery = query(messagesRef, orderBy('timestamp', 'desc'))
+      onSnapshot(messagesQuery, (snapshot) => {
+        messages.value = snapshot.docs.map((doc) => doc.data() as Message).reverse()
+      })
     }
 
-    const sendMessage = () => {
-      if (newMessage.value.trim() !== '') {
-        selectedChat.value?.messages.push({
-          text: newMessage.value,
-          time: 'Now',
-          isOwn: true,
+    const sendMessage = async () => {
+      if (!selectedChat.value || newMessage.value.trim() === '') return
+
+      const recipientId = selectedChat.value.participants.find((id) => id !== currentUserId.value)
+
+      // console.log('currentUserId:', currentUserId.value, 'recipientId:', recipientId)
+
+      const messagesRef = collection(db, 'chatRooms', selectedChat.value.roomId, 'messages')
+
+      await addDoc(messagesRef, {
+        senderId: currentUserId.value,
+        recipientId,
+        message: newMessage.value,
+        timestamp: serverTimestamp(),
+      })
+
+      const chatRoomRef = doc(db, 'chatRooms', selectedChat.value.roomId)
+      await updateDoc(chatRoomRef, {
+        lastMessage: newMessage.value,
+        timestamp: serverTimestamp(),
+      })
+
+      newMessage.value = ''
+    }
+
+    const fetchMyId = async () => {
+      const token = sessionStorage.getItem('accessToken')
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/member`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
-        newMessage.value = ''
+        currentUserId.value = response.data.userId
+      } catch (error) {
+        console.error('사용자 정보를 가져오는데 실패했습니다:', error)
       }
     }
-    const toggleModal = () => {
-      isModalOpen.value = !isModalOpen.value
-    }
-
     const searchUser = async () => {
-      if (searchLoginId.value === '') {
-        return
-      }
+      if (searchLoginId.value === '') return
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/member/search`, {
           params: {
@@ -188,60 +267,75 @@ export default defineComponent({
           },
         })
         if (response.data) {
-          searchResults.value = response.data
+          searchResults.value = response.data as Member
+        } else {
+          searchResults.value = null
         }
-        searchLoginId.value = ''
-        // console.log('회원 검색 결과:', response.data)
       } catch (error) {
+        console.error('회원 검색에 실패했습니다:', error)
         searchResults.value = null
-        searchLoginId.value = ''
-        // console.error('회원 검색에 실패했습니다:', error)
       }
     }
 
-    const startChatWithUser = (user: Member) => {
-      const existingChat = chats.value.find((chat) => chat.userId === user.userId)
-
+    const startChatWithUser = async (user: Member) => {
+      const existingChat = chats.value.find((chat) => chat.participants.includes(user.userId))
+      // console.log('existingChat:', chats.value)
       if (existingChat) {
+        console.log('existingChat:', existingChat)
         selectedChat.value = existingChat
+        await selectChat(existingChat)
         toggleModal()
         return
       }
-
-      const newChat = {
-        userId: user.userId,
-        name: user.name,
-        profileUrl: user.profileUrl,
+      const chatRoomRef = await addDoc(collection(db, 'chatRooms'), {
+        participants: [currentUserId.value, user.userId],
         lastMessage: '',
-        time: 'Now',
-        lastSeen: 'Just now',
-        messages: [],
-      }
+        timestamp: serverTimestamp(),
+      })
 
-      chats.value.push(newChat)
-      selectedChat.value = newChat
+      selectChat({
+        roomId: chatRoomRef.id,
+        participants: [currentUserId.value, user.userId],
+        lastMessage: '',
+        timestamp: '',
+        participant: {
+          name: user.name,
+          loginId: user.loginId,
+          profileUrl: user.profileUrl,
+        },
+      })
+
       toggleModal()
     }
+
+    const toggleModal = () => {
+      isModalOpen.value = !isModalOpen.value
+    }
+
+    onMounted(async () => {
+      await fetchMyId()
+      fetchChatRooms()
+    })
 
     return {
       chats,
       selectedChat,
+      messages,
       searchQuery,
       newMessage,
       isModalOpen,
       searchLoginId,
       searchResults,
-      toggleModal,
-      searchUser,
-      startChatWithUser,
+      currentUserId,
       filteredChats,
       selectChat,
       sendMessage,
+      toggleModal,
+      searchUser,
+      startChatWithUser,
+      fetchMyId,
+      formatTimestamp,
     }
   },
 })
 </script>
-
-<style scoped>
-/* 모달 관련 스타일 */
-</style>
