@@ -1,4 +1,4 @@
-<!-- KoreaMap.vue -->
+<!-- CrewPage.vue -->
 <template>
   <div class="h-screen flex flex-col">
     <!-- 심플한 헤더 -->
