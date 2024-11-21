@@ -5,7 +5,7 @@
   <!-- 모임 생성 모달 -->
   <!-- Modal -->
   <!-- <div class="min-h-screen bg-white flex flex-col items-center justify-center"> -->
-  <TransitionRoot appear :show="isCrewModalOpen" as="template">
+  <TransitionRoot v-if="isOpen" appear :show="isOpen" as="template">
     <Dialog as="div" @close="closeModal" class="relative z-50">
       <TransitionChild
         enter="duration-300 ease-out"
@@ -111,10 +111,14 @@ export default defineComponent({
     TransitionRoot,
     TransitionChild,
   },
+  props: {
+    isOpen: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  emits: ['close', 'created'],
   setup() {
-    //모임 모달 상태
-    const isCrewModalOpen = ref(false)
-
     //모임 생성
     const channelName = ref('')
     const searchUser = ref('')
@@ -211,7 +215,6 @@ export default defineComponent({
       }
     }
     return {
-      isCrewModalOpen,
       closeModal,
       channelName,
       searchUser,
@@ -220,6 +223,16 @@ export default defineComponent({
       invitedUsers,
       handleCreateCrew,
     }
+  },
+  methods: {
+    // Close Modal
+    closeModal() {
+      // channelName.value = ''
+      // searchUser.value = ''
+      // invitedUsers.value = []
+      // searchError.value = ''
+      this.$emit('close')
+    },
   },
 })
 </script>

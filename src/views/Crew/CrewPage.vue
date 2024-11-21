@@ -32,26 +32,22 @@
 
           <!-- 메뉴 드롭바 -->
           <div class="relative">
-            <button
-              @click="isDropdownOpen = !isDropdownOpen"
-              class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700"
-            >
-              Menu
-            </button>
+            <!-- 드롭다운 버튼 -->
+            <button @click="toggleDropdown" class="px-4 py-2 bg-blue-500 text-white rounded-md">모임</button>
 
-            <div
-              v-if="isDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1"
-            >
-              <button @click="onCrewCreated" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                모임 생성
-              </button>
-              <button @click="handleViewCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                내 모임 조회
-              </button>
-              <button @click="handleLeaveCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                모임 나가기
-              </button>
+            <!-- 드롭다운 메뉴 -->
+            <div v-if="isDropdownOpen" class="absolute mt-2 bg-white border rounded-md shadow-lg">
+              <!-- 사용자가 가입한 모임 목록 -->
+              <ul>
+                <li v-for="crew in myCrews" :key="crew.crewId" class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                  {{ crew.name }}
+                </li>
+              </ul>
+
+              <!-- 모임 생성 버튼 -->
+              <div class="border-t">
+                <button @click="onCrewCreated" class="w-full px-4 py-2 text-left hover:bg-gray-100">모임 생성</button>
+              </div>
             </div>
           </div>
         </div>
@@ -59,106 +55,7 @@
     </header>
 
     <!-- 컴포넌트 안보이는 이슈 -->
-    <!-- <CrewNewCreate :isOpen="isCrewModalOpen" @close="closeModal" @created="onCrewCreated" /> -->
-
-    <!-- 모임 생성 모달 -->
-    <!-- Modal -->
-    <!-- <div class="min-h-screen bg-white flex flex-col items-center justify-center"> -->
-    <TransitionRoot appear :show="isCrewModalOpen" as="template">
-      <Dialog as="div" @close="closeModal" class="relative z-50">
-        <TransitionChild
-          enter="duration-300 ease-out"
-          enter-from="opacity-0"
-          enter-to="opacity-100"
-          leave="duration-200 ease-in"
-          leave-from="opacity-100"
-          leave-to="opacity-0"
-        >
-          <div class="fixed inset-0 bg-black bg-opacity-25" />
-        </TransitionChild>
-
-        <div class="fixed inset-0 overflow-y-auto">
-          <div class="flex min-h-full items-center justify-center p-4">
-            <TransitionChild
-              enter="duration-300 ease-out"
-              enter-from="opacity-0 scale-95"
-              enter-to="opacity-100 scale-100"
-              leave="duration-200 ease-in"
-              leave-from="opacity-100 scale-100"
-              leave-to="opacity-0 scale-95"
-            >
-              <DialogPanel
-                class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 shadow-xl transition-all"
-              >
-                <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 mb-4"
-                  >새 모임 만들기</DialogTitle
-                >
-
-                <!-- 모임명 입력 -->
-                <div class="mb-4">
-                  <input
-                    v-model="channelName"
-                    type="text"
-                    placeholder="모임명을 입력하세요"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <p v-if="!channelName" class="text-xs text-red-500 mt-1">모임명은 필수입니다.</p>
-                </div>
-
-                <!-- 사용자 검색 -->
-                <div class="mb-4">
-                  <div class="flex gap-2">
-                    <input
-                      v-model="searchUser"
-                      type="text"
-                      placeholder="사용자 아이디 입력"
-                      class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      @click="searchForUser"
-                      class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                    >
-                      검색
-                    </button>
-                  </div>
-                  <p v-if="searchError" class="text-xs text-red-500 mt-1">{{ searchError }}</p>
-                </div>
-
-                <!-- 초대 목록 -->
-                <div v-if="invitedUsers.length" class="mb-4">
-                  <p class="text-gray-600 mb-2">초대된 사용자:</p>
-                  <ul class="flex flex-wrap gap-2">
-                    <li
-                      v-for="user in invitedUsers"
-                      :key="user.userId"
-                      class="px-3 py-1 bg-blue-100 text-blue-800 rounded-md"
-                    >
-                      {{ user.loginId }}
-                    </li>
-                  </ul>
-                </div>
-
-                <!-- 모임 생성 버튼 -->
-                <div class="mt-6 flex justify-end gap-3">
-                  <button
-                    @click="closeModal"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
-                  >
-                    취소
-                  </button>
-                  <button
-                    @click="handleCreateCrew"
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    모임 만들기
-                  </button>
-                </div>
-              </DialogPanel>
-            </TransitionChild>
-          </div>
-        </div>
-      </Dialog>
-    </TransitionRoot>
+    <CrewNewCreate :isOpen="isCrewModalOpen" @close="isCrewModalOpen = false" @created="onCrewCreated" />
 
     <!--ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ카카오맵ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-->
     <div class="flex-1" id="map" style="width: 100%; height: calc(100vh - 64px)"></div>
@@ -209,6 +106,32 @@ export default defineComponent({
     const searchUser = ref('')
     const invitedUsers = ref<{ userId: number; loginId: string }[]>([])
     const searchError = ref('')
+    // 드롭다운 상태 관리
+    const isDropdownOpen = ref(false)
+    const myCrews = ref<{ crewId: number; name: string }[]>([]) // 사용자의 모임 목록
+
+    // 드롭다운 토글
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value
+    }
+
+    // 사용자의 모임 목록 조회
+    const fetchMyCrews = async () => {
+      const accessToken = sessionStorage.getItem('accessToken') // 인증 토큰 가져오기
+      if (!accessToken) {
+        console.error('Access token is missing')
+        return
+      }
+
+      try {
+        const response = await axios.get('http://localhost:8080/api/v1/crew/myCrew', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        myCrews.value = response.data // 반환된 모임 목록 저장
+      } catch (error) {
+        console.error('Failed to fetch crews:', error)
+      }
+    }
 
     // 버튼 클릭 핸들러
     const handleCreateCrew = async () => {
@@ -320,8 +243,6 @@ export default defineComponent({
     const isModalOpen = ref(false)
     const selectedRegion = ref<{ sido: string; sigungu: string; sigkornm: string } | null>(null)
 
-    // 맵 드롭다운 상태 관리
-    const isDropdownOpen = ref(false)
     // 지도 초기화
     const initializeMap = () => {
       const mapContainer = document.getElementById('map')
@@ -409,6 +330,7 @@ export default defineComponent({
     // 컴포넌트 마운트 시 초기화
     onMounted(() => {
       initializeMap()
+      fetchMyCrews()
     })
 
     return {
@@ -420,6 +342,10 @@ export default defineComponent({
       searchForUser,
       searchError,
       invitedUsers,
+
+      //모임 드롭바관련
+      toggleDropdown,
+      myCrews,
 
       isDropdownOpen,
       handleCreateCrew,
