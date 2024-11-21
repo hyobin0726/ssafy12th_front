@@ -55,7 +55,7 @@
     </header>
 
     <!-- 컴포넌트 안보이는 이슈 -->
-    <CrewNewCreate :isOpen="isCrewModalOpen" @close="isCrewModalOpen = false" @created="onCrewCreated" />
+    <CrewNewCreate :isOpen="isCrewModalOpen" @close="closeModal" @created="onCrewCreated" />
 
     <!--ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ카카오맵ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-->
     <div class="flex-1" id="map" style="width: 100%; height: calc(100vh - 64px)"></div>

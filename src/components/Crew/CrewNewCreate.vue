@@ -5,7 +5,8 @@
   <!-- 모임 생성 모달 -->
   <!-- Modal -->
   <!-- <div class="min-h-screen bg-white flex flex-col items-center justify-center"> -->
-  <TransitionRoot v-if="isOpen" appear :show="isOpen" as="template">
+  <!-- //오늘 추가한거 isModalOpen -->
+  <TransitionRoot appear :show="isModalOpen" as="template">
     <Dialog as="div" @close="closeModal" class="relative z-50">
       <TransitionChild
         enter="duration-300 ease-out"
@@ -120,13 +121,20 @@ export default defineComponent({
   emits: ['close', 'created'],
   setup() {
     //모임 생성
+    const isModalOpen = ref(false) //오늘 추가한거
     const channelName = ref('')
     const searchUser = ref('')
     const invitedUsers = ref<{ userId: number; loginId: string }[]>([])
     const searchError = ref('')
 
+    // 모달 열기 //오늘 추가한거
+    const openModal = () => {
+      isModalOpen.value = true
+    }
+
     // Close Modal
     const closeModal = () => {
+      isModalOpen.value = false //오늘 추가한거
       channelName.value = ''
       searchUser.value = ''
       invitedUsers.value = []
@@ -215,6 +223,8 @@ export default defineComponent({
       }
     }
     return {
+      isModalOpen,
+      openModal,
       closeModal,
       channelName,
       searchUser,
