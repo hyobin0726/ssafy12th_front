@@ -1,13 +1,13 @@
-<!-- KoreaMap.vue -->
+<!-- CrewNewCreate.vue -->
 <template>
   <!-- 심플한 헤더 -->
   <!-- Header -->
   <!-- 모임 생성 모달 -->
   <!-- Modal -->
   <!-- <div class="min-h-screen bg-white flex flex-col items-center justify-center"> -->
-  <!-- //오늘 추가한거 isModalOpen -->
-  <TransitionRoot appear :show="isModalOpen" as="template">
-    <Dialog as="div" @close="closeModal" class="relative z-50">
+  <!-- Modal -->
+  <TransitionRoot appear :show="true" as="template">
+    <Dialog as="div" @close="$emit('close')" class="relative z-50">
       <TransitionChild
         enter="duration-300 ease-out"
         enter-from="opacity-0"
@@ -78,13 +78,13 @@
               <!-- 모임 생성 버튼 -->
               <div class="mt-6 flex justify-end gap-3">
                 <button
-                  @click="closeModal"
+                  @click="$emit('close')"
                   class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
                 >
                   취소
                 </button>
                 <button
-                  @click="handleCreateCrew"
+                  @click="handleCreateChannel"
                   class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                 >
                   모임 만들기
@@ -96,11 +96,10 @@
       </div>
     </Dialog>
   </TransitionRoot>
-  <!-- </div> -->
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { ref, defineComponent } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import axios from 'axios'
 
@@ -112,34 +111,15 @@ export default defineComponent({
     TransitionRoot,
     TransitionChild,
   },
-  props: {
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  emits: ['close', 'created'],
-  setup() {
+  setup(_, { emit }) {
     //모임 생성
-    const isModalOpen = ref(false) //오늘 추가한거
     const channelName = ref('')
-    const searchUser = ref('')
     const invitedUsers = ref<{ userId: number; loginId: string }[]>([])
+
+    //사용자 검색
+    const searchUser = ref('')
     const searchError = ref('')
 
-    // 모달 열기 //오늘 추가한거
-    const openModal = () => {
-      isModalOpen.value = true
-    }
-
-    // Close Modal
-    const closeModal = () => {
-      isModalOpen.value = false //오늘 추가한거
-      channelName.value = ''
-      searchUser.value = ''
-      invitedUsers.value = []
-      searchError.value = ''
-    }
     // 사용자 검색
     const searchForUser = async () => {
       if (!searchUser.value) {
@@ -175,19 +155,10 @@ export default defineComponent({
     }
 
     // 버튼 클릭 핸들러
-    const handleCreateCrew = async () => {
+    const handleCreateChannel = async () => {
       if (!channelName.value) return
 
-      console.log('모임 생성 버튼 클릭')
-      // 모임 생성 로직 추가
-
-      // Here you would typically make an API call to create the channel
-      // console.log({
-      //   name: channelName.value,
-      //   type: channelType.value,
-      //   purpose: purpose.value,
-      //   createBoard: createBoard.value,
-      // })
+      console.log('컴포넌트 모달 : 모임 생성 버튼 클릭')
       console.log('모임 생성:', {
         name: channelName.value,
         invitedUsers: invitedUsers.value,
@@ -217,32 +188,21 @@ export default defineComponent({
         console.log('Crew created successfully:', response.data)
 
         // 모달 닫고 다른 페이지로 이동
-        closeModal()
+        // closeModal()
+        emit('close') // emit을 사용해 close 이벤트를 부모로 전달
+        emit('fetchMyCrews')
       } catch (error) {
         console.error('Failed to create crew:', error)
       }
     }
     return {
-      isModalOpen,
-      openModal,
-      closeModal,
       channelName,
       searchUser,
       searchForUser,
       searchError,
       invitedUsers,
-      handleCreateCrew,
+      handleCreateChannel,
     }
-  },
-  methods: {
-    // Close Modal
-    closeModal() {
-      // channelName.value = ''
-      // searchUser.value = ''
-      // invitedUsers.value = []
-      // searchError.value = ''
-      this.$emit('close')
-    },
   },
 })
 </script>

@@ -133,7 +133,6 @@ export default defineComponent({
     const channelName = ref('')
 
     const searchUser = ref('')
-    // const invitedUsers = ref<{ id: number; name: string }[]>([])
     const invitedUsers = ref<{ userId: number; loginId: string }[]>([])
     const searchError = ref('')
 

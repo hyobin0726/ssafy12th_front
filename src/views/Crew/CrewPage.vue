@@ -46,37 +46,25 @@
 
               <!-- 모임 생성 버튼 -->
               <div class="border-t">
-                <button @click="onCrewCreated" class="w-full px-4 py-2 text-left hover:bg-gray-100">모임 생성</button>
+                <button @click="showCreateCrew" class="w-full px-4 py-2 text-left hover:bg-gray-100">모임 생성</button>
               </div>
+              <button @click="handleViewCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
+                내 모임 조회
+              </button>
+              <button @click="handleLeaveCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
+                모임 나가기
+              </button>
             </div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- 컴포넌트 안보이는 이슈 -->
-    <CrewNewCreate :isOpen="isCrewModalOpen" @close="closeModal" @created="onCrewCreated" />
+    <!-- CrewNewCreate 컴포넌트 표시 -->
+    <CrewNewCreate v-if="isModalOpen" @close="closeModal" @fetchMyCrews="fetchMyCrews" />
 
-    <!--ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ카카오맵ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-->
-    <div class="flex-1" id="map" style="width: 100%; height: calc(100vh - 64px)"></div>
-    <!-- Modal Toggle Button -->
-    <button
-      class="fixed top-20 left-5 bg-green-500 text-white p-3 rounded-full shadow-lg z-50"
-      @click="isModalOpen = !isModalOpen"
-    >
-      {{ isModalOpen ? '모달 닫기' : '모달 열기' }}
-    </button>
-
-    <!-- Modal -->
-    <div v-if="isModalOpen" class="fixed top-20 left-16 bg-white shadow-md border rounded-lg w-80 z-50 p-4">
-      <h2 class="text-xl font-bold mb-2">선택된 지역 정보</h2>
-      <div v-if="selectedRegion">
-        <p class="text-gray-800 font-medium">시도: {{ selectedRegion.sido }}</p>
-        <p class="text-gray-800 font-medium">시군구: {{ selectedRegion.sigungu }}</p>
-        <p class="text-gray-800 font-medium">이름: {{ selectedRegion.sigkornm }}</p>
-      </div>
-      <p v-else class="text-gray-500">아직 지역을 선택하지 않았습니다.</p>
-    </div>
+    <!-- 카카오맵 api & 지도 시군구 폴리곤 출력 -->
+    <CrewMap />
   </div>
 </template>
 
@@ -84,30 +72,17 @@
 import { ref, onMounted, defineComponent } from 'vue'
 import axios from 'axios'
 import CrewNewCreate from '@/components/Crew/CrewNewCreate.vue'
-
-//모달 생서위해추가
-import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
+import CrewMap from '@/components/Crew/CrewMap.vue'
 
 export default defineComponent({
   components: {
     CrewNewCreate,
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-    TransitionRoot,
-    TransitionChild,
+    CrewMap,
   },
   setup() {
-    //모임 모달 관련
-    //모임 모달 상태
-    const isCrewModalOpen = ref(false)
-    //모임 생성
-    const channelName = ref('')
-    const searchUser = ref('')
-    const invitedUsers = ref<{ userId: number; loginId: string }[]>([])
-    const searchError = ref('')
     // 드롭다운 상태 관리
-    const isDropdownOpen = ref(false)
+    const isDropdownOpen = ref(false) // 드롭다운 메뉴 상태
+    const isModalOpen = ref(false) // 모임 생성 컴포넌트 표시 상태
     const myCrews = ref<{ crewId: number; name: string }[]>([]) // 사용자의 모임 목록
 
     // 드롭다운 토글
@@ -133,94 +108,15 @@ export default defineComponent({
       }
     }
 
-    // 버튼 클릭 핸들러
-    const handleCreateCrew = async () => {
-      if (!channelName.value) return
-      console.log('이게 ㄹㅇ 만드는거 크루')
-      // 모임 생성 로직 추가
-
-      console.log('모임 생성:', {
-        name: channelName.value,
-        invitedUsers: invitedUsers.value,
-      })
-
-      // API 요청에 필요한 데이터
-      const requestBody = {
-        name: channelName.value,
-        users: invitedUsers.value,
-      }
-
-      // Access Token 가져오기
-      const accessToken = sessionStorage.getItem('accessToken')
-      if (!accessToken) {
-        console.error('Access token is missing')
-        return
-      }
-
-      try {
-        // API 호출
-        const response = await axios.post('http://localhost:8080/api/v1/crew/create', requestBody, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-
-        console.log('Crew created successfully:', response.data)
-
-        // 모달 닫고 다른 페이지로 이동
-        closeModal()
-      } catch (error) {
-        console.error('Failed to create crew:', error)
-      }
+    //모임 생성
+    const showCreateCrew = () => {
+      console.log('모임페이지에서 생성 버튼 클릭')
+      isModalOpen.value = true // 모임 생성 화면 표시
+      isDropdownOpen.value = false // 드롭다운 닫기
     }
 
-    // 모임 모달 닫기
     const closeModal = () => {
-      isCrewModalOpen.value = false
-      channelName.value = ''
-      searchUser.value = ''
-      invitedUsers.value = []
-      searchError.value = ''
-    }
-
-    // 사용자 검색
-    const searchForUser = async () => {
-      if (!searchUser.value) {
-        searchError.value = '사용자 아이디를 입력하세요.'
-        return
-      }
-
-      const accessToken = sessionStorage.getItem('accessToken')
-      if (!accessToken) {
-        console.error('Access token is missing')
-        searchError.value = '로그인 상태를 확인해주세요.'
-        return
-      }
-
-      try {
-        // API 호출
-        const response = await axios.get(`http://localhost:8080/api/v1/member/search?loginId=${searchUser.value}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-
-        const userData = response.data
-
-        // invitedUsers 배열에 사용자 추가
-        invitedUsers.value.push({ userId: userData.userId, loginId: userData.loginId })
-        searchUser.value = '' // 입력 필드 초기화
-        searchError.value = '' // 에러 메시지 초기화
-      } catch (error) {
-        console.error('사용자 검색 실패:', error)
-        searchError.value = '사용자를 찾을 수 없습니다. 다시 시도해주세요.'
-      }
-    }
-
-    const onCrewCreated = () => {
-      console.log('모임 생성 버튼 클릭')
-      isCrewModalOpen.value = true
-      // 모임 생성 로직 추가
+      isModalOpen.value = false // 모임 생성 화면 숨기기
     }
 
     const handleViewCrew = () => {
@@ -233,130 +129,27 @@ export default defineComponent({
       // 모임 나가기 로직 추가
     }
 
-    // 맵관련ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-    // 지도 및 폴리곤 관련 상태
-    const kakaoMap = ref<kakao.maps.Map | undefined>(undefined)
-    const polygons = ref<kakao.maps.Polygon[]>([])
-    const detailMode = ref(false)
-
-    // 맵 모달 상태
-    const isModalOpen = ref(false)
-    const selectedRegion = ref<{ sido: string; sigungu: string; sigkornm: string } | null>(null)
-
-    // 지도 초기화
-    const initializeMap = () => {
-      const mapContainer = document.getElementById('map')
-      if (!mapContainer) return
-
-      kakaoMap.value = new kakao.maps.Map(mapContainer, {
-        center: new kakao.maps.LatLng(37.566826, 126.9786567), // 서울 중심 좌표
-        level: 12,
-      })
-
-      kakao.maps.event.addListener(kakaoMap.value, 'zoom_changed', handleZoomChange)
-
-      loadPolygons('sido.json') // 초기 시도 폴리곤 로드
-    }
-
-    // 줌 변경 이벤트 핸들러
-    const handleZoomChange = () => {
-      if (!kakaoMap.value) return
-
-      const level = kakaoMap.value.getLevel()
-      if (detailMode.value && level > 10) {
-        detailMode.value = false
-        clearPolygons()
-        loadPolygons('sido.json')
-      } else if (!detailMode.value && level <= 10) {
-        detailMode.value = true
-        clearPolygons()
-        loadPolygons('sigungu.json')
-      }
-    }
-
-    // 폴리곤 데이터 로드
-    const loadPolygons = async (url: string) => {
-      try {
-        const response = await axios.get(`/${url}`) // JSON 파일 경로 수정
-        const features = response.data.features
-
-        features.forEach((feature: any) => {
-          const path = feature.geometry.coordinates[0].map(
-            (coord: number[]) => new kakao.maps.LatLng(coord[1], coord[0]),
-          )
-
-          const polygon = new kakao.maps.Polygon({
-            map: kakaoMap.value,
-            path: path,
-            strokeWeight: 2,
-            strokeColor: '#004c80',
-            strokeOpacity: 0.8,
-            fillColor: '#fff',
-            fillOpacity: 0.7,
-          })
-
-          polygons.value.push(polygon)
-
-          kakao.maps.event.addListener(polygon, 'mouseover', () => {
-            polygon.setOptions({ fillColor: '#09f' })
-          })
-
-          kakao.maps.event.addListener(polygon, 'mouseout', () => {
-            polygon.setOptions({ fillColor: '#fff' })
-          })
-
-          // 클릭 이벤트: 선택한 지역 정보를 저장
-          kakao.maps.event.addListener(polygon, 'click', () => {
-            console.log(feature.properties)
-            selectedRegion.value = {
-              sido: feature.properties.CTP_ENG_NM || 'N/A',
-              sigungu: feature.properties.SIG_ENG_NM || 'N/A',
-              sigkornm: feature.properties.SIG_KOR_NM || 'N/A',
-            }
-            isModalOpen.value = true
-          })
-        })
-      } catch (error) {
-        console.error('폴리곤 데이터 로드 실패:', error)
-      }
-    }
-
-    // 폴리곤 제거
-    const clearPolygons = () => {
-      polygons.value.forEach((polygon) => polygon.setMap(null))
-      polygons.value = []
-    }
-
     // 컴포넌트 마운트 시 초기화
     onMounted(() => {
-      initializeMap()
       fetchMyCrews()
     })
 
     return {
-      isCrewModalOpen,
-
-      //모임위한것들
-      channelName,
-      searchUser,
-      searchForUser,
-      searchError,
-      invitedUsers,
+      isDropdownOpen,
+      //모임 생성
+      showCreateCrew,
+      isModalOpen,
+      closeModal,
+      fetchMyCrews, //컴포넌트로 보내기위해
 
       //모임 드롭바관련
       toggleDropdown,
       myCrews,
 
-      isDropdownOpen,
-      handleCreateCrew,
-      closeModal,
-      onCrewCreated,
-      CrewNewCreate,
-
+      //모임 조회
       handleViewCrew,
+      //모임 떠나기
       handleLeaveCrew,
-      isModalOpen,
-      selectedRegion,
     }
   },
 })
