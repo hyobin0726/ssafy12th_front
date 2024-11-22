@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Main from '../views/Main.vue'
-import Test from '../views/Test.vue'
 import Login from '../views/Account/Login.vue'
 import SignUp from '../views/Account/SignUp.vue'
 import ReviewList from '../views/Review/ReviewList.vue'
@@ -10,16 +9,12 @@ import Search from '@/views/Search/Search.vue'
 import CrewCreate from '@/views/Crew/CrewCreate.vue'
 import CrewPage from '@/views/Crew/CrewPage.vue'
 import Chat from '@/views/Chat/Chat.vue'
+import MainView from '@/views/MainView.vue'
 const routes = [
   {
     path: '/',
     name: 'Main',
     component: Main,
-  },
-  {
-    path: '/test',
-    name: 'Test',
-    component: Test,
   },
   {
     path: '/login',
@@ -65,6 +60,11 @@ const routes = [
     path: '/chat',
     name: 'Chat',
     component: Chat,
+  },
+  {
+    path: '/mainView',
+    name: 'MainView',
+    component: MainView,
   },
 ]
 

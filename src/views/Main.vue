@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1 class="bg-blue-500 text-white p-4">Main Page tailwind 적용</h1>
-    <router-link to="/test">라우터 클릭</router-link>
     <br />
     <router-link to="/login">로그인</router-link>
     <br />
@@ -18,6 +17,8 @@
     <router-link to="/crewCreate">모임생성</router-link>
     <br />
     <router-link to="/crewPage">모임페이지</router-link>
+    <br />
+    <router-link to="/mainView">메인</router-link>
   </div>
 </template>
 
