@@ -80,7 +80,7 @@ export default defineComponent({
       } else if (!detailMode.value && level <= 10) {
         detailMode.value = true
         clearPolygons()
-        loadPolygons('sigungu.json')
+        loadPolygons('sigungu_modify.json')
       }
     }
 
