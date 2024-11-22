@@ -150,16 +150,21 @@ export default defineComponent({
     const crewName = ref(props.crewNameProp)
     const searchUser = ref('')
     const searchError = ref('')
-    // interface CrewUser {  //이렇게 써도된다는 것을 알기위해 적어둠
-    //   loginId: string
-    // }
-    const crewUsers = ref<{ loginId: string }[]>([]) // 사용자의 모임 목록
+    //이렇게 써도된다는 것을 알기위해 적어둠
+    interface CrewUser {
+      crewUserId: number
+      joinedAt: string
+      crewId: number
+      userId: number
+      loginId: string
+    }
+    const crewUsers = ref<CrewUser[]>([]) // 사용자의 모임 목록
     const addedMembers = ref<{ userId: number; loginId: string }[]>([]) //회원 추가하기 리스트
     const closeModal = () => emit('close')
 
     const CrewUsersList = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/crew/${props.crewId}/users`)
+        const response = await axios.get(`http://localhost:8080/api/v1/crew/${props.crewId}/details`)
         crewUsers.value = response.data.users // 서버 응답 데이터 저장
         console.log('Crew Users:', crewUsers.value)
       } catch (error) {
@@ -169,14 +174,6 @@ export default defineComponent({
 
     const currentMembers = ref([
       //더미 데이터
-      {
-        userId: 1,
-        loginId: 'junsu',
-      },
-      {
-        userId: 2,
-        loginId: 'hyobin0726',
-      },
       {
         userId: 3,
         loginId: 'younghangay',
@@ -206,8 +203,33 @@ export default defineComponent({
       }
     }
 
-    const updateCrew = () => {
+    const updateCrew = async () => {
       console.log('모임 수정하기')
+      // CrewUsersList()  // crewUsers 여기에 값담김
+
+      const accessToken = sessionStorage.getItem('accessToken')
+      if (!accessToken) {
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      try {
+        const body = {
+          name: crewName.value,
+          users: addedMembers.value,
+        }
+        // PUT 요청 보내기
+        const response = await axios.put(`http://localhost:8080/api/v1/crew/${props.crewId}`, body, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+
+        console.log('모임 수정 성공:', response.data)
+        alert('모임이 성공적으로 수정되었습니다.')
+      } catch (error) {
+        console.error('모임 수정 실패:', error)
+        alert('모임 수정에 실패했습니다. 다시 시도해주세요.')
+      }
+
       emit('updated', { crewName: crewName.value, addedMembers: addedMembers.value })
     }
 
@@ -270,6 +292,7 @@ export default defineComponent({
       searchError,
       currentMembers,
       addedMembers,
+      crewUsers,
       closeModal,
       searchForUser,
       updateCrew,

@@ -160,7 +160,6 @@ export default defineComponent({
 
     // 모임 업데이트 핸들러
     const handleCrewUpdate = (updatedCrew: { crewName: string; addedMembers: any[] }) => {
-      console.log('모임 업데이트:', updatedCrew.addedMembers[0])
       alert(`모임이 업데이트되었습니다: ${updatedCrew.crewName}`)
       closeCrewInfo()
     }
