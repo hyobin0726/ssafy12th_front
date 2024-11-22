@@ -136,7 +136,7 @@ import {
   Timestamp,
   orderBy,
 } from 'firebase/firestore'
-import type { ChatRoom, Message } from '@/types/Chat'
+import type { ChatRoom, Message } from '@/types/Chat'
 import type { Member } from '@/types/Member'
 import { db } from '@/services/firebase'
 import axios from 'axios'
@@ -297,7 +297,7 @@ export default defineComponent({
         roomId: chatRoomRef.id,
         participants: [currentUserId.value, user.userId],
         lastMessage: '',
-        timestamp: '',
+        timestamp: Timestamp.now(),
         participant: {
           name: user.name,
           loginId: user.loginId,
