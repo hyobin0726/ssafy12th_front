@@ -18,13 +18,20 @@
     <router-link to="/crewCreate">모임생성</router-link>
     <br />
     <router-link to="/crewPage">모임페이지</router-link>
+
+    <!-- AI Chatbot Component -->
+    <Chatbot />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Chatbot from '@/components/Chatbot/Chatbot.vue'
 
 export default defineComponent({
   name: 'Main',
+  components: {
+    Chatbot,
+  },
 })
 </script>
