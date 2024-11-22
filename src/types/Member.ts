@@ -1,4 +1,5 @@
 export interface Member {
+  userId: number
   loginId: string
   password: string
   name: string

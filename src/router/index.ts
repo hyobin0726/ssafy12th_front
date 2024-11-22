@@ -9,7 +9,7 @@ import Map from '@/views/Map/Map.vue'
 import Search from '@/views/Search/Search.vue'
 import CrewCreate from '@/views/Crew/CrewCreate.vue'
 import CrewPage from '@/views/Crew/CrewPage.vue'
-
+import Chat from '@/views/Chat/Chat.vue'
 const routes = [
   {
     path: '/',
@@ -60,6 +60,11 @@ const routes = [
     path: '/crewPage',
     name: 'CrewPage',
     component: CrewPage,
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: Chat,
   },
 ]
 
