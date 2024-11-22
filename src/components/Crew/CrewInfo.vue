@@ -91,17 +91,23 @@
                   <!-- 4. 수정/나가기 버튼 -->
                   <div class="flex justify-end gap-4">
                     <button @click="updateCrew" class="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-                      수정
+                      모임 수정
                     </button>
                     <button @click="leaveCrew" class="rounded-md bg-gray-600 px-4 py-2 text-white hover:bg-gray-700">
-                      나가기
+                      모임 나가기
                     </button>
                   </div>
 
                   <!-- 5. 삭제 버튼 -->
-                  <div class="mt-4 flex justify-end">
+                  <div class="mt-4 flex justify-end gap-14">
+                    <button
+                      @click="$emit('close')"
+                      class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                    >
+                      취소
+                    </button>
                     <button @click="deleteCrew" class="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700">
-                      삭제
+                      모임 삭제
                     </button>
                   </div>
                 </div>
@@ -139,19 +145,49 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    currentMembersProp: {
-      type: Array as () => { userId: number; loginId: string }[],
-      required: true,
-    },
   },
   setup(props, { emit }) {
     const crewName = ref(props.crewNameProp)
     const searchUser = ref('')
     const searchError = ref('')
-    const currentMembers = ref(props.currentMembersProp)
-    const addedMembers = ref<{ userId: number; loginId: string }[]>([])
-
+    // interface CrewUser {  //이렇게 써도된다는 것을 알기위해 적어둠
+    //   loginId: string
+    // }
+    const crewUsers = ref<{ loginId: string }[]>([]) // 사용자의 모임 목록
+    const addedMembers = ref<{ userId: number; loginId: string }[]>([]) //회원 추가하기 리스트
     const closeModal = () => emit('close')
+
+    const CrewUsersList = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/v1/crew/${props.crewId}/users`)
+        crewUsers.value = response.data.users // 서버 응답 데이터 저장
+        console.log('Crew Users:', crewUsers.value)
+      } catch (error) {
+        console.error('Failed to fetch crew users:', error)
+      }
+    }
+
+    const currentMembers = ref([
+      //더미 데이터
+      {
+        userId: 1,
+        loginId: 'junsu',
+      },
+      {
+        userId: 2,
+        loginId: 'hyobin0726',
+      },
+      {
+        userId: 3,
+        loginId: 'younghangay',
+      },
+      {
+        userId: 4,
+        loginId: 'sungwoo',
+      },
+    ])
+
+    // 회원검색 기능
     const searchForUser = async () => {
       if (!searchUser.value) {
         searchError.value = '아이디를 입력해주세요.'
@@ -171,14 +207,60 @@ export default defineComponent({
     }
 
     const updateCrew = () => {
+      console.log('모임 수정하기')
       emit('updated', { crewName: crewName.value, addedMembers: addedMembers.value })
     }
 
-    const leaveCrew = () => {
+    const leaveCrew = async () => {
       console.log('모임 나가기')
+      const accessToken = sessionStorage.getItem('accessToken')
+      if (!accessToken) {
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      try {
+        // DELETE 요청 보내기
+        await axios.delete(`http://localhost:8080/api/v1/crew/${props.crewId}/leave`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        console.log('모임 나가기 성공:', props.crewId)
+
+        alert('모임에서 나갔습니다.')
+      } catch (error) {
+        console.error('모임 삭제 실패:', error)
+        alert('모임 삭제에 실패했습니다. 다시 시도해주세요.')
+      }
+      //UI업데이트를 위해 실행
+      emit('leaved', props.crewId)
     }
 
-    const deleteCrew = () => {
+    const deleteCrew = async () => {
+      console.log('모임 삭제하기')
+      const accessToken = sessionStorage.getItem('accessToken')
+      if (!accessToken) {
+        alert('로그인이 필요합니다.')
+        return
+      }
+
+      try {
+        // DELETE 요청 보내기
+        await axios.delete(`http://localhost:8080/api/v1/crew/${props.crewId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        console.log('모임 삭제 성공:', props.crewId)
+
+        alert('모임이 삭제되었습니다.')
+      } catch (error) {
+        console.error('모임 삭제 실패:', error)
+        alert('모임 삭제에 실패했습니다. 다시 시도해주세요.')
+      }
+
+      //UI업데이트를 위해 실행
       emit('deleted', props.crewId)
     }
 

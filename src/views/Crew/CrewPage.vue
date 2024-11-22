@@ -38,8 +38,14 @@
             <!-- 드롭다운 메뉴 -->
             <div v-if="isDropdownOpen" class="absolute mt-2 bg-white border rounded-md shadow-lg">
               <!-- 사용자가 가입한 모임 목록 -->
+              <p>모임 리스트</p>
               <ul>
-                <li v-for="crew in myCrews" :key="crew.crewId" class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <li
+                  v-for="crew in myCrews"
+                  :key="crew.crewId"
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  @click="openCrewInfo(crew)"
+                >
                   {{ crew.name }}
                 </li>
               </ul>
@@ -48,22 +54,34 @@
               <div class="border-t">
                 <button @click="showCreateCrew" class="w-full px-4 py-2 text-left hover:bg-gray-100">모임 생성</button>
               </div>
-              <button @click="handleViewCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
+              <!-- <button @click="handleViewCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                 내 모임 조회
-              </button>
-              <button @click="handleLeaveCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
+              </button> -->
+              <!-- <button @click="handleLeaveCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                 모임 나가기
-              </button>
+              </button> -->
             </div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- CrewNewCreate 컴포넌트 표시 -->
+    <!-- 모임 생성 컴포넌트 -->
     <CrewNewCreate v-if="isModalOpen" @close="closeModal" @fetchMyCrews="fetchMyCrews" />
 
-    <!-- 카카오맵 api & 지도 시군구 폴리곤 출력 -->
+    <!-- CrewInfo 모달 -->
+    <CrewInfo
+      v-if="isCrewInfoModalOpen"
+      :isModalOpen="isCrewInfoModalOpen"
+      :crewId="selectedCrew.crewId"
+      :crewNameProp="selectedCrew.name"
+      @close="closeCrewInfo"
+      @updated="handleCrewUpdate"
+      @leaved="handleCrewLeave"
+      @deleted="handleCrewDelete"
+    />
+
+    <!-- 카카오맵 api & 지도 시군구 폴리곤 컴포넌트 -->
     <CrewMap />
   </div>
 </template>
@@ -72,11 +90,13 @@
 import { ref, onMounted, defineComponent } from 'vue'
 import axios from 'axios'
 import CrewNewCreate from '@/components/Crew/CrewNewCreate.vue'
+import CrewInfo from '@/components/Crew/CrewInfo.vue'
 import CrewMap from '@/components/Crew/CrewMap.vue'
 
 export default defineComponent({
   components: {
     CrewNewCreate,
+    CrewInfo,
     CrewMap,
   },
   setup() {
@@ -108,6 +128,7 @@ export default defineComponent({
       }
     }
 
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ모임 생성ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     //모임 생성
     const showCreateCrew = () => {
       console.log('모임페이지에서 생성 버튼 클릭')
@@ -115,18 +136,45 @@ export default defineComponent({
       isDropdownOpen.value = false // 드롭다운 닫기
     }
 
+    // 모임 생성 화면 숨기기
     const closeModal = () => {
-      isModalOpen.value = false // 모임 생성 화면 숨기기
+      isModalOpen.value = false
     }
 
-    const handleViewCrew = () => {
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ모임 조회ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // 선택된 모임 정보
+    const isCrewInfoModalOpen = ref(false)
+    const selectedCrew = ref({ crewId: 0, name: '' })
+
+    // 모임 선택
+    const openCrewInfo = (crew: { crewId: number; name: string }) => {
       console.log('내 모임 조회 버튼 클릭')
-      // 내 모임 조회 로직 추가
+      selectedCrew.value = crew
+      isCrewInfoModalOpen.value = true
     }
 
-    const handleLeaveCrew = () => {
-      console.log('모임 나가기 버튼 클릭')
-      // 모임 나가기 로직 추가
+    // 모임 정보 모달 닫기
+    const closeCrewInfo = () => {
+      isCrewInfoModalOpen.value = false
+    }
+
+    // 모임 업데이트 핸들러
+    const handleCrewUpdate = (updatedCrew: { crewName: string; addedMembers: any[] }) => {
+      console.log('모임 업데이트:', updatedCrew.addedMembers[0])
+      alert(`모임이 업데이트되었습니다: ${updatedCrew.crewName}`)
+      closeCrewInfo()
+    }
+
+    // 모임 나가기 핸들러
+    const handleCrewLeave = (crewId: number) => {
+      myCrews.value = myCrews.value.filter((crew) => crew.crewId !== crewId)
+      closeCrewInfo()
+    }
+
+    // 모임 삭제 핸들러
+    const handleCrewDelete = (crewId: number) => {
+      myCrews.value = myCrews.value.filter((crew) => crew.crewId !== crewId)
+      closeCrewInfo()
     }
 
     // 컴포넌트 마운트 시 초기화
@@ -147,9 +195,19 @@ export default defineComponent({
       myCrews,
 
       //모임 조회
-      handleViewCrew,
-      //모임 떠나기
-      handleLeaveCrew,
+      openCrewInfo,
+      closeCrewInfo,
+      isCrewInfoModalOpen,
+      selectedCrew,
+
+      // 모임 업데이트 핸들러
+      handleCrewUpdate,
+
+      //모임 나가기 핸들러
+      handleCrewLeave,
+
+      // 모임 삭제 핸들러
+      handleCrewDelete,
     }
   },
 })
