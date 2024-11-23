@@ -1,20 +1,12 @@
 <template>
-  <section class="h-screen relative">
+  <section class="h-full relative">
     <video autoplay muted loop class="w-full h-full object-cover">
-      <source src="@/assets/Main.mp4" type="video/mp4" />
+      <source src="@/assets/MainView.mp4" type="video/mp4" />
     </video>
     <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <h1 class="text-white text-4xl font-bold">Welcome to the Tour</h1>
     </div>
-  </section>
-  <div class="h-screen overflow-y-scroll bg-animation">
-    <!-- 스크롤 영역 -->
-    <section
-      v-for="(place, index) in places"
-      :key="place.id"
-      class="h-screen flex items-center justify-center"
-      ref="sections"
-    >
+    <section v-for="(place, index) in places" :key="place.id" class="flex items-center justify-center" ref="sections">
       <div
         class="card bg-gray-800 p-8 rounded-xl shadow-lg transform transition-transform duration-700 text-white"
         :class="{
@@ -27,7 +19,7 @@
         <p class="text-gray-400">{{ place.description }}</p>
       </div>
     </section>
-  </div>
+  </section>
 </template>
 
 <script lang="ts">
@@ -141,7 +133,7 @@ export default defineComponent({
 /* 배경 애니메이션 효과 */
 .bg-animation {
   background-image: url(https://cdn.pixabay.com/photo/2020/08/11/21/39/clouds-5481190_1280.jpg);
-  background-size: 150% 100%;
+  background-size: 200% 200%;
   animation: bg-move 10s linear infinite; /* linear로 설정해 자연스러운 반복 */
 }
 
