@@ -19,11 +19,7 @@
             class="flex flex-col p-4 border rounded-lg shadow-md bg-gray-50 flex-shrink-0 w-96"
           >
             <div class="flex items-center mb-4">
-              <img :src="review.profileUrl" alt="user" class="w-10 h-10 rounded-full mr-2 object-cover" />
-              <div>
-                <p class="text-sm font-semibold">{{ review.name }}</p>
-                <p class="text-xs text-gray-500">{{ review.createdAt }}</p>
-              </div>
+              <map-review-profile-vue :review="review" />
             </div>
             <img :src="review.imageUrls" alt="review" class="w-full h-40 object-cover rounded-md mb-4" />
             <p class="text-sm text-gray-700 mb-1">{{ review.content }}</p>
@@ -39,10 +35,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, onMounted, computed } from 'vue'
+import axios from 'axios'
 import AlterImg from '@/assets/Map/AlterImg.jpg'
-
+import type { Review } from '@/types/Review'
+import type { Member } from '@/types/Member'
+import MapReviewProfileVue from './MapReviewProfile.vue'
 export default defineComponent({
+  components: { MapReviewProfileVue },
   props: {
     place: {
       type: Object,
@@ -54,32 +54,26 @@ export default defineComponent({
     const closeModal = () => {
       emit('close')
     }
+    const reviews = ref<Review[]>([])
+    const profile = ref<Member>()
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/search-by-attraction`, {
+          params: {
+            attractionId: props.place.attractionId,
+          },
+        })
+        reviews.value = response.data
+      } catch (error) {
+        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
+      }
+    }
 
-    // 더미 리뷰 데이터
-    const reviews = [
-      {
-        reviewId: 1,
-        name: '허준수',
-        profileUrl: 'https://via.placeholder.com/40',
-        createdAt: '2024-11-15',
-        content: '정말 멋진 장소입니다! 꼭 방문해보세요.',
-        imageUrls:
-          'https://pup-review-phinf.pstatic.net/MjAyNDA3MjBfMjEy/MDAxNzIxNDQ3MzkwOTU4.L4pKyeU3XpcfV-5BtQesq9lkVJHABCSF0tyF9hIETqQg.C2lbl78L3nE3RbMyj6B7A4rVrY4v_BPGLiKzSVtdDvQg.JPEG/C8DD015B-54AB-4D75-B684-C06033F2A9F3.jpeg?type=f912_608',
-        point: 5,
-      },
-      {
-        reviewId: 2,
-        name: '박효빈',
-        profileUrl: 'https://via.placeholder.com/40',
-        createdAt: '2024-11-12',
-        content: '조금 붐비지만 분위기는 좋아요.',
-        imageUrls:
-          'https://ldb-phinf.pstatic.net/20240929_282/1727578621303sVw5H_JPEG/KakaoTalk_20240929_115647857.jpg',
-        point: 4,
-      },
-    ]
+    onMounted(() => {
+      fetchReviews()
+    })
 
-    return { closeModal, reviews, alterImg: AlterImg }
+    return { closeModal, reviews, alterImg: AlterImg, profile }
   },
 })
 </script>
