@@ -1,58 +1,57 @@
 <template>
-  <div v-if="reviews.length" class="fixed top-20 left-16 bg-white shadow-md border rounded-lg w-80 z-50 p-4">
-    <h2 class="text-xl font-bold mb-2">모임 리뷰</h2>
-    <div v-for="(review, index) in reviews" :key="index" class="mb-4">
-      <h3 class="text-lg font-semibold text-gray-800">{{ review.title }}</h3>
-      <p class="text-gray-600">{{ review.content }}</p>
-      <p class="text-sm text-gray-400">작성자: {{ review.author }}</p>
+  <div>
+    <!-- 모달 -->
+    <div v-if="isModalOpen" class="fixed top-4 left-4 bg-white shadow-lg rounded-lg overflow-hidden w-[400px] z-50">
+      <!-- 닫기 버튼 -->
+      <div class="flex justify-end p-2">
+        <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+
+      <!-- 리뷰 리스트 -->
+      <div v-for="review in reviews" :key="review.reviewId" class="flex p-4 border-b">
+        <!-- 이미지 영역 -->
+        <div class="w-1/3">
+          <img
+            :src="review.imageUrls?.[0] || '/placeholder.jpg'"
+            alt="리뷰 이미지"
+            class="w-full h-24 object-cover rounded"
+          />
+        </div>
+        <!-- 텍스트 정보 -->
+        <div class="w-2/3 pl-4">
+          <p class="text-sm font-medium mb-1">{{ review.content }}</p>
+          <p class="text-sm text-gray-500">⭐ {{ review.point }}</p>
+          <p class="text-sm text-gray-600">{{ review.title }}</p>
+        </div>
+      </div>
     </div>
+
+    <!-- 모달 외 영역 -->
+    <div v-if="isModalOpen" class="fixed inset-0 bg-black opacity-0 pointer-events-none"></div>
   </div>
-  <p v-else class="text-gray-500">해당 지역에 등록된 리뷰가 없습니다.</p>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, PropType } from 'vue'
-import axios from 'axios'
+import { defineComponent, ref, PropType } from 'vue'
+import type { Review } from '@/types/Review'
 
 export default defineComponent({
-  name: 'CrewReview',
   props: {
-    sidoCode: {
-      type: String,
+    reviews: {
+      type: Array as PropType<Review[]>,
       required: true,
     },
-    gugunCode: {
-      type: String as PropType<string | null>,
-      default: null,
-    },
   },
-  setup(props) {
-    const reviews = ref<{ title: string; content: string; author: string }[]>([])
-
-    const fetchReviews = async () => {
-      try {
-        const params: any = { sidoCode: props.sidoCode }
-        if (props.gugunCode) {
-          params.gugunCode = props.gugunCode
-        }
-        const response = await axios.get('/api/crew/reviews', { params })
-        reviews.value = response.data
-      } catch (error) {
-        console.error('리뷰를 가져오는 중 오류 발생:', error)
-        reviews.value = []
-      }
-    }
-
-    // Props가 변경될 때 리뷰 데이터 다시 로드
-    watch(() => [props.sidoCode, props.gugunCode], fetchReviews, { immediate: true })
+  setup(props, { emit }) {
+    const isModalOpen = ref(true)
 
     return {
-      reviews,
+      isModalOpen,
     }
   },
 })
 </script>
 
 <style scoped>
-/* Tailwind 스타일 활용 */
+/* 기본 스타일 추가 */
 </style>

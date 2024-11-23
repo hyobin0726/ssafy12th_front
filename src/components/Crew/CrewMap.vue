@@ -2,42 +2,23 @@
   <!--ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ카카오맵ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ-->
   <div class="flex-1" id="map" style="width: 100%; height: calc(100vh - 64px)"></div>
   <!-- Modal Toggle Button -->
-  <button
-    class="fixed top-20 left-5 bg-green-500 text-white p-3 rounded-full shadow-lg z-50"
-    @click="isModalOpen = !isModalOpen"
-  >
-    {{ isModalOpen ? '모달 닫기' : '모달 열기' }}
-  </button>
+  <!-- 버튼 클릭 시 모달 열기 -->
+  <!-- <button @click="openModal" class="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded z-50">
+    리뷰 보기
+  </button> -->
 
-  <!-- Modal -->
-  <div v-if="isModalOpen" class="fixed top-20 left-16 bg-white shadow-md border rounded-lg w-80 z-50 p-4">
-    <h2 class="text-xl font-bold mb-2">선택된 지역 정보</h2>
-    <div v-if="selectedRegionSido">
-      <p class="text-gray-800 font-medium">시도코드: {{ selectedRegionSido.sidoCode }}</p>
-      <p class="text-gray-800 font-medium">시도이름(영): {{ selectedRegionSido.sidoEngNm }}</p>
-      <p class="text-gray-800 font-medium">시도이름(한): {{ selectedRegionSido.sidoKorNm }}</p>
-    </div>
-    <div v-if="selectedRegionSigungu">
-      <p class="text-gray-800 font-medium">시도코드: {{ selectedRegionSigungu.sidoCode }}</p>
-      <p class="text-gray-800 font-medium">시군구코드: {{ selectedRegionSigungu.gugunCode }}</p>
-      <p class="text-gray-800 font-medium">시군구이름(영): {{ selectedRegionSigungu.sidoEngNm }}</p>
-      <p class="text-gray-800 font-medium">시군구이름(한): {{ selectedRegionSigungu.sidoKorNm }}</p>
-    </div>
-    <h3>필터링된 리뷰</h3>
-    <ul>
-      <li v-for="review in filteredReviews" :key="review.id">
-        {{ review }}
-      </li>
-    </ul>
-  </div>
+  <!-- 리뷰 모달 컴포넌트 -->
+  <CrewReview v-if="isReviewModalOpen" :reviews="filteredReviews" @close="ReviewModalClose" />
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType, ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import type { Review } from '@/types/Review'
+import CrewReview from '@/components/Crew/CrewReview.vue'
 
 export default defineComponent({
+  components: { CrewReview },
   props: {
     // currentCrewReview의 타입을 명시적으로 정의
     currentCrewReview: {
@@ -56,12 +37,23 @@ export default defineComponent({
     const selectedRegionSigungu = ref<{
       sidoCode: string
       gugunCode: string
-      sidoEngNm: string
-      sidoKorNm: string
+      sigunguEngNm: string
+      sigunguKorNm: string
     } | null>(null)
 
     // 필터링된 리뷰 상태
     const filteredReviews = ref<Review[]>([])
+    const isReviewModalOpen = ref(false)
+
+    //리뷰 모달 오픈
+    const openModal = () => {
+      isReviewModalOpen.value = true
+    }
+
+    //리뷰 모달 닫기
+    const ReviewModalClose = () => {
+      isReviewModalOpen.value = false
+    }
 
     // 데이터 변경 감지
     watch(
@@ -236,7 +228,8 @@ export default defineComponent({
         )
       }
 
-      console.log(filteredReviews.value)
+      console.log(filteredReviews.value, selectedRegionSido.value?.sidoKorNm)
+      openModal()
     }
 
     // 시군구 선택 시 데이터 필터링
@@ -253,7 +246,8 @@ export default defineComponent({
             review.gugunId === Number(selectedRegionSigungu.value?.gugunCode),
         )
       }
-      console.log(filteredReviews.value)
+      console.log(filteredReviews.value, selectedRegionSigungu.value?.sigunguKorNm)
+      openModal()
     }
 
     // 폴리곤 클릭 시 필터링 실행
@@ -271,8 +265,8 @@ export default defineComponent({
       selectedRegionSigungu.value = {
         sidoCode: feature.properties.sido_code || 'N/A',
         gugunCode: feature.properties.gugun_code || 'N/A',
-        sidoEngNm: feature.properties.SIG_ENG_NM || 'N/A',
-        sidoKorNm: feature.properties.SIG_KOR_NM || 'N/A',
+        sigunguEngNm: feature.properties.SIG_ENG_NM || 'N/A',
+        sigunguKorNm: feature.properties.SIG_KOR_NM || 'N/A',
       }
       filterReviewsBySigungu()
     }
@@ -287,19 +281,6 @@ export default defineComponent({
       }
     })
 
-    // watch(
-    //   () => props.currentCrewReview,
-    //   (newReviews) => {
-    //     if (newReviews && newReviews.length > 0) {
-    //       filterReviewsBySido()
-    //     } else {
-    //       console.warn('currentCrewReview is empty')
-    //       filteredReviews.value = []
-    //     }
-    //   },
-    //   { immediate: true }, // 초기 상태에서도 실행
-    // )
-
     return {
       isModalOpen,
       selectedRegionSido,
@@ -308,6 +289,9 @@ export default defineComponent({
       filteredReviews,
       filterReviewsBySido,
       filterReviewsBySigungu,
+      isReviewModalOpen,
+      openModal,
+      ReviewModalClose,
     }
   },
 })
