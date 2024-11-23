@@ -20,7 +20,8 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  emits: ['refreshMarkers'],
+  setup(props, { emit }) {
     const isMarked = ref(false)
     const token = sessionStorage.getItem('accessToken')
 
@@ -76,6 +77,7 @@ export default defineComponent({
           isMarked.value = true
           //   console.log('마커 추가 성공')
         }
+        emit('refreshMarkers')
       } catch (error) {
         console.error('마커 상태를 변경하는데 실패했습니다:', error)
       }
