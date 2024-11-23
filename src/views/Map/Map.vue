@@ -100,6 +100,7 @@ import type { area } from '@/types/Map'
 import type { sigungu } from '@/types/Map'
 import AlterImg from '@/assets/Map/AlterImg.jpg'
 import Location from '@/assets/Map/Location.svg'
+import { a } from '@tanstack/vue-query/build/legacy/queryClient-Bq4NnYa7'
 export default defineComponent({
   components: {
     Search,
@@ -176,6 +177,7 @@ export default defineComponent({
         })
 
         const attractions = response.data.attractions || []
+        // console.log(attractions)
         const areaData = response.data.area || []
         const sigunguData = response.data.sigungu || []
         filteredPlaces.value = attractions.map((place: any) => ({

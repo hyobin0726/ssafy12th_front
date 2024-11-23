@@ -6,6 +6,9 @@ export interface Map {
   title: string
   latitude: number
   longitude: number
+  areaCode: number
+  siGunGuCode: number
+  point : number
 }
 
 export interface area {

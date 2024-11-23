@@ -6,24 +6,23 @@
           v-for="place in filteredPlaces"
           :key="place.attractionId"
           class="flex flex-col p-2 border rounded-md cursor-pointer hover:bg-gray-100"
-          @click="openDetail(place)"
         >
-          <div class="flex justify-center">
+          <div class="flex justify-center" @click="openDetail(place)">
             <img :src="place.Image" alt="place" class="w-72 h-56 rounded-md" />
           </div>
           <div class="mt-3">
             <div class="flex justify-between items-center">
-              <div class="flex items-end">
+              <div class="flex items-end" @click="openDetail(place)">
                 <h4 class="text-lg">
                   {{ place.title.length > 9 ? place.title.slice(0, 9) + '...' : place.title }}
                 </h4>
                 <p class="text-sm text-gray-600 ml-2">{{ getOptionName(place.contentTypeId) }}</p>
                 <div class="flex items-center ml-3">
                   <FullStar class="w-4 h-4" />
-                  <span>4.8</span>
+                  <attraction-point :place="place" class="ml-1" />
                 </div>
               </div>
-              <NonBookMark class="w-4 h-4" />
+              <map-marker :place="place" />
             </div>
             <p class="text-sm text-gray-500 mt-1">{{ place.addr1 }}</p>
           </div>
@@ -69,11 +68,15 @@ import type { Map } from '@/types/Map'
 import AttractionDetail from './AttractionDetail.vue'
 import { useMapStore } from '@/stores/Map'
 import NonBookMark from '@/assets/Review/NonBookMark.svg'
+import MapMarker from './MapMarker.vue'
+import AttractionPoint from './AttractionPoint.vue'
 export default defineComponent({
   components: {
     FullStar,
     NonBookMark,
     AttractionDetail,
+    MapMarker,
+    AttractionPoint,
   },
   props: {
     map: {
@@ -86,6 +89,7 @@ export default defineComponent({
     const selectedPlace = ref<Map | null>(null)
     const selectedCategory = ref(0)
     const mapStore = useMapStore()
+
     const options = ref([
       { name: '관광지', icon: markRaw(Attractions), contentType: 12 },
       { name: '문화시설', icon: markRaw(Culture), contentType: 14 },
