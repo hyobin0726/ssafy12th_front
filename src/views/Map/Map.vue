@@ -5,7 +5,7 @@
       :lng="mapStore.lng"
       :width="'100%'"
       :height="'100vh'"
-      :scrollwheel="false"
+      :level="5"
       @onLoadKakaoMap="onLoadKakaoMap"
       v-if="loaded"
     >
@@ -63,6 +63,7 @@
           imageHeight: 35,
         }"
       />
+
       <KakaoMapMarker
         v-for="(place, index) in filteredPlaces"
         :key="index"
@@ -77,6 +78,23 @@
           content: `<div style='padding:6px; font-size:14px; color:#333;'>${place.title}</div>`,
         }"
       />
+
+      <KakaoMapMarker
+        v-for="(place, index) in marker"
+        :key="index"
+        :lat="place.latitude"
+        :lng="place.longitude"
+        :image="{
+          imageSrc:
+            'https://dangnagi-buket.s3.ap-northeast-2.amazonaws.com/image_1732349826078_solar_star-circle-bold-duotone.svg',
+          imageWidth: 40,
+          imageHeight: 40,
+        }"
+        :infoWindow="{
+          content: `<div style='padding:6px; font-size:14px; color:#333;'>${place.title}</div>`,
+        }"
+      />
+
       <button
         class="fixed left-[50%] top-[5%] bg-[#A8B087] text-white p-2 rounded z-[9] bg-opacity-70"
         style="round: 10px"
@@ -100,6 +118,8 @@ import type { area } from '@/types/Map'
 import type { sigungu } from '@/types/Map'
 import AlterImg from '@/assets/Map/AlterImg.jpg'
 import Location from '@/assets/Map/Location.svg'
+import { Marker } from '@/types/Marker'
+
 export default defineComponent({
   components: {
     Search,
@@ -117,6 +137,7 @@ export default defineComponent({
     const sigungu = ref<sigungu[]>([])
     const check = ref(true)
     const map = ref()
+    const marker = ref<Marker[]>([])
 
     const onLoadKakaoMap = (mapRef: any) => {
       map.value = mapRef
@@ -176,6 +197,7 @@ export default defineComponent({
         })
 
         const attractions = response.data.attractions || []
+        // console.log(attractions)
         const areaData = response.data.area || []
         const sigunguData = response.data.sigungu || []
         filteredPlaces.value = attractions.map((place: any) => ({
@@ -229,8 +251,26 @@ export default defineComponent({
         check.value = true
       }
     }
+    const token = sessionStorage.getItem('accessToken')
+    const fetchMarker = async () => {
+      if (!token) {
+        return
+      }
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/map/marker`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        marker.value = response.data
+        // console.log(marker.value)
+      } catch (error) {
+        console.error('마커 정보를 불러오는 데 실패했습니다:', error)
+      }
+    }
 
     onMounted(() => {
+      fetchMarker()
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -265,6 +305,9 @@ export default defineComponent({
       searchByRegion,
       onLoadKakaoMap,
       getInfo,
+      marker,
+      token,
+      fetchMarker,
     }
   },
 })
