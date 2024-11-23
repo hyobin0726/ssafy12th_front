@@ -43,10 +43,15 @@
                 <li
                   v-for="crew in myCrews"
                   :key="crew.crewId"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  @click="openCrewInfo(crew)"
+                  class="px-4 py-2 hover:bg-gray-100 flex justify-between items-center cursor-pointer"
                 >
-                  {{ crew.name }}
+                  <span @click="openCrewInfo(crew)">{{ crew.name }}</span>
+                  <button
+                    @click.stop="fetchCrewReviews(crew.crewId)"
+                    class="ml-2 px-2 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                  >
+                    모임 선택
+                  </button>
                 </li>
               </ul>
 
@@ -54,12 +59,6 @@
               <div class="border-t">
                 <button @click="showCreateCrew" class="w-full px-4 py-2 text-left hover:bg-gray-100">모임 생성</button>
               </div>
-              <!-- <button @click="handleViewCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                내 모임 조회
-              </button> -->
-              <!-- <button @click="handleLeaveCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                모임 나가기
-              </button> -->
             </div>
           </div>
         </div>
@@ -82,7 +81,8 @@
     />
 
     <!-- 카카오맵 api & 지도 시군구 폴리곤 컴포넌트 -->
-    <CrewMap />
+    <!-- <CrewMap /> -->
+    <CrewMap :currentCrewReview="currentCrewReview" />
   </div>
 </template>
 
@@ -92,6 +92,7 @@ import axios from 'axios'
 import CrewNewCreate from '@/components/Crew/CrewNewCreate.vue'
 import CrewInfo from '@/components/Crew/CrewInfo.vue'
 import CrewMap from '@/components/Crew/CrewMap.vue'
+import type { Review } from '@/types/Review'
 
 export default defineComponent({
   components: {
@@ -99,11 +100,23 @@ export default defineComponent({
     CrewInfo,
     CrewMap,
   },
+
   setup() {
     // 드롭다운 상태 관리
     const isDropdownOpen = ref(false) // 드롭다운 메뉴 상태
     const isModalOpen = ref(false) // 모임 생성 컴포넌트 표시 상태
     const myCrews = ref<{ crewId: number; name: string }[]>([]) // 사용자의 모임 목록
+    // 선택된 모임 정보
+    const isCrewInfoModalOpen = ref(false)
+    const selectedCrew = ref({ crewId: 0, name: '' })
+    // 현재 모임 선택 후 모임 리뷰 담기
+    const currentCrewReview = ref<Review[]>([])
+    // const currentCrewReview = ref<Review[]>([
+    //   // 해당 모임 리뷰 목록
+    //   { gugunId: 1, gugunSidoId: 11 },
+    //   { gugunId: 2, gugunSidoId: 22 },
+    //   // 초기 데이터 샘플
+    // ])
 
     // 드롭다운 토글
     const toggleDropdown = () => {
@@ -136,16 +149,35 @@ export default defineComponent({
       isDropdownOpen.value = false // 드롭다운 닫기
     }
 
+    // 모임 리뷰 조회
+    const fetchCrewReviews = async (crewId: number) => {
+      console.log(`리뷰 조회: 크루 ID ${crewId}`)
+      try {
+        const accessToken = sessionStorage.getItem('accessToken')
+        if (!accessToken) {
+          console.error('Access token is missing')
+          return
+        }
+        const response = await axios.get(`http://localhost:8080/api/v1/reviews/crew/${crewId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        console.log('리뷰 데이터:', response.data)
+        currentCrewReview.value = response.data // 반환된 모임 목록 저장
+        console.log('리뷰 데이터2:', currentCrewReview.value)
+      } catch (error) {
+        console.error('리뷰 조회 실패:', error)
+      }
+    }
+
+    //리뷰를 시군구 별로 선별해서 구분하는 함수 currentCrewReview이용하면됨
+    //////
+
     // 모임 생성 화면 숨기기
     const closeModal = () => {
       isModalOpen.value = false
     }
 
-    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ모임 조회ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-    // 선택된 모임 정보
-    const isCrewInfoModalOpen = ref(false)
-    const selectedCrew = ref({ crewId: 0, name: '' })
-
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ모임 정보 조회 & 모임 리뷰 조회ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     // 모임 선택
     const openCrewInfo = (crew: { crewId: number; name: string }) => {
       console.log('내 모임 조회 버튼 클릭')
@@ -188,6 +220,7 @@ export default defineComponent({
       isModalOpen,
       closeModal,
       fetchMyCrews, //컴포넌트로 보내기위해
+      fetchCrewReviews,
 
       //모임 드롭바관련
       toggleDropdown,
@@ -198,6 +231,7 @@ export default defineComponent({
       closeCrewInfo,
       isCrewInfoModalOpen,
       selectedCrew,
+      currentCrewReview,
 
       // 모임 업데이트 핸들러
       handleCrewUpdate,
