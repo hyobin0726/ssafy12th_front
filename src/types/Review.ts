@@ -13,4 +13,8 @@ export interface Review {
   title: string
   member: Member
   hashtags: string[]
+  visibility: number
+  attractionId: number
+  gugunId: number
+  gugunSidoId: number
 }

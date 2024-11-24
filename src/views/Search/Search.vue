@@ -109,7 +109,7 @@ import { ref, defineComponent } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import debounce from 'lodash/debounce'
-import ReviewSearch from '../Review/ReviewSearch.vue'
+import ReviewSearch from '../../components/Review/ReviewSearch.vue'
 interface Review {
   title: string
   imageUrls: string

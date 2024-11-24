@@ -1,4 +1,4 @@
-<!-- KoreaMap.vue -->
+<!-- CrewPage.vue -->
 <template>
   <div class="h-screen flex flex-col">
     <!-- 심플한 헤더 -->
@@ -30,177 +30,238 @@
             </button>
           </div>
 
-          <!-- Dropdown Menu -->
+          <!-- 메뉴 드롭바 -->
           <div class="relative">
-            <button
-              @click="isDropdownOpen = !isDropdownOpen"
-              class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700"
-            >
-              Menu
-            </button>
+            <!-- 드롭다운 버튼 -->
+            <button @click="toggleDropdown" class="px-4 py-2 bg-blue-500 text-white rounded-md">모임</button>
 
-            <div
-              v-if="isDropdownOpen"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1"
-            >
-              <button
-                @click="handleCreateCrew"
-                class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-              >
-                모임 생성
-              </button>
-              <button @click="handleViewCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                내 모임 조회
-              </button>
-              <button @click="handleLeaveCrew" class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                모임 나가기
-              </button>
+            <!-- 드롭다운 메뉴 -->
+            <div v-if="isDropdownOpen" class="absolute mt-2 bg-white border rounded-md shadow-lg">
+              <!-- 사용자가 가입한 모임 목록 -->
+              <p>모임 리스트</p>
+              <ul>
+                <li
+                  v-for="crew in myCrews"
+                  :key="crew.crewId"
+                  class="px-4 py-2 hover:bg-gray-100 flex justify-between items-center cursor-pointer"
+                >
+                  <span @click="openCrewInfo(crew)">{{ crew.name }}</span>
+                  <button
+                    @click.stop="fetchCrewReviews(crew.crewId)"
+                    class="ml-2 px-2 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                  >
+                    모임 선택
+                  </button>
+                </li>
+              </ul>
+
+              <!-- 모임 생성 버튼 -->
+              <div class="border-t">
+                <button @click="showCreateCrew" class="w-full px-4 py-2 text-left hover:bg-gray-100">모임 생성</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- 카카오맵 -->
-    <div class="flex-1" id="map" style="width: 100%; height: calc(100vh - 64px)"></div>
-    <!-- Modal Toggle Button -->
-    <button
-      class="fixed top-20 left-5 bg-green-500 text-white p-3 rounded-full shadow-lg z-50"
-      @click="isModalOpen = !isModalOpen"
-    >
-      {{ isModalOpen ? '모달 닫기' : '모달 열기' }}
-    </button>
+    <!-- 모임 생성 컴포넌트 -->
+    <CrewNewCreate v-if="isModalOpen" @close="closeModal" @fetchMyCrews="fetchMyCrews" />
 
-    <!-- Modal -->
-    <div v-if="isModalOpen" class="fixed top-20 left-16 bg-white shadow-md border rounded-lg w-80 z-50 p-4">
-      <h2 class="text-xl font-bold mb-2">선택된 지역 정보</h2>
-      <div v-if="selectedRegion">
-        <p class="text-gray-800 font-medium">시도: {{ selectedRegion.sido }}</p>
-        <p class="text-gray-800 font-medium">시군구: {{ selectedRegion.sigungu }}</p>
-        <p class="text-gray-800 font-medium">이름: {{ selectedRegion.sigkornm }}</p>
-      </div>
-      <p v-else class="text-gray-500">아직 지역을 선택하지 않았습니다.</p>
-    </div>
+    <!-- CrewInfo 모달 -->
+    <CrewInfo
+      v-if="isCrewInfoModalOpen"
+      :isModalOpen="isCrewInfoModalOpen"
+      :crewId="selectedCrew.crewId"
+      :crewNameProp="selectedCrew.name"
+      :crewUsersProp="crewUsers"
+      @close="closeCrewInfo"
+      @updated="handleCrewUpdate"
+      @leaved="handleCrewLeave"
+      @deleted="handleCrewDelete"
+    />
+
+    <!-- 카카오맵 api & 지도 시군구 폴리곤 컴포넌트 -->
+    <!-- <CrewMap /> -->
+    <CrewMap :currentCrewReview="currentCrewReview" />
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
+<script lang="ts">
+import { ref, onMounted, defineComponent } from 'vue'
 import axios from 'axios'
+import CrewNewCreate from '@/components/Crew/CrewNewCreate.vue'
+import CrewInfo from '@/components/Crew/CrewInfo.vue'
+import CrewMap from '@/components/Crew/CrewMap.vue'
+import type { Review } from '@/types/Review'
+import type { CrewUser } from '@/types/CrewUser'
 
-// 지도 및 폴리곤 관련 상태
-const map = ref<kakao.maps.Map | null>(null)
-const polygons = ref<kakao.maps.Polygon[]>([])
-const detailMode = ref(false)
+export default defineComponent({
+  components: {
+    CrewNewCreate,
+    CrewInfo,
+    CrewMap,
+  },
 
-// 모달 상태
-const isModalOpen = ref(false)
-const selectedRegion = ref<{ sido: string; sigungu: string; sigkornm: string } | null>(null)
+  setup() {
+    // 드롭다운 상태 관리
+    const isDropdownOpen = ref(false) // 드롭다운 메뉴 상태
+    const isModalOpen = ref(false) // 모임 생성 컴포넌트 표시 상태
+    const myCrews = ref<{ crewId: number; name: string }[]>([]) // 사용자의 모임 목록
+    // 선택된 모임 정보
+    const isCrewInfoModalOpen = ref(false)
+    const selectedCrew = ref({ crewId: 0, name: '' })
+    const crewUsers = ref<CrewUser[]>([]) // 사용자의 모임 목록
 
-// 드롭다운 상태 관리
-const isDropdownOpen = ref(false)
+    // 현재 모임 선택 후 모임 리뷰 담기
+    const currentCrewReview = ref<Review[]>([])
+    // const currentCrewReview = ref<Review[]>([
+    //   // 해당 모임 리뷰 목록
+    //   { gugunId: 1, gugunSidoId: 11 },
+    //   { gugunId: 2, gugunSidoId: 22 },
+    //   // 초기 데이터 샘플
+    // ])
 
-// 버튼 클릭 핸들러
-const handleCreateCrew = () => {
-  console.log('모임 생성 버튼 클릭')
-  // 모임 생성 로직 추가
-}
+    // 드롭다운 토글
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value
+    }
 
-const handleViewCrew = () => {
-  console.log('내 모임 조회 버튼 클릭')
-  // 내 모임 조회 로직 추가
-}
+    // 사용자의 모임 목록 조회
+    const fetchMyCrews = async () => {
+      const accessToken = sessionStorage.getItem('accessToken') // 인증 토큰 가져오기
+      if (!accessToken) {
+        console.error('Access token is missing')
+        return
+      }
 
-const handleLeaveCrew = () => {
-  console.log('모임 나가기 버튼 클릭')
-  // 모임 나가기 로직 추가
-}
+      try {
+        const response = await axios.get('http://localhost:8080/api/v1/crew/myCrew', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        myCrews.value = response.data // 반환된 모임 목록 저장
+      } catch (error) {
+        console.error('Failed to fetch crews:', error)
+      }
+    }
 
-// 지도 초기화
-const initializeMap = () => {
-  const mapContainer = document.getElementById('map')
-  if (!mapContainer) return
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ모임 생성ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    //모임 생성
+    const showCreateCrew = () => {
+      console.log('모임페이지에서 생성 버튼 클릭')
+      isModalOpen.value = true // 모임 생성 화면 표시
+      isDropdownOpen.value = false // 드롭다운 닫기
+    }
 
-  map.value = new kakao.maps.Map(mapContainer, {
-    center: new kakao.maps.LatLng(37.566826, 126.9786567), // 서울 중심 좌표
-    level: 12,
-  })
-
-  kakao.maps.event.addListener(map.value, 'zoom_changed', handleZoomChange)
-
-  loadPolygons('sido.json') // 초기 시도 폴리곤 로드
-}
-
-// 줌 변경 이벤트 핸들러
-const handleZoomChange = () => {
-  if (!map.value) return
-
-  const level = map.value.getLevel()
-  if (detailMode.value && level > 10) {
-    detailMode.value = false
-    clearPolygons()
-    loadPolygons('sido.json')
-  } else if (!detailMode.value && level <= 10) {
-    detailMode.value = true
-    clearPolygons()
-    loadPolygons('sigungu.json')
-  }
-}
-
-// 폴리곤 데이터 로드
-const loadPolygons = async (url: string) => {
-  try {
-    const response = await axios.get(`/${url}`) // JSON 파일 경로 수정
-    const features = response.data.features
-
-    features.forEach((feature: any) => {
-      const path = feature.geometry.coordinates[0].map((coord: number[]) => new kakao.maps.LatLng(coord[1], coord[0]))
-
-      const polygon = new kakao.maps.Polygon({
-        map: map.value,
-        path: path,
-        strokeWeight: 2,
-        strokeColor: '#004c80',
-        strokeOpacity: 0.8,
-        fillColor: '#fff',
-        fillOpacity: 0.7,
-      })
-
-      polygons.value.push(polygon)
-
-      kakao.maps.event.addListener(polygon, 'mouseover', () => {
-        polygon.setOptions({ fillColor: '#09f' })
-      })
-
-      kakao.maps.event.addListener(polygon, 'mouseout', () => {
-        polygon.setOptions({ fillColor: '#fff' })
-      })
-
-      // 클릭 이벤트: 선택한 지역 정보를 저장
-      kakao.maps.event.addListener(polygon, 'click', () => {
-        console.log(feature.properties)
-        selectedRegion.value = {
-          sido: feature.properties.CTP_ENG_NM || 'N/A',
-          sigungu: feature.properties.SIG_ENG_NM || 'N/A',
-          sigkornm: feature.properties.SIG_KOR_NM || 'N/A',
+    // 모임 리뷰 조회
+    const fetchCrewReviews = async (crewId: number) => {
+      console.log(`리뷰 조회: 크루 ID ${crewId}`)
+      try {
+        const accessToken = sessionStorage.getItem('accessToken')
+        if (!accessToken) {
+          console.error('Access token is missing')
+          return
         }
-        isModalOpen.value = true
-      })
+        const response = await axios.get(`http://localhost:8080/api/v1/reviews/crew/${crewId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        console.log('리뷰 데이터:', response.data)
+        currentCrewReview.value = response.data // 반환된 모임 목록 저장
+        console.log('리뷰 데이터2:', currentCrewReview.value)
+      } catch (error) {
+        console.error('리뷰 조회 실패:', error)
+      }
+    }
+
+    //리뷰를 시군구 별로 선별해서 구분하는 함수 currentCrewReview이용하면됨
+    //////
+
+    // 모임 생성 화면 숨기기
+    const closeModal = () => {
+      isModalOpen.value = false
+    }
+
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ모임 정보 조회 & 모임 리뷰 조회ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    // 모임 선택
+    const openCrewInfo = (crew: { crewId: number; name: string }) => {
+      console.log('내 모임 조회 버튼 클릭')
+      selectedCrew.value = crew
+      CrewUsersList(crew.crewId)
+    }
+
+    const CrewUsersList = async (crewId: number) => {
+      try {
+        //모임에 대한 정보 조회
+        const response = await axios.get(`http://localhost:8080/api/v1/crew/${crewId}/details`)
+        crewUsers.value = response.data.users // 서버 응답 데이터 저장
+        console.log('Crew Users:', crewUsers.value)
+        isCrewInfoModalOpen.value = true
+      } catch (error) {
+        console.error('Failed to fetch crew users:', error)
+      }
+    }
+
+    // 모임 정보 모달 닫기
+    const closeCrewInfo = () => {
+      isCrewInfoModalOpen.value = false
+    }
+
+    // 모임 업데이트 핸들러
+    const handleCrewUpdate = (updatedCrew: { crewName: string; addedMembers: any[] }) => {
+      // alert(`모임 수정 버튼 클릭 - ${updatedCrew.crewName}`)
+      fetchMyCrews()
+      closeCrewInfo()
+    }
+
+    // 모임 나가기 핸들러
+    const handleCrewLeave = (crewId: number) => {
+      myCrews.value = myCrews.value.filter((crew) => crew.crewId !== crewId)
+      closeCrewInfo()
+    }
+
+    // 모임 삭제 핸들러
+    const handleCrewDelete = (crewId: number) => {
+      myCrews.value = myCrews.value.filter((crew) => crew.crewId !== crewId)
+      closeCrewInfo()
+    }
+
+    // 컴포넌트 마운트 시 초기화
+    onMounted(() => {
+      fetchMyCrews()
     })
-  } catch (error) {
-    console.error('폴리곤 데이터 로드 실패:', error)
-  }
-}
 
-// 폴리곤 제거
-const clearPolygons = () => {
-  polygons.value.forEach((polygon) => polygon.setMap(null))
-  polygons.value = []
-}
+    return {
+      isDropdownOpen,
+      //모임 생성
+      showCreateCrew,
+      isModalOpen,
+      closeModal,
+      fetchMyCrews, //컴포넌트로 보내기위해
+      fetchCrewReviews,
 
-// 컴포넌트 마운트 시 초기화
-onMounted(() => {
-  initializeMap()
+      //모임 드롭바관련
+      toggleDropdown,
+      myCrews,
+
+      //모임 조회
+      openCrewInfo,
+      CrewUsersList,
+      crewUsers,
+      closeCrewInfo,
+      isCrewInfoModalOpen,
+      selectedCrew,
+      currentCrewReview,
+
+      // 모임 업데이트 핸들러
+      handleCrewUpdate,
+
+      //모임 나가기 핸들러
+      handleCrewLeave,
+
+      // 모임 삭제 핸들러
+      handleCrewDelete,
+    }
+  },
 })
 </script>
 

@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1 class="bg-blue-500 text-white p-4">Main Page tailwind 적용</h1>
-    <br />
     <router-link to="/login">로그인</router-link>
     <br />
     <router-link to="/signUp">회원가입</router-link>
@@ -12,20 +10,25 @@
     <br />
     <router-link to="/map">지도</router-link>
     <br />
-    <router-link to="/search">검색</router-link>
-    <br />
     <router-link to="/crewCreate">모임생성</router-link>
     <br />
     <router-link to="/crewPage">모임페이지</router-link>
     <br />
     <router-link to="/mainView">메인</router-link>
+    <br />
+    <!-- AI Chatbot Component -->
+    <Chatbot />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import Chatbot from '@/components/Chatbot/Chatbot.vue'
 
 export default defineComponent({
   name: 'Main',
+  components: {
+    Chatbot,
+  },
 })
 </script>

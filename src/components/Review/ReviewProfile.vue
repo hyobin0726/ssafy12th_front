@@ -6,7 +6,7 @@
       <p>{{ formattedDate }}</p>
     </div>
   </div>
-  <More class="w-8 h-8" @click="isModalOpen = true" v-if="token" />
+  <More class="w-8 h-8" @click="isModalOpen = true" v-if="myUserId === review.userId" />
   <ReviewModal :isVisible="isModalOpen" @close="isModalOpen = false" :review="review" />
 </template>
 
@@ -30,7 +30,23 @@ export default defineComponent({
   },
   setup(props) {
     const token = sessionStorage.getItem('accessToken')
-
+    const myUserId = ref('')
+    const fetchMyLoginId = async () => {
+      if (!token) {
+        return
+      }
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/member`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        myUserId.value = response.data.userId
+        // console.log('내 로그인 아이디:', myUserId.value)
+      } catch (error) {
+        console.error('내 로그인 아이디를 가져오는데 실패했습니다:', error)
+      }
+    }
     const isModalOpen = ref(false)
     // console.log(typeof props.review.createdAt)
     // console.log(props.member.loginId)
@@ -60,13 +76,14 @@ export default defineComponent({
       }
     }
     onMounted(() => {
+      fetchMyLoginId()
       fetchProfile()
     })
     const profileImageUrl = computed(() => {
       return profile.value?.profileUrl || ProfileImage
     })
 
-    return { formattedDate, isModalOpen, profile, fetchProfile, profileImageUrl, ProfileImage, token }
+    return { formattedDate, isModalOpen, profile, fetchProfile, profileImageUrl, ProfileImage, token, myUserId }
   },
 })
 </script>

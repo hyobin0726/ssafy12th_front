@@ -5,7 +5,6 @@ import SignUp from '../views/Account/SignUp.vue'
 import ReviewList from '../views/Review/ReviewList.vue'
 import MyPage from '@/views/Account/MyPage.vue'
 import Map from '@/views/Map/Map.vue'
-import Search from '@/views/Search/Search.vue'
 import CrewCreate from '@/views/Crew/CrewCreate.vue'
 import CrewPage from '@/views/Crew/CrewPage.vue'
 import Chat from '@/views/Chat/Chat.vue'
@@ -40,11 +39,6 @@ const routes = [
     path: '/map',
     name: 'Map',
     component: Map,
-  },
-  {
-    path: '/search',
-    name: 'Search',
-    component: Search,
   },
   {
     path: '/crewCreate',
