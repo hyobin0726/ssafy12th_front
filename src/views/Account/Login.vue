@@ -1,74 +1,56 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="w-[400px] p-8 bg-white rounded-lg shadow-md">
-      <!-- <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Welcome Back</h2> -->
-      <!-- <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6"></h2> -->
-      <div class="flex justify-center mb-6">
-        <Logo class="h-28" />
+  <transition name="slide-in">
+    <div v-if="isVisible" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-end">
+      <div class="w-1/3 h-full bg-white p-6 shadow-md transform">
+        <h2 class="text-xl font-bold mb-4">로그인</h2>
+        <form @submit.prevent="handleSignIn">
+          <div class="mb-4">
+            <label for="id" class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
+            <input
+              type="text"
+              id="id"
+              v-model="id"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div class="mb-6">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+            <input
+              type="password"
+              id="password"
+              v-model="password"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
+            />
+          </div>
+          <button type="submit" class="w-full py-2 bg-green text-white rounded hover:bg-[#BCC199]">로그인</button>
+        </form>
+        <button class="mt-6 text-red-500 underline" @click="closeModal">닫기</button>
       </div>
-
-      <form @submit.prevent="handleSignIn">
-        <!-- ID 입력란 -->
-        <div class="mb-4">
-          <label for="id" class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
-          <input
-            type="id"
-            id="id"
-            v-model="id"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <!-- Password 입력란 -->
-        <div class="mb-6">
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
-          />
-        </div>
-
-        <p class="text-sm text-center text-gray-500 mb-4 cursor-pointer hover:underline">비밀번호 찾기</p>
-
-        <button
-          type="submit"
-          class="w-full py-2 bg-[#C49E7B] text-white rounded hover:bg-[#ddb691] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          로그인
-        </button>
-
-        <!-- <button
-          type="button"
-          class="w-full py-2 mt-4 border border-[#F9E9DA] text-[#dda677] rounded flex items-center justify-center"
-        >
-          Connect with <span class="ml-2 font-semibold">Facebook</span>
-        </button> -->
-      </form>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script lang="ts">
-import Logo from '@/assets/logo.svg'
-import { defineComponent, ref, onMounted } from 'vue'
 import axios, { AxiosError } from 'axios'
+import { defineComponent, ref, onMounted } from 'vue'
 import { useCookies } from 'vue3-cookies'
 import { useRouter } from 'vue-router'
-
 export default defineComponent({
-  components: {
-    Logo,
+  name: 'LoginModal',
+  props: {
+    isVisible: {
+      type: Boolean,
+      required: true,
+    },
   },
-  name: 'Login',
-  setup() {
+  emits: ['close'],
+  setup(_, { emit }) {
     const id = ref('')
     const password = ref('')
-    const { cookies } = useCookies()
     const router = useRouter()
+    const { cookies } = useCookies()
 
     // accessToken을 새로 고침하는 함수
     const refreshAccessToken = async () => {
@@ -165,16 +147,44 @@ export default defineComponent({
       }
     }
 
+    const closeModal = () => {
+      emit('close')
+    }
+
     return {
       id,
       password,
       handleSignIn,
-      //cookies,
+      closeModal,
     }
   },
 })
 </script>
 
 <style scoped>
-/* Tailwind CSS로 스타일을 적용하므로 추가 스타일은 필요하지 않음 */
+/* 슬라이드 애니메이션 정의 */
+.slide-in-enter-active {
+  animation: slideIn 0.6s ease-out forwards;
+}
+.slide-in-leave-active {
+  animation: slideOut 0.6s ease-in forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
 </style>
