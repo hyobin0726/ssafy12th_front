@@ -5,7 +5,7 @@ import SignUp from '../views/Account/SignUp.vue'
 import ReviewList from '../views/Review/ReviewList.vue'
 import MyPage from '@/views/Account/MyPage.vue'
 import Map from '@/views/Map/Map.vue'
-import CrewCreate from '@/views/Crew/CrewCreate.vue'
+import CrewStart from '@/components/Crew/CrewStart.vue'
 import CrewPage from '@/views/Crew/CrewPage.vue'
 import Chat from '@/views/Chat/Chat.vue'
 import MainView from '@/views/MainView.vue'
@@ -42,9 +42,9 @@ const routes = [
     component: Map,
   },
   {
-    path: '/crewCreate',
-    name: 'CrewCreate',
-    component: CrewCreate,
+    path: '/crewStart',
+    name: 'CrewStart',
+    component: CrewStart,
   },
   {
     path: '/crewPage',

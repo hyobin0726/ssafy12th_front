@@ -10,7 +10,7 @@
     <br />
     <router-link to="/map">지도</router-link>
     <br />
-    <router-link to="/crewCreate">모임생성</router-link>
+    <router-link to="/crewStart">모임생성</router-link>
     <br />
     <router-link to="/crewPage">모임페이지</router-link>
     <br />
