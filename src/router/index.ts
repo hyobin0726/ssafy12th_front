@@ -9,6 +9,7 @@ import CrewCreate from '@/views/Crew/CrewCreate.vue'
 import CrewPage from '@/views/Crew/CrewPage.vue'
 import Chat from '@/views/Chat/Chat.vue'
 import MainView from '@/views/MainView.vue'
+import Nav from '@/views/Nav.vue'
 const routes = [
   {
     path: '/',
@@ -59,6 +60,11 @@ const routes = [
     path: '/mainView',
     name: 'MainView',
     component: MainView,
+  },
+  {
+    path: '/nav',
+    name: 'Nav',
+    component: Nav,
   },
 ]
 

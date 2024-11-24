@@ -16,6 +16,8 @@
     <br />
     <router-link to="/mainView">메인</router-link>
     <br />
+    <router-link to="/nav">네브 디자인</router-link>
+    <br />
     <!-- AI Chatbot Component -->
     <Chatbot />
   </div>

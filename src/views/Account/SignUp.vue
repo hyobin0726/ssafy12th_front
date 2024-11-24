@@ -1,181 +1,181 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="w-[400px] p-8 bg-white rounded-lg shadow-md">
-      <!-- <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Create Your Account</h2> -->
-      <div class="flex justify-center mb-6">
-        <Logo class="h-28" />
-      </div>
+  <transition name="slide-in">
+    <div v-if="isVisible" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-end">
+      <div class="w-[400px] p-8 bg-white rounded-lg shadow-md">
+        <!-- <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Create Your Account</h2> -->
 
-      <form @submit.prevent="handleSignUp">
-        <!-- 이름 입력란 Name Input -->
-        <div class="mb-4">
-          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
-          <input
-            type="text"
-            id="name"
-            v-model="name"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p v-if="name && !isNameValid" class="text-red-500 text-sm mt-1">
-            이름은 한글, 영어만 입력 가능합니다 (최대 255자).
-          </p>
-        </div>
-
-        <!-- 아이디 입력란 ID Input with Check Button -->
-        <div class="mb-4">
-          <label for="id" class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
-          <div class="flex">
+        <form @submit.prevent="handleSignUp">
+          <!-- 이름 입력란 Name Input -->
+          <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
             <input
               type="text"
-              id="loginId"
-              v-model="loginId"
+              id="name"
+              v-model="name"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
-              @input="clearIdMessage"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button
-              type="button"
-              @click="checkIdAvailability"
-              :disabled="!isIdValid"
-              class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
-            >
-              아이디 체크
-            </button>
+            <p v-if="name && !isNameValid" class="text-red-500 text-sm mt-1">
+              이름은 한글, 영어만 입력 가능합니다 (최대 255자).
+            </p>
           </div>
-          <p v-if="loginId && !isIdValid" class="text-red-500 text-sm mt-1">
-            아이디는 8~20자, 숫자와 영문만 포함 가능, 특수문자 금지입니다.
-          </p>
-          <p v-if="isIdChecked" :class="isIdAvailable ? 'text-green-500' : 'text-red-500'">
-            {{ idMessage }}
-          </p>
-        </div>
 
-        <!-- 이메일 입력란 Email Input -->
-        <div class="mb-4">
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-          <div class="flex">
+          <!-- 아이디 입력란 ID Input with Check Button -->
+          <div class="mb-4">
+            <label for="id" class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
+            <div class="flex">
+              <input
+                type="text"
+                id="loginId"
+                v-model="loginId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                @input="clearIdMessage"
+              />
+              <button
+                type="button"
+                @click="checkIdAvailability"
+                :disabled="!isIdValid"
+                class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
+              >
+                아이디 체크
+              </button>
+            </div>
+            <p v-if="loginId && !isIdValid" class="text-red-500 text-sm mt-1">
+              아이디는 8~20자, 숫자와 영문만 포함 가능, 특수문자 금지입니다.
+            </p>
+            <p v-if="isIdChecked" :class="isIdAvailable ? 'text-green-500' : 'text-red-500'">
+              {{ idMessage }}
+            </p>
+          </div>
+
+          <!-- 이메일 입력란 Email Input -->
+          <div class="mb-4">
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+            <div class="flex">
+              <input
+                type="email"
+                id="email"
+                v-model="email"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                @click="sendEmailVerification"
+                class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
+              >
+                이메일 인증
+              </button>
+            </div>
+            <p v-if="email && !isEmailValid" class="text-red-500 text-sm mt-1">유효한 이메일 주소를 입력해주세요.</p>
+          </div>
+
+          <!-- 이메일 인증번호 Verification Code Input with Timer -->
+          <div v-if="isTimerRunning" class="mb-4">
+            <label for="verificationCode" class="block text-sm font-medium text-gray-700 mb-1">인증번호</label>
+            <div class="flex items-center">
+              <input
+                type="text"
+                id="verificationCode"
+                v-model="verificationCode"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="인증번호 입력"
+              />
+              <span class="px-2 text-sm text-gray-500">{{ minutes }}:{{ seconds.toString().padStart(2, '0') }}</span>
+              <button
+                type="button"
+                @click="verifyCode"
+                class="px-4 py-2 bg-green-500 text-white rounded-r hover:bg-green-600 bg-blue-600"
+              >
+                확인
+              </button>
+            </div>
+            <!-- 인증번호 유효성 검사 메시지 -->
+            <p v-if="verificationCode && !isCodeValid" class="text-red-500 text-sm mt-1">
+              유효한 인증번호를 입력해주세요.
+            </p>
+            <p class="text-gray-500 text-xs mt-2">Please enter the verification code sent to your email.</p>
+          </div>
+
+          <!-- 비밀번호 입력란 Password Input -->
+          <div class="mb-4">
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
             <input
-              type="email"
-              id="email"
-              v-model="email"
+              type="password"
+              id="password"
+              v-model="password"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="font-sans w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button
-              type="button"
-              @click="sendEmailVerification"
-              class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
-            >
-              이메일 인증
-            </button>
+            <p v-if="password && !isPasswordValid" class="text-red-500 text-sm mt-1">
+              비밀번호는 8~20자, 숫자, 영문, 특수문자가 모두 포함되어야 합니다.
+            </p>
           </div>
-          <p v-if="email && !isEmailValid" class="text-red-500 text-sm mt-1">유효한 이메일 주소를 입력해주세요.</p>
-        </div>
 
-        <!-- 이메일 인증번호 Verification Code Input with Timer -->
-        <div v-if="isTimerRunning" class="mb-4">
-          <label for="verificationCode" class="block text-sm font-medium text-gray-700 mb-1">인증번호</label>
-          <div class="flex items-center">
+          <!-- 비밀번호 확인란 Password Confirmation Input -->
+          <div class="mb-4">
+            <label for="passwordConfirm" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
             <input
-              type="text"
-              id="verificationCode"
-              v-model="verificationCode"
+              type="password"
+              id="passwordConfirm"
+              v-model="passwordConfirm"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="인증번호 입력"
+              class="font-sans w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <span class="px-2 text-sm text-gray-500">{{ minutes }}:{{ seconds.toString().padStart(2, '0') }}</span>
-            <button
-              type="button"
-              @click="verifyCode"
-              class="px-4 py-2 bg-green-500 text-white rounded-r hover:bg-green-600"
-            >
-              확인
-            </button>
+            <p v-if="passwordConfirm && password !== passwordConfirm" class="text-red-500 text-sm mt-1">
+              비밀번호가 일치하지 않습니다.
+            </p>
           </div>
-          <!-- 인증번호 유효성 검사 메시지 -->
-          <p v-if="verificationCode && !isCodeValid" class="text-red-500 text-sm mt-1">
-            유효한 인증번호를 입력해주세요.
-          </p>
-          <p class="text-gray-500 text-xs mt-2">Please enter the verification code sent to your email.</p>
-        </div>
 
-        <!-- 비밀번호 입력란 Password Input -->
-        <div class="mb-4">
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p v-if="password && !isPasswordValid" class="text-red-500 text-sm mt-1">
-            비밀번호는 8~20자, 숫자, 영문, 특수문자가 모두 포함되어야 합니다.
-          </p>
-        </div>
+          <!-- 휴대전화 입력란 Phone Input -->
+          <div class="mb-4">
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대전화</label>
+            <input
+              type="tel"
+              id="phone"
+              v-model="phone"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p v-if="phone && !isPhoneValid" class="text-red-500 text-sm mt-1">
+              휴대전화는 10~11자리 숫자만 입력 가능합니다 (010-0000-0000 형식).
+            </p>
+          </div>
 
-        <!-- 비밀번호 확인란 Password Confirmation Input -->
-        <div class="mb-4">
-          <label for="passwordConfirm" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
-          <input
-            type="password"
-            id="passwordConfirm"
-            v-model="passwordConfirm"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p v-if="passwordConfirm && password !== passwordConfirm" class="text-red-500 text-sm mt-1">
-            비밀번호가 일치하지 않습니다.
-          </p>
-        </div>
+          <!-- 생년월일 입력란 Birth Input -->
+          <div class="mb-6">
+            <label for="birth" class="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
+            <input
+              type="date"
+              id="birth"
+              v-model="birth"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-        <!-- 휴대전화 입력란 Phone Input -->
-        <div class="mb-4">
-          <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대전화</label>
-          <input
-            type="tel"
-            id="phone"
-            v-model="phone"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p v-if="phone && !isPhoneValid" class="text-red-500 text-sm mt-1">
-            휴대전화는 10~11자리 숫자만 입력 가능합니다 (010-0000-0000 형식).
-          </p>
-        </div>
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="w-full py-2 bg-[#C49E7B] text-white rounded hover:bg-[#ddb691] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            :disabled="!isFormValid"
+          >
+            회원가입
+          </button>
+          <button class="mt-6 text-red-500 underline" @click="closeModal">닫기</button>
 
-        <!-- 생년월일 입력란 Birth Input -->
-        <div class="mb-6">
-          <label for="birth" class="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
-          <input
-            type="date"
-            id="birth"
-            v-model="birth"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <!-- Submit Button -->
-        <button
-          type="submit"
-          class="w-full py-2 bg-[#C49E7B] text-white rounded hover:bg-[#ddb691] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          :disabled="!isFormValid"
-        >
-          회원가입
-        </button>
-
-        <!-- <button
+          <!-- <button
           type="button"
           class="w-full py-2 mt-4 border border-[#F9E9DA] text-[#dda677] rounded flex items-center justify-center"
         >
           Connect with <span class="ml-2 font-semibold">Facebook</span>
         </button> -->
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script lang="ts">
@@ -188,7 +188,14 @@ export default defineComponent({
     Logo,
   },
   name: 'Signup',
-  setup() {
+  props: {
+    isVisible: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  emits: ['close'],
+  setup(_, { emit }) {
     const router = useRouter()
     // Form field refs
     const name = ref('')
@@ -413,7 +420,9 @@ export default defineComponent({
     //     birth: birth.value,
     //   })
     // }
-
+    const closeModal = () => {
+      emit('close')
+    }
     return {
       name,
       loginId,
@@ -442,11 +451,36 @@ export default defineComponent({
       sendEmailVerification,
       handleSignUp,
       verifyCode,
+      closeModal,
     }
   },
 })
 </script>
 
 <style scoped>
-/* Tailwind CSS로 스타일을 적용하므로 추가 스타일은 필요하지 않음 */
+/* 슬라이드 애니메이션 정의 */
+.slide-in-enter-active {
+  animation: slideIn 0.6s ease-out forwards;
+}
+.slide-in-leave-active {
+  animation: slideOut 0.6s ease-in forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
 </style>

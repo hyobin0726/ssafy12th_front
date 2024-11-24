@@ -1,6 +1,6 @@
 <template>
   <ReviewNav @searchResults="handleSearchResults" />
-  <div class="flex h-screen overflow-y-scroll justify-center p-5">
+  <div class="flex h-screen justify-center p-5">
     <div class="space-y-5">
       <template v-if="filteredReviews.length > 0">
         <ReviewItem
@@ -13,7 +13,10 @@
       <p v-else class="text-center text-gray-500 flex justify-center items-center h-screen">작성된 리뷰가 없습니다.</p>
     </div>
   </div>
-  <div class="bottom-5 absolute right-5 bg-green text-white py-2 px-5 rounded-lg" @click="handleCreateClick">
+  <div
+    class="bottom-5 absolute right-6 bg-green text-white py-2 px-5 rounded-lg hover:bg-opacity-80 item"
+    @click="handleCreateClick"
+  >
     글쓰기
   </div>
   <ReviewWrite :isVisible="isModalOpen" @close="isModalOpen = false" />
@@ -78,6 +81,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.item:hover {
+  transform: scale(1.2);
+}
 @keyframes fadeIn {
   from {
     opacity: 0;
