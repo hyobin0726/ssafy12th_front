@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <!-- Navbar -->
-    <header class="absolute top-0 w-full z-50 transition-all duration-300 p-4 bg-white shadow-lg">
+    <header class="absolute top-0 w-full z-[11] transition-all duration-300 p-4 bg-white shadow-lg">
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center space-x-16">
           <router-link to="/" class="flex items-center">
