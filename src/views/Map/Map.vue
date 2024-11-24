@@ -313,14 +313,4 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-/* 스크롤바 숨기기 */
-.scrollbar-hide {
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-</style>
+<style scoped></style>

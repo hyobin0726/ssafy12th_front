@@ -1,6 +1,6 @@
 <template>
   <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-5 rounded-lg shadow-lg w-3/4 h-3/4 flex flex-col">
+    <div class="bg-white p-5 rounded-lg shadow-lg w-3/4 h-3/4 flex flex-col overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <Back @click="closeModal" class="w-6 h-6" />
         <span class="text-xl">리뷰 수정하기</span>
@@ -87,16 +87,22 @@
               :disabled="form.hashTags.length >= 5"
             />
           </div>
-          <input
-            type="text"
-            placeholder="위치 추가"
-            class="w-full h-12 p-3 border rounded-md outline-none focus:border-[#A8B087]"
-          />
-          <select class="w-full p-3 border rounded-md outline-none focus:border-[#A8B087]">
-            <option value="">공개범위</option>
-            <option value="public">전체공개</option>
-            <option value="private">비공개</option>
+          <div>
+            <input
+              type="text"
+              placeholder="위치 추가"
+              class="w-full h-12 p-3 border rounded-md outline-none focus:border-[#A8B087] cursor-pointer"
+              readonly
+              v-model="form.location"
+            />
+          </div>
+          <p v-if="formErrors.location" class="text-red-500 text-sm">{{ formErrors.location }}</p>
+          <select class="w-full p-3 border rounded-md outline-none focus:border-[#A8B087]" v-model="form.visibility">
+            <option value="-1">공개범위</option>
+            <option value="0">전체공개</option>
+            <option v-for="crew in crews" :key="crew.crewId" :value="crew.crewId">{{ crew.name }}</option>
           </select>
+          <p v-if="formErrors.visibility" class="text-red-500 text-sm">{{ formErrors.visibility }}</p>
         </div>
       </div>
     </div>
@@ -113,6 +119,7 @@ import 'swiper/css/navigation'
 import FullStar from '@/assets/Review/FullStar.svg'
 import EmptyStar from '@/assets/Review/EmptyStar.svg'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import type { Crew } from '@/types/Crew'
 
 export default defineComponent({
   name: 'EditReview',
@@ -136,10 +143,31 @@ export default defineComponent({
   emits: ['close', 'submitImages'],
 
   setup(props, { emit }) {
+    // console.log('수정할 리뷰 데이터:', props.reviewData)
     const previews = ref<string[]>(props.reviewData.imageUrls || [])
     const uploadedUrls = ref<string[]>(props.reviewData.imageUrls || [])
     const hashTags = ref<string[]>([])
     const navigationOptions: any = { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }
+    const crews = ref<Crew[]>([])
+    const fetchCrew = async () => {
+      const token = sessionStorage.getItem('accessToken')
+      if (!token) {
+        // console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+        return
+      }
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/crew/myCrew`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        crews.value = response.data
+        // console.log('크루 데이터를 가져왔습니다:', crews.value)
+      } catch (error) {
+        console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
+      }
+    }
     const fetchHashTags = async () => {
       try {
         const response = await axios.get(
@@ -154,14 +182,20 @@ export default defineComponent({
     const form = ref({
       content: props.reviewData.content || '',
       hashTags: hashTags || [],
-      location: props.reviewData.location || '',
-      visibility: props.reviewData.visibility || 'public',
+      location: props.reviewData.title || '',
+      visibility: props.reviewData.visibility,
       rating: props.reviewData.point || 0,
+      title: props.reviewData.title,
+      attractionId: props.reviewData.attractionId,
+      gugunId: props.reviewData.gugunId,
+      gugunSidoId: props.reviewData.gugunSidoId,
     })
 
     const formErrors = ref({
       rating: '',
       image: '',
+      location: '',
+      visibility: '',
     })
 
     const updateReview = async () => {
@@ -171,8 +205,12 @@ export default defineComponent({
         imageUrls: uploadedUrls.value,
         point: form.value.rating,
         content: form.value.content,
-        visibility: form.value.visibility === 'public' ? 1 : 0,
+        visibility: form.value.visibility,
         hashtags: form.value.hashTags,
+        title: form.value.title,
+        attractionId: form.value.attractionId,
+        gugunId: form.value.gugunId,
+        gugunSidoId: form.value.gugunSidoId,
       }
 
       const token = sessionStorage.getItem('accessToken')
@@ -272,6 +310,7 @@ export default defineComponent({
     }
     onMounted(() => {
       fetchHashTags()
+      fetchCrew()
     })
 
     return {
@@ -290,6 +329,7 @@ export default defineComponent({
       inputHashTag,
       hashTags,
       fetchHashTags,
+      crews,
     }
   },
 })

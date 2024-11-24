@@ -37,7 +37,7 @@ export default defineComponent({
   emits: ['close', 'post-edit', 'post-delete'],
   setup(props) {
     const isReviewUpdate = ref(false)
-    const isModalOpen = ref(false)
+    const isOpen = ref(false)
     const fetchDeleteReview = async () => {
       try {
         const token = sessionStorage.getItem('accessToken')
@@ -57,20 +57,20 @@ export default defineComponent({
         console.error('게시글 삭제 실패:', error)
       }
     }
-    return { fetchDeleteReview, isModalOpen, isReviewUpdate }
+    return { fetchDeleteReview, isOpen, isReviewUpdate }
   },
   methods: {
     closeModal() {
       this.$emit('close') // 부모 컴포넌트에 모달 닫기 이벤트 전송
     },
     editPost() {
-      console.log('게시글 수정')
+      // console.log('게시글 수정')
       this.isReviewUpdate = true
       this.$emit('post-edit', this.review)
       this.closeModal()
     },
     deletePost() {
-      console.log('게시글 삭제')
+      // console.log('게시글 삭제')
       this.fetchDeleteReview()
       this.closeModal()
       location.reload()
