@@ -1,9 +1,10 @@
 <template>
+  <ReviewNav @searchResults="handleSearchResults" />
   <div class="flex h-screen overflow-y-scroll justify-center p-5">
     <div class="space-y-5">
-      <template v-if="reviews.length > 0">
+      <template v-if="filteredReviews.length > 0">
         <ReviewItem
-          v-for="review in reviews"
+          v-for="review in filteredReviews"
           :key="review.reviewId"
           :review="review"
           class="bg-white animate-slide-in"
@@ -19,22 +20,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import ReviewItem from '@/components/Review/ReviewItem.vue'
 import type { Review } from '@/types/Review'
 import ReviewWrite from '@/components/Review/ReviewWrite.vue'
 import { useRouter } from 'vue-router'
+import ReviewNav from '@/components/Review/ReviewNav.vue'
 export default defineComponent({
-  components: { ReviewItem, ReviewWrite },
+  components: { ReviewItem, ReviewWrite, ReviewNav },
   setup() {
     const reviews = ref<Review[]>([])
+    const searchResults = ref<Review[]>([])
+    const isSearching = ref(false)
     const router = useRouter()
     const isModalOpen = ref(false)
     const fetchReviews = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/list`)
         reviews.value = response.data
+        // console.log('리뷰 데이터를 성공적으로 가져왔습니다:', reviews.value)
       } catch (error) {
         console.error('리뷰 데이터를 가져오는데 실패했습니다:', error)
       }
@@ -49,12 +54,25 @@ export default defineComponent({
       }
       isModalOpen.value = true
     }
+    const handleSearchResults = (results: Review[]) => {
+      searchResults.value = results
+      isSearching.value = true
+    }
 
     onMounted(() => {
       fetchReviews()
     })
 
-    return { reviews, isModalOpen, handleCreateClick }
+    const filteredReviews = ref<Review[]>([])
+    watch(
+      [isSearching, searchResults, reviews],
+      () => {
+        // console.log('검색 중:', isSearching.value)
+        filteredReviews.value = isSearching.value ? searchResults.value : reviews.value
+      },
+      { immediate: true },
+    )
+    return { reviews, isModalOpen, handleCreateClick, handleSearchResults, filteredReviews }
   },
 })
 </script>

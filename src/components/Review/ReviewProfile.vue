@@ -32,6 +32,9 @@ export default defineComponent({
     const token = sessionStorage.getItem('accessToken')
     const myUserId = ref('')
     const fetchMyLoginId = async () => {
+      if (!token) {
+        return
+      }
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/member`, {
           headers: {
