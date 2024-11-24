@@ -5,7 +5,7 @@
     <div class="relative">
       <button
         @click="toggleDropdown"
-        class="fixed top-14 right-5 bg-gradient-to-r from-emerald-400 to-teal-400 text-white py-3 px-6 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse-subtle z-50 font-semibold tracking-wide"
+        class="fixed top-14 right-5 bg-gradient-to-r from-emerald-400 to-teal-300 text-white py-3 px-6 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse-subtle z-50 font-semibold tracking-wide"
       >
         <span class="flex items-center gap-2">
           모임
@@ -25,7 +25,7 @@
       <!-- 드롭다운 메뉴 -->
       <div
         v-if="isDropdownOpen"
-        class="absolute top-24 right-5 w-72 bg-white rounded-xl shadow-2xl transform transition-all duration-300 ease-out z-50 animate-dropdown-fade border border-gray-100"
+        class="absolute top-28 right-5 w-72 bg-white rounded-xl shadow-2xl transform transition-all duration-300 ease-out z-50 animate-dropdown-fade border border-gray-100"
       >
         <!-- 모임 리스트 헤더 -->
         <div class="px-4 py-3 border-b border-gray-100">
@@ -54,23 +54,9 @@
               </span>
               <button
                 @click.stop="openCrewInfo(crew)"
-                class="px-3 py-1.5 bg-gradient-to-r from-indigo-400 to-purple-400 text-white text-sm rounded-lg transform hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100 shadow-md hover:shadow-lg flex items-center gap-1"
+                class="px-3 py-1.5 bg-white border-2 border-green-500 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-500 text-sm rounded-lg transform hover:scale-105 hover:bg-indigo-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg flex items-center gap-1"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                모임 정보
+                상세보기
               </button>
             </div>
           </li>
@@ -373,5 +359,31 @@ export default defineComponent({
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: #10b981;
   border-radius: 3px;
+}
+
+/* 그라데이션 텍스트를 위한 추가 스타일 */
+.text-gradient {
+  background-size: 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+}
+
+@keyframes selectedPulse {
+  0% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}
+
+.selected-crew {
+  animation: selectedPulse 2s infinite;
 }
 </style>
