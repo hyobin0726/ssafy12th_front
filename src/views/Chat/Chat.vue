@@ -1,121 +1,133 @@
 <template>
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-1/4 bg-gray-100 p-4 border-r relative">
-      <div class="mb-4 flex justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search"
-          class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-green-300"
-          v-model="searchQuery"
-        />
-      </div>
-      <ul>
-        <li
-          v-for="chat in filteredChats"
-          :key="chat.roomId"
-          class="p-2 flex items-center gap-3 cursor-pointer hover:bg-gray-200"
-          @click="selectChat(chat)"
-        >
-          <img :src="chat.participant?.profileUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
-          <div class="flex flex-col">
-            <p class="text-sm font-medium">{{ chat.participant?.loginId }}</p>
-            <p class="text-xs text-gray-500 truncate">{{ chat.lastMessage }}</p>
-          </div>
-          <span class="text-xs text-gray-400">{{ formatTimestamp(chat.timestamp) }}</span>
-        </li>
-      </ul>
-
-      <!-- + 버튼 -->
-      <button
-        @click="toggleModal"
-        class="p-3 bg-green-500 text-white rounded-xl hover:bg-green-600 absolute bottom-4 right-4"
-      >
-        +
-      </button>
-    </aside>
-
-    <!-- Chat Panel -->
-    <main class="flex-1 flex flex-col">
-      <header class="p-4 border-b flex items-center gap-3">
-        <div v-if="selectedChat">
-          <img :src="selectedChat?.participant?.profileUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
-          <div>
-            <h1 class="text-lg font-medium">{{ selectedChat?.participant?.name }}</h1>
-            <p class="text-xs text-gray-500">{{ selectedChat?.participant?.loginId }}</p>
-          </div>
-        </div>
-        <div v-else>
-          <p class="text-lg font-medium text-center">채팅 시작하기</p>
-        </div>
-      </header>
-
-      <!-- Chat Messages -->
-      <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
-        <div
-          v-for="(message, index) in messages"
-          :key="index"
-          :class="message.senderId === currentUserId ? 'text-right' : 'text-left'"
-          class="mb-4"
-        >
-          <div
-            :class="[
-              'inline-block px-4 py-2 rounded-lg',
-              message.senderId === currentUserId ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800',
-            ]"
-          >
-            {{ message.message }}
-          </div>
-          <p class="text-xs text-gray-500 mt-1">{{ formatTimestamp(message.timestamp) }}</p>
-        </div>
-      </div>
-
-      <!-- Input Field -->
-      <footer class="p-4 border-t flex items-center gap-3">
-        <input
-          type="text"
-          placeholder="메시지를 입력해주세요"
-          class="flex-1 p-2 border rounded-md focus:outline-none focus:ring focus:ring-green-300"
-          v-model="newMessage"
-        />
-        <button class="p-2 bg-green-500 text-white rounded-full hover:bg-green-600" @click="sendMessage">➤</button>
-      </footer>
-    </main>
-
-    <!-- 회원 검색 모달 -->
-    <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div class="bg-white p-4 rounded-md shadow-lg w-1/3">
-        <div class="flex justify-between mb-4">
-          <h2 class="text-lg font-thin">회원 검색</h2>
-          <button class="bg-red-400 text-white rounded-full hover:bg-red-500 w-6 h-6" @click="toggleModal">X</button>
-        </div>
-        <div class="flex items-center justify-center space-x-2">
+  <div class="flex flex-col h-screen">
+    <Nav class="h-[100px]" />
+    <div class="flex" style="height: calc(100vh - 110px)">
+      <aside class="w-1/4 bg-gray-100 p-4 border-r relative">
+        <div class="mb-4 flex justify-between items-center">
           <input
             type="text"
-            placeholder="아이디를 입력해주세요"
-            v-model="searchLoginId"
+            placeholder="Search"
             class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-green-300"
-            @keyup.enter="searchUser"
+            v-model="searchQuery"
           />
-          <button class="w-1/6 bg-green-400 text-white p-2 rounded-md hover:bg-green-500" @click="searchUser">
-            검색
-          </button>
         </div>
-        <ul class="mt-4">
-          <div
-            v-if="searchResults"
-            class="mt-4 p-2 cursor-pointer hover:bg-gray-100"
-            @click="startChatWithUser(searchResults)"
+        <ul>
+          <li
+            v-for="chat in filteredChats"
+            :key="chat.roomId"
+            class="p-2 flex items-center gap-3 cursor-pointer hover:bg-gray-200"
+            @click="selectChat(chat)"
           >
-            <div class="flex items-center">
-              <img :src="searchResults.profileUrl" alt="Profile" class="w-12 h-12 rounded-full mr-2" />
-              <div>{{ searchResults.loginId }} ({{ searchResults.name }})</div>
+            <img :src="chat.participant?.profileUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover" />
+            <div class="flex flex-col">
+              <p class="text-sm font-medium">{{ chat.participant?.loginId }}</p>
+              <p class="text-xs text-gray-500 truncate">{{ chat.lastMessage }}</p>
+            </div>
+            <span class="text-xs text-gray-400">{{ formatTimestamp(chat.timestamp) }}</span>
+          </li>
+        </ul>
+
+        <button
+          @click="toggleModal"
+          class="p-3 bg-green text-white rounded-full hover:bg-green-600 absolute bottom-4 right-4 w-12 h-12"
+        >
+          +
+        </button>
+      </aside>
+
+      <main class="flex-1 flex flex-col">
+        <header class="p-4 border-b flex items-center gap-3 flex-shrink-0">
+          <div v-if="selectedChat" class="flex space-x-4">
+            <img
+              :src="selectedChat?.participant?.profileUrl"
+              alt="Avatar"
+              class="w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <h1 class="text-lg font-medium">{{ selectedChat?.participant?.name }}</h1>
+              <p class="text-xs text-gray-500">{{ selectedChat?.participant?.loginId }}</p>
             </div>
           </div>
-          <div v-else-if="searchLoginId === ''" class="mt-4 p-2">검색어를 입력해주세요.</div>
-          <div v-else-if="searchResults === null" class="mt-4 p-2">검색 결과가 없습니다.</div>
-        </ul>
+          <div v-else>
+            <p class="text-lg font-medium text-center">채팅 시작하기</p>
+          </div>
+        </header>
+
+        <!-- 메시지 목록 -->
+        <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <div v-if="isLoadingMessages" class="text-center text-gray-500">메시지를 불러오는 중입니다...</div>
+          <div
+            v-else-if="selectedChat"
+            v-for="(message, index) in messages"
+            :key="index"
+            :class="message.senderId === currentUserId ? 'text-right' : 'text-left'"
+            class="mb-4"
+          >
+            <div
+              :class="[
+                'inline-block px-4 py-2 rounded-lg',
+                message.senderId === currentUserId ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800',
+              ]"
+            >
+              {{ message.message }}
+            </div>
+            <p class="text-xs text-gray-500 mt-1">{{ formatTimestamp(message.timestamp) }}</p>
+          </div>
+          <p v-else class="text-center text-gray-500">메시지가 없습니다. 대화를 시작해보세요!</p>
+        </div>
+
+        <!-- 입력 필드 -->
+        <footer v-if="selectedChat" class="p-4 border-t flex items-center gap-3">
+          <input
+            type="text"
+            placeholder="메시지를 입력해주세요"
+            class="flex-1 p-2 border rounded-md focus:outline-none focus:ring focus:ring-green"
+            v-model="newMessage"
+          />
+          <button
+            class="p-2 bg-green text-white rounded-full hover:bg-green flex justify-center items-center w-10 h-10"
+            @click="sendMessage"
+          >
+            ➤
+          </button>
+        </footer>
+        <footer v-else class="p-4 border-t text-center text-gray-500">
+          대화방을 선택하거나 새로운 대화를 시작하세요.
+        </footer>
+      </main>
+    </div>
+  </div>
+  <!-- 회원 검색 모달 -->
+  <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-4 rounded-md shadow-lg w-1/3">
+      <div class="flex justify-between mb-4">
+        <h2 class="text-lg font-thin">회원 검색</h2>
+        <button class="bg-red-400 text-white rounded-full hover:bg-red-500 w-6 h-6" @click="toggleModal">X</button>
       </div>
+      <div class="flex items-center justify-center space-x-2">
+        <input
+          type="text"
+          placeholder="아이디를 입력해주세요"
+          v-model="searchLoginId"
+          class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-green"
+          @keyup.enter="searchUser"
+        />
+        <button class="w-1/6 bg-green text-white p-2 rounded-md hover:bg-green" @click="searchUser">검색</button>
+      </div>
+      <ul class="mt-4">
+        <div
+          v-if="searchResults"
+          class="mt-4 p-2 cursor-pointer hover:bg-gray-100"
+          @click="startChatWithUser(searchResults)"
+        >
+          <div class="flex items-center">
+            <img :src="searchResults.profileUrl" alt="Profile" class="w-12 h-12 rounded-full mr-2" />
+            <div>{{ searchResults.loginId }} ({{ searchResults.name }})</div>
+          </div>
+        </div>
+        <div v-else-if="searchLoginId === ''" class="mt-4 p-2">검색어를 입력해주세요.</div>
+        <div v-else-if="searchResults === null" class="mt-4 p-2">검색 결과가 없습니다.</div>
+      </ul>
     </div>
   </div>
 </template>
@@ -140,9 +152,12 @@ import type { ChatRoom, Message } from '@/types/Chat'
 import type { Member } from '@/types/Member'
 import { db } from '@/services/firebase'
 import axios from 'axios'
-
+import Nav from '@/components/common/WhiteNav.vue'
 export default defineComponent({
   name: 'ChatApp',
+  components: {
+    Nav,
+  },
   setup() {
     const chats = ref<ChatRoom[]>([])
     const messages = ref<Message[]>([])

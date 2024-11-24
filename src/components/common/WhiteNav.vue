@@ -1,28 +1,31 @@
 <template>
   <div class="relative">
-    <header class="absolute top-0 w-full z-50 transition-all duration-300 p-6">
+    <!-- Navbar -->
+    <header class="absolute top-0 w-full z-[11] transition-all duration-300 p-4 bg-white shadow-lg">
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center space-x-16">
           <router-link to="/" class="flex items-center">
-            <img src="@/assets/logo.svg" alt="Logo" class="h-8 w-auto text-white" />
+            <img src="@/assets/logo.svg" alt="Logo" class="h-8 w-auto text-gray-700" />
           </router-link>
           <nav class="flex items-center space-x-16">
-            <router-link to="/map" class="text-white text-lg font-medium hover:text-green"> 지도 </router-link>
-            <router-link to="/crewPage" class="text-white text-lg font-medium hover:text-green"> 모임 </router-link>
-            <router-link to="/chat" class="text-white text-lg font-medium hover:text-green"> 채팅 </router-link>
-            <router-link to="/reviewList" class="text-white text-lg font-medium hover:text-green"> 리뷰 </router-link>
+            <router-link to="/map" class="text-gray-700 text-lg font-medium hover:text-green"> 지도 </router-link>
+            <router-link to="/crewPage" class="text-gray-700 text-lg font-medium hover:text-green"> 모임 </router-link>
+            <router-link to="/chat" class="text-gray-700 text-lg font-medium hover:text-green"> 채팅 </router-link>
+            <router-link to="/reviewList" class="text-gray-700 text-lg font-medium hover:text-green">
+              리뷰
+            </router-link>
           </nav>
         </div>
 
         <div class="flex items-center space-x-4">
           <button
-            class="px-4 py-2 bg-black bg-opacity-30 h-11 text-white text-sm font-medium rounded hover:bg-opacity-50"
+            class="px-4 py-2 bg-green h-11 text-white text-sm font-medium rounded hover:bg-opacity-70"
             @click="openLoginModal"
           >
             로그인
           </button>
           <button
-            class="px-4 py-2 bg-black bg-opacity-30 h-11 text-white text-sm font-medium rounded hover:bg-opacity-50"
+            class="px-4 py-2 bg-green h-11 text-white text-sm font-medium rounded hover:bg-opacity-70"
             @click="openSignUpModal"
           >
             회원가입
@@ -30,6 +33,8 @@
         </div>
       </div>
     </header>
+
+    <!-- Modals -->
     <LoginModal @close="closeLoginModal" :isVisible="isLoginModalOpen" />
     <SignUp @close="closeSignUpModal" :isVisible="isSignUpModalOpen" />
   </div>
@@ -76,8 +81,16 @@ export default defineComponent({
   },
 })
 </script>
+
 <style scoped>
-/* CSS 애니메이션 정의 */
+/* 헤더에 그림자 추가 */
+header {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* 애니메이션 및 효과 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -98,14 +111,12 @@ export default defineComponent({
   }
 }
 
-/* 헤더 슬라이드 효과 */
 header {
   animation: fadeIn 0.6s ease-in-out;
 }
 
-/* 버튼 클릭 효과 */
 button:active {
   animation: buttonPress 0.1s ease-in-out;
-  transform: scale(0.95); /* 클릭 시 즉각 반응 추가 */
+  transform: scale(0.95);
 }
 </style>

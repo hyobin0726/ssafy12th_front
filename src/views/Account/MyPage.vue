@@ -1,7 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-100 p-4">
     <div class="flex h-screen">
-      <Nav class="w-1/4 h-screen" />
       <div class="w-3/4 overflow-y-scroll">
         <!-- 프로필 상단 -->
         <div class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
@@ -82,11 +81,10 @@
 <script lang="ts">
 import axios from 'axios'
 import Logo from '@/assets/logo.svg'
-import Nav from '@/components/common/Nav.vue'
 import { defineComponent, ref, onMounted } from 'vue'
 
 export default defineComponent({
-  components: { Logo, Nav },
+  components: { Logo },
   name: 'MyPage',
   setup() {
     const userData = ref({
