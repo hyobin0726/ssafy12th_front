@@ -37,7 +37,7 @@ export default defineComponent({
   emits: ['close', 'post-edit', 'post-delete'],
   setup(props) {
     const isReviewUpdate = ref(false)
-    const isModalOpen = ref(false)
+    const isOpen = ref(false)
     const fetchDeleteReview = async () => {
       try {
         const token = sessionStorage.getItem('accessToken')
@@ -57,7 +57,7 @@ export default defineComponent({
         console.error('게시글 삭제 실패:', error)
       }
     }
-    return { fetchDeleteReview, isModalOpen, isReviewUpdate }
+    return { fetchDeleteReview, isOpen, isReviewUpdate }
   },
   methods: {
     closeModal() {

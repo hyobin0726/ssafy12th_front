@@ -1,15 +1,10 @@
 <template>
-  <div class="flex h-screen">
-    <Nav class="w-1/4 h-screen" />
-    <div class="w-3/4 overflow-y-scroll p-14">
-      <div class="space-y-5">
-        <template v-if="reviews.length > 0">
-          <ReviewItem v-for="review in reviews" :key="review.reviewId" :review="review" />
-        </template>
-        <p v-else class="text-center text-gray-500 flex justify-center items-center h-screen">
-          작성된 리뷰가 없습니다.
-        </p>
-      </div>
+  <div class="flex h-screen overflow-y-scroll justify-center p-5">
+    <div class="space-y-5">
+      <template v-if="reviews.length > 0">
+        <ReviewItem v-for="review in reviews" :key="review.reviewId" :review="review" />
+      </template>
+      <p v-else class="text-center text-gray-500 flex justify-center items-center h-screen">작성된 리뷰가 없습니다.</p>
     </div>
   </div>
 </template>
@@ -18,11 +13,10 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import axios from 'axios'
 import ReviewItem from '@/components/Review/ReviewItem.vue'
-import Nav from '@/components/common/Nav.vue'
 import type { Review } from '@/types/Review'
 
 export default defineComponent({
-  components: { ReviewItem, Nav },
+  components: { ReviewItem },
   setup() {
     const reviews = ref<Review[]>([])
     const fetchReviews = async () => {
@@ -42,3 +36,5 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped></style>
