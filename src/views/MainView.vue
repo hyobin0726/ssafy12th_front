@@ -124,7 +124,7 @@ export default defineComponent({
       isSignUpModalOpen.value = false
     }
 
-    const texts = ['자연과 함께하는 여행', '새로운 경험을 찾아서', '당신만의 특별한 순간']
+    const texts = ['당신의 추억을 소중한 사람과', '함께 공유하고 기록하세요', '🐴당신과 나를 기록하다.🐴']
     const textState = ref<string[]>(new Array(texts.length).fill('exit')) // 'enter' 또는 'exit'
     const placeState = ref<string[]>([]) // 'enter' 또는 'exit'
 
@@ -135,38 +135,44 @@ export default defineComponent({
       {
         id: 1,
         name: '서울',
-        description: '서울의 관광지입니다.',
-        image: 'https://i.pinimg.com/control2/736x/e8/92/e9/e892e93044b21e5cc07166caf55fc989.jpg',
+        description:
+          '전통과 현대가 조화롭게 공존하는 도시로, 고궁과 첨단 빌딩이 어우러진 풍경을 만날 수 있습니다. 쇼핑, 문화, 미식을 즐길 수 있는 다양한 명소들이 있습니다. 활기찬 도시 분위기 속에서 편리한 교통과 다양한 볼거리가 매력적인 곳입니다.',
+        image: 'https://i.pinimg.com/736x/c1/fd/f0/c1fdf0e83d9b3270dc0de8bcfea00090.jpg',
       },
       {
         id: 2,
         name: '대전',
-        description: '대전의 관광지입니다.',
-        image: 'https://i.pinimg.com/control2/236x/84/0d/b9/840db92cb8d433bf1cde508636b2b91a.jpg',
+        description:
+          '과학과 기술의 중심지로, 대덕연구단지와 같은 첨단 과학시설이 많습니다. 자연과 도시가 잘 어우러져 공원과 야경이 아름다운 도시입니다. 맛집과 다양한 체험 활동이 많아 여행객에게 인기가 높습니다.',
+        image: 'https://i.pinimg.com/736x/6c/54/6d/6c546db878a99693ffe9473a1163629a.jpg',
       },
       {
         id: 3,
         name: '구미',
-        description: '구미의 관광지입니다.',
-        image: 'https://i.pinimg.com/474x/f8/85/fc/f885fc7c49918308f17dce58198d53b7.jpg',
+        description:
+          '전통적인 산업도시로, 기술과 자연이 결합된 독특한 풍경을 자랑합니다. 구미호수와 같은 자연 관광지가 아름답고, 지역 특산물도 유명합니다. 현대적 시설과 자연경관이 잘 조화된 도시입니다.',
+        image: 'https://i.pinimg.com/control2/736x/aa/2f/07/aa2f0763326905aabbae058e8113cd12.jpg',
       },
       {
         id: 4,
         name: '광주',
-        description: '광주의 관광지입니다.',
-        image: 'https://i.pinimg.com/control2/236x/9f/32/df/9f32df6b4b9c472b2950915bf0fa7553.jpg',
+        description:
+          '문화와 예술의 도시로, 다채로운 전시와 공연을 즐길 수 있습니다. 음식과 전통 시장이 풍부해 다양한 지역 특색을 경험할 수 있습니다. 5.18 민주화운동의 역사적 의미가 깊은 도시입니다.',
+        image: 'https://i.pinimg.com/736x/93/8f/54/938f54254387fc0081cc227b3636f955.jpg',
       },
       {
         id: 5,
         name: '부산',
-        description: '부산의 관광지입니다.',
-        image: 'https://i.pinimg.com/control2/474x/9e/e6/6e/9ee66ebf6b34ff4438bf4609828d2052.jpg',
+        description:
+          '대한민국 제2의 도시로, 해운대와 광안리 같은 아름다운 해변을 자랑합니다. 세계적인 수산시장인 자갈치 시장과 다양한 해양 레저 활동이 매력적입니다. 바다와 도시가 어우러진 독특한 분위기를 즐길 수 있습니다.',
+        image: 'https://i.pinimg.com/736x/7e/9d/d6/7e9dd6d3a789613f0780638a76211305.jpg',
       },
       {
         id: 6,
         name: '제주도',
-        description: '제주의 관광지입니다.',
-        image: 'https://i.pinimg.com/control2/236x/39/ca/3c/39ca3c6d428afcde8d319d810874d774.jpg',
+        description:
+          '자연의 아름다움이 돋보이는 곳으로, 한라산과 다양한 폭포, 해변이 관광지로 유명합니다. 제주만의 특산물과 자연 경관을 즐기며 힐링할 수 있는 여행지입니다. 전통적인 제주 문화와 현대적인 시설이 조화를 이루는 명소입니다.',
+        image: 'https://i.pinimg.com/736x/27/d1/dc/27d1dc5282bd7df8b8fdeac347482ea3.jpg',
       },
     ]
 

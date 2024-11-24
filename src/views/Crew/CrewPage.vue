@@ -1,69 +1,92 @@
 <!-- CrewPage.vue -->
 <template>
-  <div class="h-screen flex flex-col">
-    <!-- 심플한 헤더 -->
-    <!-- Header -->
-    <header class="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
-      <div class="container mx-auto px-4 py-3">
-        <div class="flex items-center">
-          <!-- Logo -->
-          <div class="flex items-center space-x-2 mr-8">
-            <img src="../../assets/logo.svg" alt="Logo" class="h-6 w-auto" />
-            <span class="font-bold text-lg">TRAVEL</span>
-          </div>
+  <div class="h-screen flex flex-col bg-gradient-to-br from-blue-50 to-purple-50">
+    <!-- 드롭다운 버튼 -->
+    <div class="relative">
+      <button
+        @click="toggleDropdown"
+        class="fixed top-14 right-5 bg-gradient-to-r from-emerald-400 to-teal-400 text-white py-3 px-6 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse-subtle z-50 font-semibold tracking-wide"
+      >
+        <span class="flex items-center gap-2">
+          모임
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 transition-transform duration-300"
+            :class="{ 'rotate-180': isDropdownOpen }"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+      </button>
 
-          <!-- Navigation -->
-          <div class="flex items-center flex-1">
-            <button class="text-gray-700 hover:text-black text-sm font-medium">둘러보기</button>
-            <button class="text-gray-700 hover:text-black text-sm font-medium">Map</button>
-          </div>
+      <!-- 드롭다운 메뉴 -->
+      <div
+        v-if="isDropdownOpen"
+        class="absolute top-24 right-5 w-72 bg-white rounded-xl shadow-2xl transform transition-all duration-300 ease-out z-50 animate-dropdown-fade border border-gray-100"
+      >
+        <!-- 모임 리스트 헤더 -->
+        <div class="px-4 py-3 border-b border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800 animate-fade-in">모임 리스트</h3>
+        </div>
 
-          <!-- Search Bar -->
-          <div class="relative flex items-center flex-1 max-w-[400px] mr-6">
-            <input
-              type="text"
-              placeholder="여행지를 검색해보세요"
-              class="w-full px-4 py-1.5 rounded border border-gray-300 focus:outline-none focus:border-gray-400 text-sm"
-            />
-            <button class="absolute right-0 h-full px-4 bg-black text-white text-sm font-medium rounded-r">
-              Search
-            </button>
-          </div>
-
-          <!-- 메뉴 드롭바 -->
-          <div class="relative">
-            <!-- 드롭다운 버튼 -->
-            <button @click="toggleDropdown" class="px-4 py-2 bg-blue-500 text-white rounded-md">모임</button>
-
-            <!-- 드롭다운 메뉴 -->
-            <div v-if="isDropdownOpen" class="absolute mt-2 bg-white border rounded-md shadow-lg">
-              <!-- 사용자가 가입한 모임 목록 -->
-              <p>모임 리스트</p>
-              <ul>
-                <li
-                  v-for="crew in myCrews"
-                  :key="crew.crewId"
-                  class="px-4 py-2 hover:bg-gray-100 flex justify-between items-center cursor-pointer"
+        <!-- 사용자가 가입한 모임 목록 -->
+        <ul class="max-h-96 overflow-y-auto">
+          <li
+            v-for="(crew, index) in myCrews"
+            :key="crew.crewId"
+            class="group px-4 py-3 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 border-b border-gray-50 last:border-none animate-slide-in"
+            :style="{ animationDelay: `${index * 100}ms` }"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                @click="handleCrewSelect(crew)"
+                class="font-medium cursor-pointer transition-all duration-300 flex-grow hover:text-emerald-600"
+                :class="[
+                  selectedCrew.crewId === crew.crewId
+                    ? 'text-gradient bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-500 font-bold'
+                    : 'text-gray-700',
+                ]"
+              >
+                {{ crew.name }}
+              </span>
+              <button
+                @click.stop="openCrewInfo(crew)"
+                class="px-3 py-1.5 bg-gradient-to-r from-indigo-400 to-purple-400 text-white text-sm rounded-lg transform hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100 shadow-md hover:shadow-lg flex items-center gap-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  <span @click="openCrewInfo(crew)">{{ crew.name }}</span>
-                  <button
-                    @click.stop="fetchCrewReviews(crew.crewId)"
-                    class="ml-2 px-2 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
-                  >
-                    모임 선택
-                  </button>
-                </li>
-              </ul>
-
-              <!-- 모임 생성 버튼 -->
-              <div class="border-t">
-                <button @click="showCreateCrew" class="w-full px-4 py-2 text-left hover:bg-gray-100">모임 생성</button>
-              </div>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                모임 정보
+              </button>
             </div>
-          </div>
+          </li>
+        </ul>
+
+        <!-- 모임 생성 버튼 -->
+        <div class="border-t border-gray-100">
+          <button
+            @click="showCreateCrew"
+            class="w-full px-4 py-3 text-left text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 rounded-b-xl font-medium"
+          >
+            + 새로운 모임 만들기
+          </button>
         </div>
       </div>
-    </header>
+    </div>
 
     <!-- 모임 생성 컴포넌트 -->
     <CrewNewCreate v-if="isModalOpen" @close="closeModal" @fetchMyCrews="fetchMyCrews" />
@@ -125,6 +148,12 @@ export default defineComponent({
     // 드롭다운 토글
     const toggleDropdown = () => {
       isDropdownOpen.value = !isDropdownOpen.value
+    }
+
+    // 모임 선택 핸들러 추가
+    const handleCrewSelect = (crew: { crewId: number; name: string }) => {
+      selectedCrew.value = crew
+      fetchCrewReviews(crew.crewId)
     }
 
     // 사용자의 모임 목록 조회
@@ -242,6 +271,7 @@ export default defineComponent({
       //모임 드롭바관련
       toggleDropdown,
       myCrews,
+      handleCrewSelect, // 새로운 핸들러 추가
 
       //모임 조회
       openCrewInfo,
@@ -265,6 +295,83 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-/* 필요한 스타일 */
+<style>
+@keyframes pulseSubtle {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes dropdownFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 2s infinite;
+}
+
+.animate-dropdown-fade {
+  animation: dropdownFade 0.3s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* 스크롤바 스타일링 */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #10b981 #e5e7eb;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #10b981;
+  border-radius: 3px;
+}
 </style>
