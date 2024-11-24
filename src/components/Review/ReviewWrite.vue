@@ -253,6 +253,7 @@ export default defineComponent({
         const fileArray = Array.from(files)
         for (const file of fileArray) {
           const s3Url = await uploadImageToS3(file)
+          console.log('s3Url:', s3Url)
           if (s3Url) {
             uploadedUrls.value.push(s3Url) // S3 URL 저장
             const reader = new FileReader()

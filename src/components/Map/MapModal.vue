@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full">
-    <div class="flex-grow overflow-y-auto p-3">
-      <div v-if="filteredPlaces.length > 0" class="space-y-2">
+    <div class="flex-grow overflow-y-auto">
+      <div v-if="filteredPlaces.length > 0" class="space-y-2 p-3">
         <div
           v-for="place in filteredPlaces"
           :key="place.attractionId"
@@ -31,7 +31,7 @@
     </div>
 
     <!-- 카테고리 필터 버튼 -->
-    <div class="flex flex-col items-center justify-start gap-4 w-16 shadow-lg p-2">
+    <div class="flex flex-col items-center justify-center gap-4 w-16 shadow-lg p-2">
       <button
         v-for="(option, index) in options"
         :key="index"
