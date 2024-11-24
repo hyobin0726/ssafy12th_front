@@ -42,14 +42,16 @@
                   <p v-if="!channelName" class="text-sm text-red-500 mt-2 animate-pulse">모임명은 필수입니다</p>
                 </div>
 
-                <!-- 사용자 검색 -->
-                <div class="animate-fade-in-up" style="animation-delay: 200ms">
+                <!-- 사용자 검색 부분만 수정 -->
+                <div class="animate-fade-in-up relative" style="animation-delay: 200ms">
                   <div class="flex gap-3">
                     <input
+                      ref="searchInput"
                       v-model="searchUser"
                       type="text"
-                      placeholder="함께할 친구의 아이디"
+                      placeholder="함께할 친구의 아이디를 입력하세요"
                       class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-blue-300"
+                      @keyup.enter="searchForUser"
                     />
                     <button
                       @click="searchForUser"
@@ -58,21 +60,82 @@
                       검색
                     </button>
                   </div>
-                  <p v-if="searchError" class="text-sm text-red-500 mt-2 animate-shake">{{ searchError }}</p>
+
+                  <!-- 성공 메시지 토스트 -->
+                  <Transition
+                    enter-active-class="transition duration-300 ease-out"
+                    enter-from-class="transform translate-y-2 opacity-0"
+                    enter-to-class="transform translate-y-0 opacity-100"
+                    leave-active-class="transition duration-200 ease-in"
+                    leave-from-class="transform translate-y-0 opacity-100"
+                    leave-to-class="transform translate-y-2 opacity-0"
+                  >
+                    <div
+                      v-if="showSuccessToast"
+                      class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-12 bg-green-500 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50"
+                    >
+                      <span>✅</span>
+                      <span class="text-sm font-medium">사용자가 추가되었습니다</span>
+                    </div>
+                  </Transition>
+
+                  <TransitionGroup
+                    enter-active-class="transition duration-300 ease-out"
+                    enter-from-class="transform -translate-y-2 opacity-0"
+                    enter-to-class="transform translate-y-0 opacity-100"
+                    leave-active-class="transition duration-200 ease-in"
+                    leave-from-class="transform translate-y-0 opacity-100"
+                    leave-to-class="transform -translate-y-2 opacity-0"
+                  >
+                    <p
+                      v-if="searchError"
+                      :key="'error'"
+                      class="text-sm text-red-500 mt-2 animate-shake flex items-center gap-2"
+                    >
+                      <span class="inline-block">⚠️</span>
+                      {{ searchError }}
+                    </p>
+                    <p
+                      v-if="duplicateError"
+                      :key="'duplicate'"
+                      class="text-sm text-amber-500 mt-2 flex items-center gap-2 animate-slide-in"
+                    >
+                      <span class="inline-block">👥</span>
+                      {{ duplicateError }}
+                    </p>
+                  </TransitionGroup>
                 </div>
 
-                <!-- 초대 목록 -->
+                <!-- 초대 목록 부분 수정 -->
                 <div v-if="invitedUsers.length" class="animate-fade-in-up" style="animation-delay: 300ms">
-                  <p class="text-gray-600 mb-3">✨ 함께할 친구들:</p>
-                  <ul class="flex flex-wrap gap-2">
+                  <p class="text-gray-600 mb-3 flex items-center gap-2">
+                    <span class="text-lg">✨</span> 함께할 친구들
+                    <span class="text-sm text-blue-500">({{ invitedUsers.length }}명)</span>
+                  </p>
+                  <TransitionGroup
+                    tag="ul"
+                    class="flex flex-wrap gap-2"
+                    enter-active-class="transition duration-300 ease-out"
+                    enter-from-class="transform scale-95 opacity-0"
+                    enter-to-class="transform scale-100 opacity-100"
+                    leave-active-class="transition duration-200 ease-in"
+                    leave-from-class="transform scale-100 opacity-100"
+                    leave-to-class="transform scale-95 opacity-0"
+                  >
                     <li
                       v-for="user in invitedUsers"
                       :key="user.userId"
-                      class="px-4 py-2 bg-blue-50 text-blue-800 rounded-full border border-blue-100 transition-all duration-300 hover:scale-105 hover:rotate-1 hover:bg-blue-100 animate-pop-in"
+                      class="group px-4 py-2 bg-blue-50 text-blue-800 rounded-full border border-blue-100 transition-all duration-300 hover:scale-105 hover:rotate-1 hover:bg-blue-100 animate-pop-in flex items-center gap-2"
                     >
                       {{ user.loginId }}
+                      <button
+                        @click="removeUser(user.userId)"
+                        class="group-hover:opacity-100 transition-opacity duration-200 hover:text-red-500 focus:outline-none"
+                      >
+                        X
+                      </button>
                     </li>
-                  </ul>
+                  </TransitionGroup>
                 </div>
 
                 <!-- 버튼 그룹 -->
@@ -102,6 +165,7 @@
 <script lang="ts">
 import { ref, defineComponent } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
+import { TransitionGroup } from 'vue'
 import axios from 'axios'
 
 export default defineComponent({
@@ -111,6 +175,7 @@ export default defineComponent({
     DialogTitle,
     TransitionRoot,
     TransitionChild,
+    TransitionGroup,
   },
   setup(_, { emit }) {
     //모임 생성
@@ -120,9 +185,18 @@ export default defineComponent({
     //사용자 검색
     const searchUser = ref('')
     const searchError = ref('')
+    const duplicateError = ref('')
+
+    const showSuccessToast = ref(false)
+    const searchInput = ref<HTMLInputElement | null>(null)
 
     // 사용자 검색
+    // 사용자 검색 함수 수정
     const searchForUser = async () => {
+      // 초기화
+      searchError.value = ''
+      duplicateError.value = ''
+
       if (!searchUser.value) {
         searchError.value = '사용자 아이디를 입력하세요.'
         return
@@ -130,13 +204,11 @@ export default defineComponent({
 
       const accessToken = sessionStorage.getItem('accessToken')
       if (!accessToken) {
-        console.error('Access token is missing')
         searchError.value = '로그인 상태를 확인해주세요.'
         return
       }
 
       try {
-        // API 호출
         const response = await axios.get(`http://localhost:8080/api/v1/member/search?loginId=${searchUser.value}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -145,14 +217,36 @@ export default defineComponent({
 
         const userData = response.data
 
-        // invitedUsers 배열에 사용자 추가
+        // 중복 체크
+        const isDuplicate = invitedUsers.value.some((user) => user.userId === userData.userId)
+        if (isDuplicate) {
+          duplicateError.value = '이미 초대된 사용자입니다.'
+          // 검색 input에만 흔들림 효과 적용
+          if (searchInput.value) {
+            searchInput.value.classList.add('animate-shake')
+            setTimeout(() => searchInput.value?.classList.remove('animate-shake'), 500)
+          }
+          return
+        }
+
+        // 새 사용자 추가
         invitedUsers.value.push({ userId: userData.userId, loginId: userData.loginId })
-        searchUser.value = '' // 입력 필드 초기화
-        searchError.value = '' // 에러 메시지 초기화
+        searchUser.value = ''
+
+        // 성공 토스트 메시지 표시
+        showSuccessToast.value = true
+        setTimeout(() => {
+          showSuccessToast.value = false
+        }, 2000)
       } catch (error) {
         console.error('사용자 검색 실패:', error)
         searchError.value = '사용자를 찾을 수 없습니다. 다시 시도해주세요.'
       }
+    }
+
+    // 사용자 제거 함수 추가
+    const removeUser = (userId: number) => {
+      invitedUsers.value = invitedUsers.value.filter((user) => user.userId !== userId)
     }
 
     // 버튼 클릭 핸들러
@@ -203,6 +297,9 @@ export default defineComponent({
       searchError,
       invitedUsers,
       handleCreateChannel,
+      removeUser,
+      showSuccessToast,
+      searchInput,
     }
   },
 })
@@ -287,6 +384,36 @@ export default defineComponent({
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes slide-in {
+  0% {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-out {
+  animation: fade-out 0.5s ease-out forwards;
 }
 </style>
 
