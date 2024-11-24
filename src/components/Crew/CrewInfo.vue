@@ -66,7 +66,7 @@
                       <h3 class="text-sm font-medium text-gray-700">현재 회원</h3>
                       <ul class="mt-2 space-y-2">
                         <li
-                          v-for="member in currentMembers"
+                          v-for="member in crewUsers"
                           :key="member.userId"
                           class="rounded-md bg-gray-100 px-4 py-2 text-sm"
                         >
@@ -121,9 +121,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, PropType } from 'vue'
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import axios from 'axios'
+import type { CrewUser } from '@/types/CrewUser'
 
 export default defineComponent({
   components: {
@@ -145,44 +146,19 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    crewUsersProp: {
+      type: Array as PropType<CrewUser[]>,
+      required: true,
+    },
   },
   setup(props, { emit }) {
     const crewName = ref(props.crewNameProp)
     const searchUser = ref('')
     const searchError = ref('')
-    //이렇게 써도된다는 것을 알기위해 적어둠
-    interface CrewUser {
-      crewUserId: number
-      joinedAt: string
-      crewId: number
-      userId: number
-      loginId: string
-    }
-    const crewUsers = ref<CrewUser[]>([]) // 사용자의 모임 목록
+    // const crewUsers = ref<CrewUser[]>([]) // 사용자의 모임 목록
+    const crewUsers = ref(props.crewUsersProp)
     const addedMembers = ref<{ userId: number; loginId: string }[]>([]) //회원 추가하기 리스트
     const closeModal = () => emit('close')
-
-    const CrewUsersList = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/v1/crew/${props.crewId}/details`)
-        crewUsers.value = response.data.users // 서버 응답 데이터 저장
-        console.log('Crew Users:', crewUsers.value)
-      } catch (error) {
-        console.error('Failed to fetch crew users:', error)
-      }
-    }
-
-    const currentMembers = ref([
-      //더미 데이터
-      {
-        userId: 3,
-        loginId: 'younghangay',
-      },
-      {
-        userId: 4,
-        loginId: 'sungwoo',
-      },
-    ])
 
     // 회원검색 기능
     const searchForUser = async () => {
@@ -204,9 +180,6 @@ export default defineComponent({
     }
 
     const updateCrew = async () => {
-      console.log('모임 수정하기')
-      // CrewUsersList()  // crewUsers 여기에 값담김
-
       const accessToken = sessionStorage.getItem('accessToken')
       if (!accessToken) {
         alert('로그인이 필요합니다.')
@@ -223,7 +196,7 @@ export default defineComponent({
           headers: { Authorization: `Bearer ${accessToken}` },
         })
 
-        console.log('모임 수정 성공:', response.data)
+        console.log('모임 수정 성공성공성공 -  ', response)
         alert('모임이 성공적으로 수정되었습니다.')
       } catch (error) {
         console.error('모임 수정 실패:', error)
@@ -290,7 +263,8 @@ export default defineComponent({
       crewName,
       searchUser,
       searchError,
-      currentMembers,
+      // currentMembers,
+      // CrewUsersList,
       addedMembers,
       crewUsers,
       closeModal,

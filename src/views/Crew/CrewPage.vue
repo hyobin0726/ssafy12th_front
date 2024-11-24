@@ -74,6 +74,7 @@
       :isModalOpen="isCrewInfoModalOpen"
       :crewId="selectedCrew.crewId"
       :crewNameProp="selectedCrew.name"
+      :crewUsersProp="crewUsers"
       @close="closeCrewInfo"
       @updated="handleCrewUpdate"
       @leaved="handleCrewLeave"
@@ -93,6 +94,7 @@ import CrewNewCreate from '@/components/Crew/CrewNewCreate.vue'
 import CrewInfo from '@/components/Crew/CrewInfo.vue'
 import CrewMap from '@/components/Crew/CrewMap.vue'
 import type { Review } from '@/types/Review'
+import type { CrewUser } from '@/types/CrewUser'
 
 export default defineComponent({
   components: {
@@ -109,6 +111,8 @@ export default defineComponent({
     // 선택된 모임 정보
     const isCrewInfoModalOpen = ref(false)
     const selectedCrew = ref({ crewId: 0, name: '' })
+    const crewUsers = ref<CrewUser[]>([]) // 사용자의 모임 목록
+
     // 현재 모임 선택 후 모임 리뷰 담기
     const currentCrewReview = ref<Review[]>([])
     // const currentCrewReview = ref<Review[]>([
@@ -182,7 +186,19 @@ export default defineComponent({
     const openCrewInfo = (crew: { crewId: number; name: string }) => {
       console.log('내 모임 조회 버튼 클릭')
       selectedCrew.value = crew
-      isCrewInfoModalOpen.value = true
+      CrewUsersList(crew.crewId)
+    }
+
+    const CrewUsersList = async (crewId: number) => {
+      try {
+        //모임에 대한 정보 조회
+        const response = await axios.get(`http://localhost:8080/api/v1/crew/${crewId}/details`)
+        crewUsers.value = response.data.users // 서버 응답 데이터 저장
+        console.log('Crew Users:', crewUsers.value)
+        isCrewInfoModalOpen.value = true
+      } catch (error) {
+        console.error('Failed to fetch crew users:', error)
+      }
     }
 
     // 모임 정보 모달 닫기
@@ -192,7 +208,8 @@ export default defineComponent({
 
     // 모임 업데이트 핸들러
     const handleCrewUpdate = (updatedCrew: { crewName: string; addedMembers: any[] }) => {
-      alert(`모임이 업데이트되었습니다: ${updatedCrew.crewName}`)
+      // alert(`모임 수정 버튼 클릭 - ${updatedCrew.crewName}`)
+      fetchMyCrews()
       closeCrewInfo()
     }
 
@@ -228,6 +245,8 @@ export default defineComponent({
 
       //모임 조회
       openCrewInfo,
+      CrewUsersList,
+      crewUsers,
       closeCrewInfo,
       isCrewInfoModalOpen,
       selectedCrew,
