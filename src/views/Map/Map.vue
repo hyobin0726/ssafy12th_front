@@ -57,6 +57,7 @@
               <MapModal class="h-full" :map="filteredPlaces" />
             </div>
           </div>
+          <Weather :lat="mapStore.lat" :lng="mapStore.lng" class="absolute z-[10] right-2 top-16" />
 
           <!-- 현재위치 -->
           <KakaoMapMarker
@@ -189,6 +190,7 @@ import AlterImg from '@/assets/Map/AlterImg.jpg'
 import Location from '@/assets/Map/Location.svg'
 import { Marker } from '@/types/Marker'
 import Nav from '@/components/common/WhiteNav.vue'
+import Weather from '@/components/Map/MapWeather.vue'
 export default defineComponent({
   components: {
     Search,
@@ -197,6 +199,7 @@ export default defineComponent({
     MapModal,
     Location,
     Nav,
+    Weather,
   },
   setup() {
     const mapStore = useMapStore()
