@@ -9,7 +9,7 @@
             <p>{{ formattedDate }}</p>
           </div>
         </div>
-        <More class="w-8 h-8" @click="isOpen = true" v-if="token" />
+        <More class="w-8 h-8" @click="isOpen = true" v-if="myUserId === review.userId" />
       </div>
 
       <div class="p-2 flex justify-center mb-4 w-full" @click="isModalOpen = true">
@@ -54,6 +54,20 @@ export default defineComponent({
     const token = sessionStorage.getItem('accessToken')
     const isModalOpen = ref(false)
     const isOpen = ref(false)
+    const myUserId = ref('')
+    const fetchMyLoginId = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/member`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        myUserId.value = response.data.userId
+        // console.log('내 로그인 아이디:', myUserId.value)
+      } catch (error) {
+        console.error('내 로그인 아이디를 가져오는데 실패했습니다:', error)
+      }
+    }
     const formattedDate = computed(() => {
       const date = new Date(props.review.createdAt)
       return (
@@ -80,12 +94,13 @@ export default defineComponent({
       }
     }
     onMounted(() => {
+      fetchMyLoginId()
       fetchProfile()
     })
     const profileImageUrl = computed(() => {
       return profile.value?.profileUrl || ProfileImage
     })
-    return { isModalOpen, isOpen, formattedDate, profile, fetchProfile, profileImageUrl, token }
+    return { isModalOpen, isOpen, formattedDate, profile, fetchProfile, profileImageUrl, token, myUserId }
   },
 })
 </script>
@@ -103,9 +118,5 @@ export default defineComponent({
 
 .item:hover {
   transform: scale(1.1);
-}
-
-.item:active {
-  transform: none;
 }
 </style>

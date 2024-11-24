@@ -1,6 +1,6 @@
 <template>
   <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-5 rounded-lg shadow-lg w-3/4 h-3/4 flex flex-col">
+    <div class="bg-white p-5 rounded-lg shadow-lg w-3/4 h-3/4 flex flex-col overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <Back @click="closeModal" class="w-6 h-6" />
         <span class="text-xl">새 리뷰 작성</span>
@@ -99,6 +99,7 @@
           </div>
           <p v-if="formErrors.location" class="text-red-500 text-sm">{{ formErrors.location }}</p>
           <select class="w-full p-3 border rounded-md outline-none focus:border-[#A8B087]" v-model="form.visibility">
+            <option value="-1">공개범위</option>
             <option value="0">전체공개</option>
             <option v-for="crew in crews" :key="crew.crewId" :value="crew.crewId">{{ crew.name }}</option>
           </select>
@@ -167,7 +168,7 @@ export default defineComponent({
       content: '',
       hashTags: [] as string[],
       location: '',
-      visibility: 0,
+      visibility: -1,
       rating: 0,
       title: '',
       attractionId: null,
@@ -187,7 +188,7 @@ export default defineComponent({
       formErrors.value.rating = form.value.rating > 0 ? '' : '별점을 선택해주세요.'
       formErrors.value.image = previews.value.length > 0 ? '' : '한 장 이상 이미지를 추가해 주세요.'
       formErrors.value.location = form.value.location && form.value.location.length > 0 ? '' : '위치를 선택해주세요.'
-      formErrors.value.visibility = form.value.visibility > 0 ? '' : '공개 범위를 선택해주세요.'
+      formErrors.value.visibility = form.value.visibility >= 0 ? '' : '공개 범위를 선택해주세요.'
       // console.log(formErrors.value.image)
       // console.log(formErrors.value.location)
       if (previews.value.length === 0) {

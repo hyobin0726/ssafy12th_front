@@ -64,13 +64,13 @@ export default defineComponent({
       this.$emit('close') // 부모 컴포넌트에 모달 닫기 이벤트 전송
     },
     editPost() {
-      console.log('게시글 수정')
+      // console.log('게시글 수정')
       this.isReviewUpdate = true
       this.$emit('post-edit', this.review)
       this.closeModal()
     },
     deletePost() {
-      console.log('게시글 삭제')
+      // console.log('게시글 삭제')
       this.fetchDeleteReview()
       this.closeModal()
       location.reload()
