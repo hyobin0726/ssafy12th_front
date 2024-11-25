@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between py-4">
       <div class="flex items-center space-x-16">
         <router-link to="/" class="flex items-center">
-          <img src="@/assets/logo.svg" alt="Logo" class="h-8 w-auto text-white" />
+          <span class="text-gray-700 text-lg">Home</span>
         </router-link>
         <nav class="flex items-center space-x-16">
           <router-link to="/map" class="text-gray-700text-lg font-medium hover:text-green"> 지도 </router-link>

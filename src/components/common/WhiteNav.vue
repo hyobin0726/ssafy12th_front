@@ -5,7 +5,7 @@
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center space-x-16">
           <router-link to="/" class="flex items-center">
-            <img src="@/assets/logo.svg" alt="Logo" class="h-8 w-auto text-gray-700" />
+            <span class="text-gray-700 text-lg">Home</span>
           </router-link>
           <nav class="flex items-center space-x-16">
             <router-link to="/map" class="text-gray-700 text-lg font-medium hover:text-green"> 지도 </router-link>
@@ -19,13 +19,13 @@
 
         <div class="flex items-center space-x-4">
           <button
-            class="px-4 py-2 bg-green h-11 text-white text-sm font-medium rounded hover:bg-opacity-70"
+            class="px-4 py-2 bg-green h-11 text-white text-lg rounded hover:bg-opacity-70"
             @click="openLoginModal"
           >
             로그인
           </button>
           <button
-            class="px-4 py-2 bg-green h-11 text-white text-sm font-medium rounded hover:bg-opacity-70"
+            class="px-4 py-2 bg-green h-11 text-white text-lg rounded hover:bg-opacity-70"
             @click="openSignUpModal"
           >
             회원가입
