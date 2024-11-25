@@ -1,50 +1,91 @@
 <template>
   <div>
+    <!-- Floating Chat Button -->
     <button
       v-if="!isChatOpen"
       @click="toggleChatbot"
-      class="fixed bottom-5 right-5 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600"
+      class="fixed bottom-5 right-5 transform hover:scale-110 transition-all duration-300 group"
     >
-      💬
+      <div class="relative">
+        <div
+          class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"
+        ></div>
+        <div class="relative px-6 py-6 bg-black rounded-full ring-1 ring-gray-900/5 leading-none flex items-center">
+          <span class="text-white text-xl animate-bounce">💭</span>
+        </div>
+      </div>
     </button>
 
-    <div v-if="isChatOpen" class="fixed bottom-5 right-5 w-96 h-[500px] bg-white rounded-lg shadow-lg flex flex-col">
-      <!-- Header -->
-      <div class="flex justify-between items-center bg-blue-500 text-white p-3 rounded-t-lg">
-        <h2 class="text-lg font-semibold">AI 여행 도우미🐴</h2>
-        <button @click="toggleChatbot" class="text-lg hover:text-gray-300">✖</button>
-      </div>
+    <!-- Chat Window -->
+    <div
+      v-if="isChatOpen"
+      class="fixed bottom-5 right-5 w-96 transform transition-all duration-500 ease-in-out"
+      :class="{ 'translate-y-0 opacity-100': isChatOpen, 'translate-y-10 opacity-0': !isChatOpen }"
+    >
+      <div
+        class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-lg border border-gray-700/50"
+      >
+        <!-- Header -->
+        <div class="relative bg-gradient-to-r from-purple-600 to-blue-500 p-4 flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl animate-spin-slow">🌟</span>
+            <h2 class="text-white font-semibold text-lg tracking-wide">AI 여행 도우미</h2>
+          </div>
+          <button @click="toggleChatbot" class="text-white hover:text-gray-200 transition-colors duration-300">
+            <span class="text-2xl rotate-0 hover:rotate-90 transition-transform duration-300 inline-block">x</span>
+          </button>
+        </div>
 
-      <!-- Chat Display -->
-      <div ref="chatContainer" class="flex-1 overflow-y-auto p-3 border-b relative">
-        <!-- 메시지 리스트 -->
-        <div v-for="(message, index) in messages" :key="index" :class="{ 'text-right': message.isUser }">
+        <!-- Chat Display -->
+        <div
+          ref="chatContainer"
+          class="h-[400px] overflow-y-auto p-4 bg-opacity-75 backdrop-blur-sm scroll-smooth"
+          style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1))"
+        >
           <div
-            :class="message.isUser ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'"
-            class="inline-block px-4 py-2 rounded-lg mb-2"
+            v-for="(message, index) in messages"
+            :key="index"
+            :class="{ 'flex justify-end': message.isUser }"
+            class="mb-4 animate-fade-in-up"
           >
-            {{ message.text }}
+            <div
+              :class="[
+                message.isUser
+                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
+                  : 'bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100',
+                'px-4 py-2 rounded-2xl shadow-lg max-w-[80%] transform transition-all duration-300 hover:scale-102',
+              ]"
+            >
+              {{ message.text }}
+            </div>
+          </div>
+
+          <!-- Loading Animation -->
+          <div v-if="isLoading" class="flex justify-center items-center space-x-2 p-4">
+            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse-fast"></div>
+            <div class="w-2 h-2 bg-purple-500 rounded-full animate-pulse-fast" style="animation-delay: 0.2s"></div>
+            <div class="w-2 h-2 bg-pink-500 rounded-full animate-pulse-fast" style="animation-delay: 0.4s"></div>
           </div>
         </div>
 
-        <!-- 로딩 표시 -->
-        <div v-if="isLoading" class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-          <img src="https://i.gifer.com/ZZ5H.gif" alt="로딩 중" class="w-12 h-12" />
+        <!-- Input Area -->
+        <div class="p-4 bg-gray-900 border-t border-gray-700/50">
+          <div class="flex items-center space-x-2">
+            <input
+              v-model="userInput"
+              @keypress.enter="sendMessage"
+              type="text"
+              placeholder="질문을 입력하세요..."
+              class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 placeholder-gray-400"
+            />
+            <button
+              @click="sendMessage"
+              class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition-opacity duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 transform hover:scale-105"
+            >
+              전송
+            </button>
+          </div>
         </div>
-      </div>
-
-      <!-- Input Area -->
-      <div class="flex items-center p-2">
-        <input
-          v-model="userInput"
-          @keypress.enter="sendMessage"
-          type="text"
-          placeholder="질문을 입력하세요..."
-          class="flex-1 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button @click="sendMessage" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600">
-          전송
-        </button>
       </div>
     </div>
   </div>
@@ -79,6 +120,7 @@ export default defineComponent({
 
       // 사용자 메시지 추가
       messages.value.push({ text: userInput.value, isUser: true })
+      const currentInput = userInput.value
 
       // 입력창 초기화
       userInput.value = ''
@@ -90,14 +132,13 @@ export default defineComponent({
       isLoading.value = true
 
       try {
-        // GPT Chat Completions API 호출
         const response = await axios.post(
           'https://api.openai.com/v1/chat/completions',
           {
             model: 'gpt-3.5-turbo',
             messages: [
               { role: 'system', content: '당신은 여행 도우미입니다. 사용자 질문에 여행 정보를 제공합니다.' },
-              { role: 'user', content: messages.value[messages.value.length - 1].text },
+              { role: 'user', content: currentInput },
             ],
             temperature: 0.7,
           },
@@ -108,21 +149,17 @@ export default defineComponent({
           },
         )
 
-        // OpenAI의 응답에서 메시지 내용 추출
         const botReply = response.data.choices[0].message.content.trim()
         messages.value.push({ text: botReply, isUser: false })
 
         // 메시지 추가 후 스크롤 이동
-        scrollToBottom()
+        // scrollToBottom()
       } catch (error) {
-        console.error('API 호출 실패:', error.response?.data || error.message)
+        console.error('API 호출 실패:', error)
         messages.value.push({ text: '죄송합니다. 요청을 처리할 수 없습니다.', isUser: false })
-
-        // 오류 메시지도 스크롤 이동
-        scrollToBottom()
       } finally {
-        // 로딩 종료
-        isLoading.value = false
+        isLoading.value = false //로딩 종료
+        scrollToBottom() // 오류 메시지도 스크롤 이동
       }
     }
 
@@ -141,3 +178,51 @@ export default defineComponent({
   },
 })
 </script>
+
+<style>
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-fast {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
+</style>
