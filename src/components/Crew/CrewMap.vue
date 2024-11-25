@@ -8,7 +8,13 @@
   </button> -->
 
   <!-- 리뷰 모달 컴포넌트 -->
-  <CrewReview v-if="isReviewModalOpen" :reviews="filteredReviews" @close="ReviewModalClose" />
+  <CrewReview
+    v-if="isReviewModalOpen"
+    :reviews="filteredReviews"
+    :selectedRegion="selectedRegionSido"
+    :selectedRegionSigungu="selectedRegionSigungu"
+    @close="ReviewModalClose"
+  />
 </template>
 
 <script lang="ts">

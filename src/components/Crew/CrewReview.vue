@@ -80,7 +80,7 @@
                     clip-rule="evenodd"
                   />
                 </svg>
-                <span>모임명 : {{ review.visibility }}</span>
+                <span>모임 위치 : {{ selectedRegion?.sidoKorNm }}</span>
               </div>
             </div>
           </div>
@@ -107,12 +107,32 @@ export default defineComponent({
       type: Array as PropType<Review[]>,
       required: true,
     },
+    selectedRegion: {
+      type: Object as PropType<{
+        sidoCode: string
+        sidoEngNm: string
+        sidoKorNm: string
+      } | null>,
+      required: true,
+    },
+
+    selectedRegionSigungu: {
+      type: Object as PropType<{
+        sidoCode: string
+        gugunCode: string
+        sigunguEngNm: string
+        sigunguKorNm: string
+      } | null>,
+      required: true,
+    },
   },
   setup(props, { emit }) {
     const isModalOpen = ref(true)
-
+    // const crewName = ref(props.selectedRegion?.sidoKorNm || '')
+    // console.log(props.sigoName)
     return {
       isModalOpen,
+      // crewName,
     }
   },
 })
