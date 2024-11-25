@@ -210,6 +210,7 @@
 <script lang="ts">
 import axios from 'axios'
 import Logo from '@/assets/logo.svg'
+import AlterImg from '@/assets/Map/AlterImg.jpg'
 import { defineComponent, ref, onMounted, computed } from 'vue'
 import type { Member } from '@/types/Member'
 import type { Review } from '@/types/Review' //리뷰랑 북마크 타입
@@ -252,12 +253,15 @@ export default defineComponent({
 
     const getModalImage = () => {
       if (isReview.value && selectedItem.value.imageUrls?.length > 0) {
+        console.log('ddd')
         return selectedItem.value.imageUrls[0]
       }
       if (isMarker.value) {
         return markerAttractions.value[selectedItem.value.markerId]?.firstImage1
+          ? markerAttractions.value[selectedItem.value.markerId]?.firstImage1
+          : AlterImg
       }
-      return '/default-image.jpg'
+      return AlterImg
     }
 
     const getModalTitle = () => {
@@ -307,7 +311,7 @@ export default defineComponent({
       if ('imageUrls' in item && item.imageUrls.length > 0) {
         return item.imageUrls[0]
       }
-      return markerAttractions.value[item.markerId]?.firstImage1 || ''
+      return markerAttractions.value[item.markerId]?.firstImage1 || AlterImg
     }
 
     const getItemTitle = (item: any) => {
