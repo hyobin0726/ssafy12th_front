@@ -81,12 +81,13 @@
       </div>
     </div>
 
-    <!-- Enhanced Content Grid -->
+    <!-- Enhanced Content Grid with Modal -->
     <div class="container mx-auto px-6 py-12">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <template v-for="(item, index) in getActiveItems()" :key="item.id">
           <div
-            class="group bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-500 animate-cardAppear hover:shadow-xl"
+            @click="openModal(item)"
+            class="group bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-500 animate-cardAppear cursor-pointer"
             :style="`animation-delay: ${index * 100}ms`"
           >
             <div class="relative h-48 overflow-hidden">
@@ -119,13 +120,97 @@
         </template>
       </div>
     </div>
+
+    <!-- Modal -->
+    <div
+      v-if="selectedItem"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center"
+      @click="closeModal"
+    >
+      <div
+        class="bg-white rounded-2xl w-full max-w-2xl mx-4 overflow-hidden transform transition-all duration-500 animate-modalEnter"
+        @click.stop
+      >
+        <!-- Modal Header -->
+        <div class="relative h-64">
+          <img :src="getModalImage()" alt="Detail" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60"></div>
+          <button
+            @click="closeModal"
+            class="absolute top-4 right-4 bg-black/20 hover:bg-black/40 rounded-full p-2 transition-colors duration-300"
+          >
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6 space-y-4">
+          <div class="space-y-2">
+            <h3 class="text-2xl font-bold text-gray-800">{{ getModalTitle() }}</h3>
+            <p class="text-gray-600">{{ getModalSubtitle() }}</p>
+          </div>
+
+          <!-- Content based on type -->
+          <div v-if="isReview" class="space-y-4">
+            <div class="prose max-w-none">
+              <p class="text-gray-700">{{ selectedItem.content }}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="tag in selectedItem.tags"
+                :key="tag"
+                class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm"
+              >
+                #{{ tag }}
+              </span>
+            </div>
+          </div>
+
+          <div v-if="isMarker" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <p class="text-sm text-gray-500">주소</p>
+                <p class="text-gray-700">{{ markerAttractions[selectedItem.markerId]?.addr1 }}</p>
+              </div>
+              <div class="space-y-1">
+                <p class="text-sm text-gray-500">연락처</p>
+                <p class="text-gray-700">{{ markerAttractions[selectedItem.markerId]?.tel || 'N/A' }}</p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <p class="text-sm text-gray-500">상세 설명</p>
+              <p class="text-gray-700">{{ markerAttractions[selectedItem.markerId]?.overview }}</p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end space-x-3 pt-4 border-t">
+            <!-- <button
+              @click="shareItem"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-300"
+            >
+              공유하기
+            </button>
+            <button
+              v-if="isReview"
+              @click="editItem"
+              class="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition-colors duration-300"
+            >
+              수정하기
+            </button> -->
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import axios from 'axios'
 import Logo from '@/assets/logo.svg'
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, computed } from 'vue'
 import type { Member } from '@/types/Member'
 import type { Review } from '@/types/Review' //리뷰랑 북마크 타입
 import type { Marker } from '@/types/Marker' //마커 타입
@@ -145,11 +230,71 @@ export default defineComponent({
 
     const selectedTab = ref('reviews')
 
+    const selectedItem = ref<any>(null)
+
+    // Add new computed properties
+    const isReview = computed(() => {
+      return selectedItem.value && 'content' in selectedItem.value
+    })
+
+    const isMarker = computed(() => {
+      return selectedItem.value && 'markerId' in selectedItem.value
+    })
+
+    // Add new methods
+    const openModal = (item: any) => {
+      selectedItem.value = item
+    }
+
+    const closeModal = () => {
+      selectedItem.value = null
+    }
+
+    const getModalImage = () => {
+      if (isReview.value && selectedItem.value.imageUrls?.length > 0) {
+        return selectedItem.value.imageUrls[0]
+      }
+      if (isMarker.value) {
+        return markerAttractions.value[selectedItem.value.markerId]?.firstImage1
+      }
+      return '/default-image.jpg'
+    }
+
+    const getModalTitle = () => {
+      if (isReview.value) {
+        return selectedItem.value.title
+      }
+      if (isMarker.value) {
+        return markerAttractions.value[selectedItem.value.markerId]?.title
+      }
+      return ''
+    }
+
+    const getModalSubtitle = () => {
+      if (isReview.value) {
+        return new Date(selectedItem.value.createdAt).toLocaleDateString()
+      }
+      if (isMarker.value) {
+        return markerAttractions.value[selectedItem.value.markerId]?.addr1
+      }
+      return ''
+    }
+
+    const shareItem = () => {
+      // Implement sharing functionality
+      alert('공유 기능은 곧 추가될 예정입니다.')
+    }
+
+    const editItem = () => {
+      // Implement edit functionality
+      alert('수정 페이지로 이동합니다.')
+    }
+
     const getActiveItems = () => {
       switch (selectedTab.value) {
         case 'reviews':
           return userReviews.value
-        case 'saved':
+        case 'bookmarks':
           return savedReviews.value
         case 'markers':
           return userMarkers.value
@@ -292,6 +437,18 @@ export default defineComponent({
       getItemImage,
       getItemTitle,
       getItemSubtitle,
+
+      //리뷰 컨텐츠 박스 누르면 모델띄우기
+      selectedItem,
+      isReview,
+      isMarker,
+      openModal,
+      closeModal,
+      getModalImage,
+      getModalTitle,
+      getModalSubtitle,
+      shareItem,
+      editItem,
     }
   },
 })
@@ -458,6 +615,21 @@ export default defineComponent({
 }
 .animation-delay-500 {
   animation-delay: 500ms;
+}
+
+@keyframes modalEnter {
+  0% {
+    transform: scale(0.9) translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-modalEnter {
+  animation: modalEnter 0.3s ease-out forwards;
 }
 </style>
 
