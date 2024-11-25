@@ -6,6 +6,6 @@ export interface Member {
   email: string
   phone: string
   birth: string
-  oneLiner: string
   profileUrl: string
+  oneLiner: string
 }
