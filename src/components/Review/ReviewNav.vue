@@ -3,12 +3,12 @@
     <div class="flex items-center justify-between py-4">
       <div class="flex items-center space-x-16">
         <router-link to="/" class="flex items-center">
-          <img src="@/assets/logo.svg" alt="Logo" class="h-8 w-auto text-white" />
+          <span class="text-gray-700 text-lg">Home</span>
         </router-link>
         <nav class="flex items-center space-x-16">
-          <router-link to="/map" class="text-gray-700text-lg font-medium hover:text-green"> 지도 </router-link>
-          <router-link to="/crewPage" class="text-gray-700 text-lg font-medium hover:text-green"> 모임 </router-link>
-          <router-link to="/chat" class="text-gray-700text-lg font-medium hover:text-green"> 채팅 </router-link>
+          <router-link to="/map" class="text-gray-700 text-lg hover:text-green"> 지도 </router-link>
+          <router-link to="/crewPage" class="text-gray-700 text-lg hover:text-green"> 모임 </router-link>
+          <router-link to="/chat" class="text-gray-700 text-lg hover:text-green"> 채팅 </router-link>
         </nav>
       </div>
       <div class="relative flex items-center flex-1 max-w-[750px] mr-6">
@@ -19,10 +19,7 @@
           placeholder="여행지를 검색해보세요"
           class="h-11 w-full px-4 py-2 rounded border border-geen focus:outline-none focus:border-[#BCC199] text-sm"
         />
-        <button
-          @click="onSearchClick"
-          class="absolute right-0 h-11 px-4 bg-green text-white text-sm font-medium rounded-r item"
-        >
+        <button @click="onSearchClick" class="absolute right-0 h-11 px-4 bg-green text-white text-sm rounded-r item">
           Search
         </button>
         <!-- Dropdown for search suggestions -->
@@ -42,20 +39,36 @@
           </ul>
         </div>
       </div>
-
       <div class="flex items-center space-x-4">
-        <button
-          class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
-          @click="openLoginModal"
-        >
-          로그인
-        </button>
-        <button
-          class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
-          @click="openSignUpModal"
-        >
-          회원가입
-        </button>
+        <!-- 버튼 렌더링: 토큰 유무에 따라 -->
+        <template v-if="isLoggedIn">
+          <button
+            class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
+            @click="handleLogout"
+          >
+            로그아웃
+          </button>
+          <router-link
+            to="/mypage"
+            class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
+          >
+            마이페이지
+          </router-link>
+        </template>
+        <template v-else>
+          <button
+            class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
+            @click="openLoginModal"
+          >
+            로그인
+          </button>
+          <button
+            class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
+            @click="openSignUpModal"
+          >
+            회원가입
+          </button>
+        </template>
       </div>
     </div>
   </header>
@@ -64,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import LoginModal from '@/views/Account/Login.vue'
 import SignUp from '@/views/Account/SignUp.vue'
 import { useQuery } from '@tanstack/vue-query'
@@ -104,6 +117,34 @@ export default defineComponent({
     const closeSignUpModal = () => {
       isSignUpModalOpen.value = false
     }
+    const isLoggedIn = ref(false) // 로그인 상태
+    // 로그인 상태 확인
+    const checkLoginStatus = () => {
+      const token = sessionStorage.getItem('accessToken')
+      isLoggedIn.value = !!token // 토큰이 있으면 true, 없으면 false
+    }
+    const token = sessionStorage.getItem('accessToken')
+    const fetchLogOut = async () => {
+      try {
+        await axios.post(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/logout`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        sessionStorage.removeItem('accessToken')
+        isLoggedIn.value = false
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    // 로그아웃
+    const handleLogout = () => {
+      fetchLogOut()
+      isLoggedIn.value = false // 상태 변경
+      alert('로그아웃되었습니다.')
+    }
+
     const keyword = ref('')
     const suggestions = ref<string[]>([])
     const searchResults = ref<Review[]>([])
@@ -115,7 +156,7 @@ export default defineComponent({
           )
           searchResults.value = data
           emit('searchResults', searchResults.value)
-          // console.log('검색 결과:', searchResults.value) // 콘솔에서 데이터 확인
+          // console.log('검색 결과:', searchResults.value)
         } catch (error) {
           console.error('API 호출 오류:', error)
         }
@@ -155,6 +196,9 @@ export default defineComponent({
       const regex = new RegExp(`(${query})`, 'gi')
       return text.replace(regex, '<span class="text-black font-bold">$1</span>')
     }
+    onMounted(() => {
+      checkLoginStatus()
+    })
 
     return {
       isLoginModalOpen,
@@ -170,6 +214,10 @@ export default defineComponent({
       highlight,
       onSearchClick,
       searchResults,
+      isLoggedIn,
+      handleLogout,
+      token,
+      fetchLogOut,
     }
   },
 })
