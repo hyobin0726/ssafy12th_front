@@ -8,8 +8,7 @@ import Map from '@/views/Map/Map.vue'
 import CrewStart from '@/components/Crew/CrewStart.vue'
 import CrewPage from '@/views/Crew/CrewPage.vue'
 import Chat from '@/views/Chat/Chat.vue'
-import MainView from '@/views/MainView.vue'
-import Nav from '@/views/Nav.vue'
+
 const routes = [
   {
     path: '/',
@@ -55,16 +54,6 @@ const routes = [
     path: '/chat',
     name: 'Chat',
     component: Chat,
-  },
-  {
-    path: '/mainView',
-    name: 'MainView',
-    component: MainView,
-  },
-  {
-    path: '/nav',
-    name: 'Nav',
-    component: Nav,
   },
 ]
 

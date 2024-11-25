@@ -1,44 +1,54 @@
 <template>
   <transition name="slide-in">
-    <div v-if="isVisible" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-end">
-      <div class="w-[400px] p-8 bg-white rounded-lg shadow-md">
-        <!-- <h2 class="text-2xl font-semibold text-center text-gray-800 mb-6">Create Your Account</h2> -->
+    <div v-if="isVisible" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-center">회원가입</h2>
+          <button
+            class="text-white bg-green w-7 h-7 rounded-full flex justify-center items-center hover:bg-[#BCC199]"
+            @click="closeModal"
+          >
+            X
+          </button>
+        </div>
 
-        <form @submit.prevent="handleSignUp">
-          <!-- 이름 입력란 Name Input -->
-          <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+        <form @submit.prevent="handleSignUp" class="space-y-4">
+          <!-- 이름 입력 -->
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">이름</label>
             <input
               type="text"
               id="name"
               v-model="name"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#BCC199]"
+              placeholder="이름"
             />
             <p v-if="name && !isNameValid" class="text-red-500 text-sm mt-1">
               이름은 한글, 영어만 입력 가능합니다 (최대 255자).
             </p>
           </div>
 
-          <!-- 아이디 입력란 ID Input with Check Button -->
-          <div class="mb-4">
-            <label for="id" class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
+          <!-- 아이디 입력 -->
+          <div>
+            <label for="id" class="block text-sm font-medium text-gray-700">아이디</label>
             <div class="flex">
               <input
                 type="text"
                 id="loginId"
                 v-model="loginId"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:border-[#BCC199]"
+                placeholder="아이디"
                 @input="clearIdMessage"
               />
               <button
                 type="button"
                 @click="checkIdAvailability"
                 :disabled="!isIdValid"
-                class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
+                class="px-4 py-2 bg-green text-white rounded-r hover:bg-[#BCC199]"
               >
-                아이디 체크
+                중복 확인
               </button>
             </div>
             <p v-if="loginId && !isIdValid" class="text-red-500 text-sm mt-1">
@@ -49,28 +59,28 @@
             </p>
           </div>
 
-          <!-- 이메일 입력란 Email Input -->
-          <div class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+          <!-- 이메일 입력 -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
             <div class="flex">
               <input
                 type="email"
                 id="email"
                 v-model="email"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:border-[#BCC199]"
+                placeholder="이메일"
               />
               <button
                 type="button"
                 @click="sendEmailVerification"
-                class="px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-700"
+                class="px-4 py-2 bg-green text-white rounded-r hover:bg-[#BCC199]"
               >
-                이메일 인증
+                인증 요청
               </button>
             </div>
             <p v-if="email && !isEmailValid" class="text-red-500 text-sm mt-1">유효한 이메일 주소를 입력해주세요.</p>
           </div>
-
           <!-- 이메일 인증번호 Verification Code Input with Timer -->
           <div v-if="isTimerRunning" class="mb-4">
             <label for="verificationCode" class="block text-sm font-medium text-gray-700 mb-1">인증번호</label>
@@ -80,14 +90,14 @@
                 id="verificationCode"
                 v-model="verificationCode"
                 required
-                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:border-[#BCC199]"
                 placeholder="인증번호 입력"
               />
               <span class="px-2 text-sm text-gray-500">{{ minutes }}:{{ seconds.toString().padStart(2, '0') }}</span>
               <button
                 type="button"
                 @click="verifyCode"
-                class="px-4 py-2 bg-green-500 text-white rounded-r hover:bg-green-600 bg-blue-600"
+                class="px-4 py-2 text-white rounded-r hover:bg-green-600 bg-green hover:bg-[#BCC199]"
               >
                 확인
               </button>
@@ -96,39 +106,39 @@
             <p v-if="verificationCode && !isCodeValid" class="text-red-500 text-sm mt-1">
               유효한 인증번호를 입력해주세요.
             </p>
-            <p class="text-gray-500 text-xs mt-2">Please enter the verification code sent to your email.</p>
+            <p class="text-gray-500 text-xs mt-2">이메일로 전송된 인증 코드를 입력하세요.</p>
           </div>
-
-          <!-- 비밀번호 입력란 Password Input -->
-          <div class="mb-4">
-            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+          <!-- 비밀번호 입력 -->
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">비밀번호</label>
             <input
               type="password"
               id="password"
               v-model="password"
               required
-              class="font-sans w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#BCC199] font-sans"
+              placeholder="비밀번호"
             />
             <p v-if="password && !isPasswordValid" class="text-red-500 text-sm mt-1">
               비밀번호는 8~20자, 숫자, 영문, 특수문자가 모두 포함되어야 합니다.
             </p>
           </div>
 
-          <!-- 비밀번호 확인란 Password Confirmation Input -->
-          <div class="mb-4">
-            <label for="passwordConfirm" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
+          <!-- 비밀번호 확인 -->
+          <div>
+            <label for="passwordConfirm" class="block text-sm font-medium text-gray-700">비밀번호 확인</label>
             <input
               type="password"
               id="passwordConfirm"
               v-model="passwordConfirm"
               required
-              class="font-sans w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#BCC199] font-sans"
+              placeholder="비밀번호 확인"
             />
             <p v-if="passwordConfirm && password !== passwordConfirm" class="text-red-500 text-sm mt-1">
               비밀번호가 일치하지 않습니다.
             </p>
           </div>
-
           <!-- 휴대전화 입력란 Phone Input -->
           <div class="mb-4">
             <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대전화</label>
@@ -137,7 +147,8 @@
               id="phone"
               v-model="phone"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="휴대전화 번호를 입력"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#BCC199]"
             />
             <p v-if="phone && !isPhoneValid" class="text-red-500 text-sm mt-1">
               휴대전화는 10~11자리 숫자만 입력 가능합니다 (010-0000-0000 형식).
@@ -152,26 +163,18 @@
               id="birth"
               v-model="birth"
               required
-              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#BCC199]"
             />
           </div>
 
-          <!-- Submit Button -->
+          <!-- Submit 버튼 -->
           <button
             type="submit"
-            class="w-full py-2 bg-[#C49E7B] text-white rounded hover:bg-[#ddb691] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            class="w-full py-2 bg-green hover:bg-[#BCC199] text-white rounded hover:bg-green-500 focus:outline-none focus:border-[#BCC199]"
             :disabled="!isFormValid"
           >
             회원가입
           </button>
-          <button class="mt-6 text-red-500 underline" @click="closeModal">닫기</button>
-
-          <!-- <button
-          type="button"
-          class="w-full py-2 mt-4 border border-[#F9E9DA] text-[#dda677] rounded flex items-center justify-center"
-        >
-          Connect with <span class="ml-2 font-semibold">Facebook</span>
-        </button> -->
         </form>
       </div>
     </div>
@@ -248,7 +251,7 @@ export default defineComponent({
 
       try {
         // Axios GET 요청으로 아이디 중복 확인
-        const response = await axios.get('http://localhost:8080/api/v1/auth/duplication', {
+        const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/duplication`, {
           params: { login_id: loginId.value },
         })
 
@@ -315,7 +318,7 @@ export default defineComponent({
       try {
         // 인증 코드 전송 API 요청
         const response = await axios.post(
-          'http://localhost:8080/api/v1/auth/email',
+          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/email`,
           {
             email: email.value,
           },
@@ -341,7 +344,7 @@ export default defineComponent({
       try {
         // 인증 코드 확인 API 요청
         const response = await axios.post(
-          'http://localhost:8080/api/v1/auth/email/verify',
+          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/email/verify`,
           {
             email: email.value,
             code: verificationCode.value,
@@ -380,7 +383,7 @@ export default defineComponent({
 
       try {
         const response = await axios.post(
-          'http://localhost:8080/api/v1/auth/join',
+          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/join`,
           {
             name: name.value,
             loginId: loginId.value,
@@ -395,9 +398,9 @@ export default defineComponent({
             },
           },
         )
-
+        window.location.reload()
         console.log('회원가입 성공:', response.data)
-        router.push('/')
+        // router.push('/')
       } catch (error) {
         console.error('회원가입 실패:', error)
       }
