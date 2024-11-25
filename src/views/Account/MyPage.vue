@@ -58,7 +58,7 @@
       >
         <div class="flex justify-center space-x-6">
           <button
-            v-for="(tab, index) in ['reviews', 'saved', 'markers']"
+            v-for="(tab, index) in ['reviews', 'bookmarks', 'markers']"
             :key="tab"
             @click="selectedTab = tab"
             :class="[
