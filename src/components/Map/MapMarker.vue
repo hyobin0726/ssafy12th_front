@@ -11,6 +11,7 @@ import type { PropType } from 'vue'
 import type { Map } from '@/types/Map'
 import Bookmark from '@/assets/Review/Bookmark.svg'
 import NonBookmark from '@/assets/Review/NonBookmark.svg'
+import { useToast } from 'vue-toast-notification'
 
 export default defineComponent({
   components: { Bookmark, NonBookmark },
@@ -24,7 +25,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const isMarked = ref(false)
     const token = sessionStorage.getItem('accessToken')
-
+    const toast = useToast()
     //마커 상태
     const fetchMarkStatus = async () => {
       if (!token) {
@@ -56,7 +57,7 @@ export default defineComponent({
         gugunId: props.place.siGunGuCode,
       }
       if (!token) {
-        alert('로그인이 필요합니다.')
+        toast.error('로그인이 필요합니다.')
         return
       }
       try {

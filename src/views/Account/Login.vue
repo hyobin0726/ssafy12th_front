@@ -45,6 +45,7 @@ import axios, { AxiosError } from 'axios'
 import { defineComponent, ref, onMounted } from 'vue'
 import { useCookies } from 'vue3-cookies'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
 
 export default defineComponent({
   name: 'LoginModal',
@@ -60,7 +61,7 @@ export default defineComponent({
     const password = ref('')
     const router = useRouter()
     const { cookies } = useCookies()
-
+    const toast = useToast()
     const refreshAccessToken = async () => {
       const refreshToken = cookies.get('refreshToken')
       if (!refreshToken) throw new Error('No refresh token available')
@@ -130,7 +131,7 @@ export default defineComponent({
         cookies.set('refreshToken', refreshToken, '7d')
         window.location.reload()
       } catch (error) {
-        alert('로그인에 실패하였습니다.')
+        toast.error('로그인에 실패하였습니다.')
       }
     }
 
