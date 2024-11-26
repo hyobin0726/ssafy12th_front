@@ -46,7 +46,6 @@ import { defineComponent, ref, onMounted } from 'vue'
 import { useCookies } from 'vue3-cookies'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
-
 export default defineComponent({
   name: 'LoginModal',
   props: {
@@ -62,17 +61,17 @@ export default defineComponent({
     const router = useRouter()
     const { cookies } = useCookies()
     const toast = useToast()
-    const refreshAccessToken = async () => {
-      const refreshToken = cookies.get('refreshToken')
-      if (!refreshToken) throw new Error('No refresh token available')
-      console.log('리프래쉬 토큰 실행')
-      const response = await axios.post('http://localhost:8080/api/v1/auth/re-token', { refreshToken })
+    // const refreshAccessToken = async () => {
+    //   const refreshToken = cookies.get('refreshToken')
+    //   if (!refreshToken) throw new Error('No refresh token available')
+    //   console.log('리프래쉬 토큰 실행')
+    //   const response = await axios.post('http://localhost:8080/api/v1/auth/re-token', { refreshToken })
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data
-      sessionStorage.setItem('accessToken', newAccessToken)
-      cookies.set('refreshToken', newRefreshToken, '7d')
-      return newAccessToken
-    }
+    //   const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data
+    //   sessionStorage.setItem('accessToken', newAccessToken)
+    //   cookies.set('refreshToken', newRefreshToken, '7d')
+    //   return newAccessToken
+    // }
 
     onMounted(() => {
       axios.interceptors.request.use(
@@ -97,19 +96,19 @@ export default defineComponent({
             return Promise.reject(error)
           }
 
-          if (axiosError.response && axiosError.response.status === 401) {
-            try {
-              const newAccessToken = await refreshAccessToken()
-              axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`
-              originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
-              return axios(originalRequest)
-            } catch (refreshError) {
-              cookies.remove('refreshToken')
-              sessionStorage.removeItem('accessToken')
-              router.push('/login')
-              return Promise.reject(refreshError)
-            }
-          }
+          // if (axiosError.response && axiosError.response.status === 401) {
+          //   try {
+          //     const newAccessToken = await refreshAccessToken()
+          //     axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`
+          //     originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
+          //     return axios(originalRequest)
+          //   } catch (refreshError) {
+          //     cookies.remove('refreshToken')
+          //     sessionStorage.removeItem('accessToken')
+          //     router.push('/login')
+          //     return Promise.reject(refreshError)
+          //   }
+          // }
           return Promise.reject(error)
         },
       )

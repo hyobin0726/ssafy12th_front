@@ -14,7 +14,7 @@
     </div>
   </div>
   <div
-    class="bottom-5 absolute right-6 bg-green text-white py-2 px-5 rounded-lg hover:bg-opacity-80 item"
+    class="bottom-5 fixed right-6 bg-green text-white py-2 px-5 rounded-lg hover:bg-opacity-80 item"
     @click="handleCreateClick"
   >
     글쓰기
@@ -30,6 +30,7 @@ import type { Review } from '@/types/Review'
 import ReviewWrite from '@/components/Review/ReviewWrite.vue'
 import { useRouter } from 'vue-router'
 import ReviewNav from '@/components/Review/ReviewNav.vue'
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: { ReviewItem, ReviewWrite, ReviewNav },
   setup() {
@@ -38,6 +39,7 @@ export default defineComponent({
     const isSearching = ref(false)
     const router = useRouter()
     const isModalOpen = ref(false)
+    const toast = useToast()
     const fetchReviews = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/reviews/list`)
@@ -50,9 +52,8 @@ export default defineComponent({
     const handleCreateClick = () => {
       const token = sessionStorage.getItem('accessToken')
       if (!token) {
-        alert('로그인 후 이용해주세요.')
+        toast.error('로그인 후 이용해주세요.')
         // console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
-        router.push('/login')
         return
       }
       isModalOpen.value = true

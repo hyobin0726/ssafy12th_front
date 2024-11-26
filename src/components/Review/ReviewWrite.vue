@@ -123,8 +123,7 @@ import FullStar from '@/assets/Review/FullStar.svg'
 import EmptyStar from '@/assets/Review/EmptyStar.svg'
 import type { Crew } from '@/types/Crew'
 import LocationSearchModal from '@/components/Review/LocationSearchModal.vue'
-import type { Map } from '@/types/Map'
-
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   name: 'ImageUploader',
   components: {
@@ -144,6 +143,7 @@ export default defineComponent({
   emits: ['close', 'submitImages'],
 
   setup(props, { emit }) {
+    const toast = useToast()
     const navigationOptions: any = { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }
     const fileInput = ref<HTMLInputElement | null>(null)
     const previews = ref<string[]>([])
@@ -306,6 +306,7 @@ export default defineComponent({
         })
         // console.log('리뷰가 성공적으로 업로드되었습니다.', reviewData)
         closeModal()
+        toast.success('리뷰가 성공적으로 업로드되었습니다.')
         location.reload()
       } catch (error) {
         console.log(reviewData)

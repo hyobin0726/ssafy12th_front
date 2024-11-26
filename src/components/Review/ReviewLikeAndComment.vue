@@ -35,7 +35,7 @@ import Bookmark from '@/assets/Review/Bookmark.svg'
 import NonBookmark from '@/assets/Review/NonBookmark.svg'
 import Chat from '@/assets/Review/Chat.svg'
 import FullHeart from '@/assets/Review/FullHeart.svg'
-
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: { NonHeart, Chat, Bookmark, FullHeart, NonBookmark },
   props: {
@@ -45,13 +45,14 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const toast = useToast()
     const isLiked = ref(false)
     const isBookmarked = ref(false)
     //좋아요 상태
     const token = sessionStorage.getItem('accessToken')
     const fetchLikeStatus = async () => {
       if (!token) {
-        console.log('토큰이 없습니다. 좋아요 상태를 조회할 수 없습니다.')
+        // console.log('토큰이 없습니다. 좋아요 상태를 조회할 수 없습니다.')
         return
       }
       try {
@@ -71,7 +72,8 @@ export default defineComponent({
     }
     const toggleLike = () => {
       if (!token) {
-        alert('로그인이 필요합니다.')
+        toast.error('로그인 후 이용해주세요.')
+        // alert('로그인이 필요합니다.')
         return
       }
       try {
@@ -103,7 +105,7 @@ export default defineComponent({
     //북마크 상태
     const fetchBookmarkStatus = async () => {
       if (!token) {
-        console.log('토큰이 없습니다. 북마크 상태를 조회할 수 없습니다.')
+        // console.log('토큰이 없습니다. 북마크 상태를 조회할 수 없습니다.')
         return
       }
       try {
@@ -122,7 +124,8 @@ export default defineComponent({
     }
     const toggleBookmark = () => {
       if (!token) {
-        alert('로그인이 필요합니다.')
+        // alert('로그인이 필요합니다.')
+        toast.error('로그인 후 이용해주세요.')
         return
       }
       try {
@@ -149,7 +152,7 @@ export default defineComponent({
         console.error('북마크 상태를 변경하는데 실패했습니다:', error)
       }
     }
-    // console.log(props.review, '??')
+
     const likeCount = ref(0)
     const fetchLikeCount = async () => {
       try {

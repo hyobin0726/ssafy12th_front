@@ -10,7 +10,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 backdrop-blur-sm" />
+        <div class="fixed inset-0 bg-gradient-to-br from-[#4e5338] backdrop-blur-sm" />
       </TransitionChild>
 
       <div class="fixed inset-0 overflow-y-auto">
@@ -36,8 +36,8 @@
                   <input
                     v-model="channelName"
                     type="text"
-                    placeholder="멋진 모임명을 입력하세요"
-                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-blue-300 transform hover:scale-[1.02]"
+                    placeholder="모임명을 입력하세요"
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#BCC199] transition-all duration-300 transform hover:scale-[1.02]"
                   />
                   <p v-if="!channelName" class="text-sm text-red-500 mt-2 animate-pulse">모임명은 필수입니다</p>
                 </div>
@@ -50,67 +50,23 @@
                       v-model="searchUser"
                       type="text"
                       placeholder="함께할 친구의 아이디를 입력하세요"
-                      class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 hover:border-blue-300"
+                      class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#BCC199] transition-all duration-300"
                       @keyup.enter="searchForUser"
                     />
                     <button
                       @click="searchForUser"
-                      class="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg hover:shadow-blue-500/50"
+                      class="px-6 py-3 bg-green text-white rounded-xl hover:bg-[#BCC199] transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg"
                     >
                       검색
                     </button>
                   </div>
-
-                  <!-- 성공 메시지 토스트 -->
-                  <Transition
-                    enter-active-class="transition duration-300 ease-out"
-                    enter-from-class="transform translate-y-2 opacity-0"
-                    enter-to-class="transform translate-y-0 opacity-100"
-                    leave-active-class="transition duration-200 ease-in"
-                    leave-from-class="transform translate-y-0 opacity-100"
-                    leave-to-class="transform translate-y-2 opacity-0"
-                  >
-                    <div
-                      v-if="showSuccessToast"
-                      class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-12 bg-green-500 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-50"
-                    >
-                      <span>✅</span>
-                      <span class="text-sm font-medium">사용자가 추가되었습니다</span>
-                    </div>
-                  </Transition>
-
-                  <TransitionGroup
-                    enter-active-class="transition duration-300 ease-out"
-                    enter-from-class="transform -translate-y-2 opacity-0"
-                    enter-to-class="transform translate-y-0 opacity-100"
-                    leave-active-class="transition duration-200 ease-in"
-                    leave-from-class="transform translate-y-0 opacity-100"
-                    leave-to-class="transform -translate-y-2 opacity-0"
-                  >
-                    <p
-                      v-if="searchError"
-                      :key="'error'"
-                      class="text-sm text-red-500 mt-2 animate-shake flex items-center gap-2"
-                    >
-                      <span class="inline-block">⚠️</span>
-                      {{ searchError }}
-                    </p>
-                    <p
-                      v-if="duplicateError"
-                      :key="'duplicate'"
-                      class="text-sm text-amber-500 mt-2 flex items-center gap-2 animate-slide-in"
-                    >
-                      <span class="inline-block">👥</span>
-                      {{ duplicateError }}
-                    </p>
-                  </TransitionGroup>
                 </div>
 
                 <!-- 초대 목록 부분 수정 -->
                 <div v-if="invitedUsers.length" class="animate-fade-in-up" style="animation-delay: 300ms">
                   <p class="text-gray-600 mb-3 flex items-center gap-2">
                     <span class="text-lg">✨</span> 함께할 친구들
-                    <span class="text-sm text-blue-500">({{ invitedUsers.length }}명)</span>
+                    <span class="text-sm text-gray-500">({{ invitedUsers.length }}명)</span>
                   </p>
                   <TransitionGroup
                     tag="ul"
@@ -125,7 +81,7 @@
                     <li
                       v-for="user in invitedUsers"
                       :key="user.userId"
-                      class="group px-4 py-2 bg-blue-50 text-blue-800 rounded-full border border-blue-100 transition-all duration-300 hover:scale-105 hover:rotate-1 hover:bg-blue-100 animate-pop-in flex items-center gap-2"
+                      class="group px-4 py-2 bg-[#E6E9D1] text-gray-700 rounded-full border transition-all duration-300 hover:scale-105 hover:rotate-1 hover:bg-[#BCC199] animate-pop-in flex items-center gap-2"
                     >
                       {{ user.loginId }}
                       <button
@@ -139,18 +95,18 @@
                 </div>
 
                 <!-- 버튼 그룹 -->
-                <div class="mt-8 flex justify-end gap-3 animate-fade-in-up" style="animation-delay: 400ms">
+                <div class="mt-8 flex justify-around gap-3 animate-fade-in-up" style="animation-delay: 400ms">
                   <button
                     @click="$emit('close')"
-                    class="px-6 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition-all duration-300 transform hover:scale-105 hover:-rotate-1 active:scale-95"
+                    class="border-2 px-6 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition-all duration-300 transform hover:scale-105 hover:-rotate-1 active:scale-95"
                   >
                     취소
                   </button>
                   <button
                     @click="handleCreateChannel"
-                    class="px-6 py-3 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg hover:shadow-blue-500/50 hover:from-blue-600 hover:to-blue-700"
+                    class="px-6 py-3 text-white bg-gradient-to-r bg-green rounded-xl transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg hover:bg-[#BCC199]"
                   >
-                    모임 만들기 🚀
+                    모임 만들기
                   </button>
                 </div>
               </div>
@@ -167,7 +123,7 @@ import { ref, defineComponent } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { TransitionGroup } from 'vue'
 import axios from 'axios'
-
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: {
     Dialog,
@@ -189,7 +145,7 @@ export default defineComponent({
 
     const showSuccessToast = ref(false)
     const searchInput = ref<HTMLInputElement | null>(null)
-
+    const toast = useToast()
     // 사용자 검색
     // 사용자 검색 함수 수정
     const searchForUser = async () => {
@@ -198,12 +154,14 @@ export default defineComponent({
       duplicateError.value = ''
 
       if (!searchUser.value) {
-        searchError.value = '사용자 아이디를 입력하세요.'
+        toast.error('사용자 아이디를 입력하세요.')
+        // searchError.value = '사용자 아이디를 입력하세요.'
         return
       }
 
       const accessToken = sessionStorage.getItem('accessToken')
       if (!accessToken) {
+        toast.error('로그인  후 이용해주세요.')
         searchError.value = '로그인 상태를 확인해주세요.'
         return
       }
@@ -234,13 +192,15 @@ export default defineComponent({
         searchUser.value = ''
 
         // 성공 토스트 메시지 표시
+        toast.success('사용자가 추가되었습니다.')
         showSuccessToast.value = true
         setTimeout(() => {
           showSuccessToast.value = false
         }, 2000)
       } catch (error) {
         console.error('사용자 검색 실패:', error)
-        searchError.value = '사용자를 찾을 수 없습니다. 다시 시도해주세요.'
+        toast.error('사용자를 찾을 수 없습니다. 다시 시도해주세요.')
+        // searchError.value = '사용자를 찾을 수 없습니다. 다시 시도해주세요.'
       }
     }
 
@@ -253,12 +213,6 @@ export default defineComponent({
     const handleCreateChannel = async () => {
       if (!channelName.value) return
 
-      console.log('컴포넌트 모달 : 모임 생성 버튼 클릭')
-      console.log('모임 생성:', {
-        name: channelName.value,
-        invitedUsers: invitedUsers.value,
-      })
-
       // API 요청에 필요한 데이터
       const requestBody = {
         name: channelName.value,
@@ -268,7 +222,8 @@ export default defineComponent({
       // Access Token 가져오기
       const accessToken = sessionStorage.getItem('accessToken')
       if (!accessToken) {
-        console.error('Access token is missing')
+        toast.error('로그인 후 이용해주세요.')
+        // console.error('Access token is missing')
         return
       }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <!-- Navbar -->
-    <header class="absolute top-0 w-full z-[11] transition-all duration-300 p-4 bg-white shadow-lg">
+    <header class="absolute top-0 w-full z-[8] transition-all duration-300 p-4 bg-white shadow-lg">
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center space-x-16">
           <router-link to="/" class="flex items-center">
@@ -9,8 +9,8 @@
           </router-link>
           <nav class="flex items-center space-x-16">
             <router-link to="/map" class="text-gray-700 text-lg font-medium hover:text-green"> 지도 </router-link>
-            <router-link to="/crewPage" class="text-gray-700 text-lg font-medium hover:text-green"> 모임 </router-link>
-            <router-link to="/chat" class="text-gray-700 text-lg font-medium hover:text-green"> 채팅 </router-link>
+            <span class="text-gray-700 text-lg font-medium hover:text-green" @click="clickCrew"> 모임 </span>
+            <span class="text-gray-700 text-lg font-medium hover:text-green" @click="clickChat"> 채팅 </span>
             <router-link to="/reviewList" class="text-gray-700 text-lg font-medium hover:text-green">
               리뷰
             </router-link>
@@ -21,27 +21,27 @@
           <!-- 버튼 렌더링: 토큰 유무에 따라 -->
           <template v-if="isLoggedIn">
             <button
-              class="px-4 py-2 bg-black bg-opacity-30 h-11 text-white text-lg rounded hover:bg-opacity-50"
+              class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
               @click="handleLogout"
             >
               로그아웃
             </button>
             <router-link
               to="/mypage"
-              class="px-4 py-2 bg-black bg-opacity-30 h-11 text-white text-lg rounded hover:bg-opacity-50"
+              class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
             >
               마이페이지
             </router-link>
           </template>
           <template v-else>
             <button
-              class="px-4 py-2 bg-black bg-opacity-30 h-11 text-white text-lg rounded hover:bg-opacity-50"
+              class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
               @click="openLoginModal"
             >
               로그인
             </button>
             <button
-              class="px-4 py-2 bg-black bg-opacity-30 h-11 text-white text-lg rounded hover:bg-opacity-50"
+              class="px-4 py-2 h-11 bg-green bg-opacity-20 text-gray-700 text-lg rounded hover:bg-opacity-80 item"
               @click="openSignUpModal"
             >
               회원가입
@@ -62,7 +62,8 @@ import { defineComponent, ref, onMounted } from 'vue'
 import axios from 'axios'
 import LoginModal from '@/views/Account/Login.vue'
 import SignUp from '@/views/Account/SignUp.vue'
-
+import { useToast } from 'vue-toast-notification'
+import { useRouter } from 'vue-router'
 export default defineComponent({
   components: {
     LoginModal,
@@ -72,13 +73,30 @@ export default defineComponent({
     const isLoginModalOpen = ref(false)
     const isSignUpModalOpen = ref(false)
     const isLoggedIn = ref(false) // 로그인 상태
-
+    const toast = useToast()
+    const router = useRouter()
     // 로그인 상태 확인
     const checkLoginStatus = () => {
       const token = sessionStorage.getItem('accessToken')
       isLoggedIn.value = !!token // 토큰이 있으면 true, 없으면 false
     }
     const token = sessionStorage.getItem('accessToken')
+    const clickCrew = () => {
+      if (!isLoggedIn.value) {
+        toast.error('로그인 후 이용해주세요.')
+        return
+      }
+      router.push('/crewPage')
+    }
+
+    const clickChat = () => {
+      if (!isLoggedIn.value) {
+        toast.error('로그인 후 이용해주세요.')
+        return
+      }
+      router.push('/chat')
+    }
+
     const fetchLogOut = async () => {
       try {
         await axios.post(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/logout`, {
@@ -94,10 +112,11 @@ export default defineComponent({
     }
 
     // 로그아웃
-    const handleLogout = () => {
-      fetchLogOut()
-      isLoggedIn.value = false // 상태 변경
-      alert('로그아웃되었습니다.')
+    const handleLogout = async () => {
+      await fetchLogOut() // 로그아웃 요청
+      checkLoginStatus() // 상태 다시 확인
+      toast.success('로그아웃되었습니다.')
+      // alert('로그아웃되었습니다.')
     }
 
     const openLoginModal = () => {
@@ -130,6 +149,8 @@ export default defineComponent({
       handleLogout,
       token,
       fetchLogOut,
+      clickCrew,
+      clickChat,
     }
   },
 })

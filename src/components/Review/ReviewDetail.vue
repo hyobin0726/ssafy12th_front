@@ -53,7 +53,7 @@ import ReviewContents from './ReviewContents.vue'
 import ReviewComment from './ReviewComment.vue'
 import ReviewProfile from './ReviewProfile.vue'
 import Send from '@/assets/Review/send.svg'
-
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   name: 'ImageUploader',
   components: {
@@ -78,12 +78,13 @@ export default defineComponent({
   setup(props, { emit }) {
     const newComment = ref('')
     const reviewComment = ref<InstanceType<typeof ReviewComment> | null>(null) // ReviewComment에 대한 ref 설정
-
+    const toast = useToast()
     const fetchPostComment = async () => {
       try {
         const token = sessionStorage.getItem('accessToken')
         if (!token) {
-          alert('로그인 후 다시 시도하세요.')
+          // alert('로그인 후 다시 시도하세요.')
+          toast.error('로그인 후 이용해주세요.')
           return
         }
         await axios.post(

@@ -153,6 +153,7 @@ import type { Member } from '@/types/Member'
 import { db } from '@/services/firebase'
 import axios from 'axios'
 import Nav from '@/components/common/WhiteNav.vue'
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   name: 'ChatApp',
   components: {
@@ -169,6 +170,7 @@ export default defineComponent({
     const searchResults = ref<Member | null>(null)
     const currentUserId = ref<number>(0)
     const isLoadingMessages = ref(false)
+    const toast = useToast()
     const formatTimestamp = (timestamp: Timestamp) => {
       if (!timestamp) return ''
 
@@ -275,7 +277,10 @@ export default defineComponent({
       }
     }
     const searchUser = async () => {
-      if (searchLoginId.value === '') return
+      if (searchLoginId.value === '') {
+        toast.error('검색어를 입력해주세요.')
+        return
+      }
       try {
         const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/member/search`, {
           params: {

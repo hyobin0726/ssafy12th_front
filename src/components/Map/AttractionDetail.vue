@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[10]">
     <div class="bg-white w-3/4 h-5/6 p-4 rounded-lg shadow-lg flex flex-col">
       <div class="text-3xl justify-end flex cursor-pointer" @click="closeModal">x</div>
       <div class="flex flex-col items-center mb-6 mt-3">
@@ -21,7 +21,7 @@
             <div class="flex items-center mb-4">
               <map-review-profile-vue :review="review" />
             </div>
-            <img :src="review.imageUrls" alt="review" class="w-full h-40 object-cover rounded-md mb-4" />
+            <img :src="review.imageUrls[0]" alt="review" class="w-full h-40 object-cover rounded-md mb-4" />
             <p class="text-sm text-gray-700 mb-1">{{ review.content }}</p>
             <div class="flex items-center">
               <span v-for="star in review.point" :key="star" class="text-yellow-400 text-lg">★</span>

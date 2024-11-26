@@ -1,15 +1,16 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <Nav class="mb-2 h-[100px]" />
     <!-- Hero Section with Enhanced Profile -->
     <div class="relative h-[400px] overflow-hidden">
       <!-- Animated Background with Parallax -->
       <div
         class="absolute inset-0 bg-cover bg-center animate-parallax"
         style="
-          background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80');
+          background-image: url('https://cdn.pixabay.com/photo/2022/08/08/13/59/cloud-of-bunch-of-7372799_1280.jpg');
         "
       >
-        <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60"></div>
         <!-- Floating Particles -->
         <div class="particle-container">
           <div v-for="n in 20" :key="n" class="particle"></div>
@@ -21,9 +22,9 @@
         <div class="flex items-center space-x-8 animate-profileFadeIn">
           <!-- Profile Image with Enhanced Effects -->
           <div class="relative group">
-            <div class="absolute inset-0 bg-blue-500 rounded-full animate-glow-ring"></div>
+            <div class="absolute inset-0 bg-green rounded-full animate-glow-ring text-red-600 text-xl">❤</div>
             <div
-              class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-75 group-hover:opacity-100 animate-spin-slow"
+              class="absolute -inset-1 bg-gradient-to-r from-[#a0bd9d] to-[#1a681a] rounded-full opacity-75 group-hover:opacity-100 animate-spin-slow"
             ></div>
             <img
               :src="userMyData?.profileUrl"
@@ -42,7 +43,7 @@
             <p class="text-gray-200 animate-slideUpFade animation-delay-300">{{ userMyData?.email }}</p>
             <button
               @click="shareProfile"
-              class="mt-6 px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full backdrop-blur-sm transition-all duration-500 animate-slideUpFade animation-delay-400 hover:shadow-lg hover:shadow-blue-500/30 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-transparent"
+              class="mt-6 px-8 py-3 bg-gradient-to-r from-[#a0bd9d] to-[#657e61] rounded-full backdrop-blur-sm transition-all duration-500 animate-slideUpFade animation-delay-400 hover:shadow-lg hover:shadow-[#3f553c] hover:scale-105 focus:outline-none focus:[#4a5f48] focus:ring-offset-transparent"
             >
               Share Profile
             </button>
@@ -63,9 +64,9 @@
             @click="selectedTab = tab"
             :class="[
               'relative px-8 py-4 rounded-xl font-medium transition-all duration-500 transform',
-              'hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10',
+              'hover:bg-gradient-to-r hover:from-[#b1c2ae94] hover:to-[#bfdbbb]',
               selectedTab === tab
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg scale-105'
+                ? 'bg-gradient-to-r from-[#a0bd9d] to-[#7e947a] text-white shadow-lg scale-105'
                 : 'text-gray-600',
               `animation-delay-${(index + 1) * 100}`,
             ]"
@@ -73,7 +74,7 @@
             <!-- Tab Indicator -->
             <div
               v-if="selectedTab === tab"
-              class="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-tabIndicator"
+              class="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-[#d2ffcd] to-[#648f5c] rounded-full animate-tabIndicator"
             ></div>
             {{ tab.charAt(0).toUpperCase() + tab.slice(1) }}
           </button>
@@ -111,7 +112,7 @@
               </div>
             </div>
             <div class="p-6">
-              <h3 class="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+              <h3 class="text-lg font-semibold text-gray-800 group-hover:text-[#475f4c] transition-colors duration-300">
                 {{ getItemTitle(item) }}
               </h3>
               <p class="mt-2 text-gray-600">{{ getItemSubtitle(item) }}</p>
@@ -216,11 +217,13 @@ import type { Member } from '@/types/Member'
 import type { Review } from '@/types/Review' //리뷰랑 북마크 타입
 import type { Marker } from '@/types/Marker' //마커 타입
 import type { Attraction } from '@/types/Attraction' //마커 명소 타입
-
+import { useToast } from 'vue-toast-notification'
+import Nav from '@/components/common/WhiteNav.vue'
 export default defineComponent({
-  components: { Logo },
+  components: { Logo, Nav },
   name: 'MyPage',
   setup() {
+    const toast = useToast()
     const userMyData = ref<Member>()
     const userReviews = ref<Review[]>([])
     const savedReviews = ref<Review[]>([])
@@ -291,7 +294,8 @@ export default defineComponent({
 
     const editItem = () => {
       // Implement edit functionality
-      alert('수정 페이지로 이동합니다.')
+      toast.success('수정 페이지로 이동')
+      // alert('수정 페이지로 이동합니다.')
     }
 
     const getActiveItems = () => {
@@ -361,7 +365,7 @@ export default defineComponent({
         //   date: new Date(review.createdAt).toLocaleDateString(), // 날짜 포맷
         // }))
         userReviews.value = response.data
-        console.log('작성한 리뷰 데이터:', userReviews.value)
+        // console.log('작성한 리뷰 데이터:', userReviews.value)
       } catch (error) {
         console.error('작성한 리뷰 데이터 조회 실패:', error)
       }
@@ -376,7 +380,7 @@ export default defineComponent({
           },
         })
         savedReviews.value = response.data
-        console.log('북마크된 리뷰 데이터:', savedReviews.value)
+        // console.log('북마크된 리뷰 데이터:', savedReviews.value)
       } catch (error) {
         console.error('북마크 데이터 조회 실패:', error)
       }
@@ -391,7 +395,7 @@ export default defineComponent({
           },
         })
         userMarkers.value = response.data
-        console.log('저장된 마커 데이터:', userMarkers.value)
+        // console.log('저장된 마커 데이터:', userMarkers.value)
 
         // 각 마커의 Attraction 데이터를 추가로 조회
         for (const marker of userMarkers.value) {
@@ -411,7 +415,7 @@ export default defineComponent({
           },
         })
         markerAttractions.value[markerId] = response.data
-        console.log(`마커 ${markerId}의 Attraction 데이터:`, response.data)
+        // console.log(`마커 ${markerId}의 Attraction 데이터:`, response.data)
       } catch (error) {
         console.error(`Attraction 데이터 조회 실패 (markerId: ${markerId}, attractionId: ${attractionId}):`, error)
       }
@@ -425,7 +429,8 @@ export default defineComponent({
     })
 
     const shareProfile = () => {
-      alert('URL이 클립보드에 복사되었습니다.')
+      toast.success('프로필 URL이 클립보드에 복사되었습니다.')
+      // alert('URL이 클립보드에 복사되었습니다.')
     }
 
     return {

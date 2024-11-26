@@ -12,7 +12,7 @@
           </button>
         </div>
 
-        <form @submit.prevent="handleSignUp" class="space-y-4">
+        <form @submit.prevent="handleSignUp" class="space-y-2">
           <!-- 이름 입력 -->
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700">이름</label>
@@ -46,7 +46,7 @@
                 type="button"
                 @click="checkIdAvailability"
                 :disabled="!isIdValid"
-                class="px-4 py-2 bg-green text-white rounded-r hover:bg-[#BCC199]"
+                class="px-4 py-2 bg-green text-white rounded-r hover:bg-[#BCC199] whitespace-nowrap"
               >
                 중복 확인
               </button>
@@ -74,7 +74,7 @@
               <button
                 type="button"
                 @click="sendEmailVerification"
-                class="px-4 py-2 bg-green text-white rounded-r hover:bg-[#BCC199]"
+                class="px-4 py-2 bg-green text-white rounded-r hover:bg-[#BCC199] whitespace-nowrap"
               >
                 인증 요청
               </button>
@@ -93,14 +93,15 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-l focus:outline-none focus:border-[#BCC199]"
                 placeholder="인증번호 입력"
               />
-              <span class="px-2 text-sm text-gray-500">{{ minutes }}:{{ seconds.toString().padStart(2, '0') }}</span>
+
               <button
                 type="button"
                 @click="verifyCode"
-                class="px-4 py-2 text-white rounded-r hover:bg-green-600 bg-green hover:bg-[#BCC199]"
+                class="px-4 py-2 text-white rounded-r hover:bg-green-600 bg-green hover:bg-[#BCC199] whitespace-nowrap"
               >
                 확인
               </button>
+              <span class="px-2 text-sm text-gray-500">{{ minutes }}:{{ seconds.toString().padStart(2, '0') }}</span>
             </div>
             <!-- 인증번호 유효성 검사 메시지 -->
             <p v-if="verificationCode && !isCodeValid" class="text-red-500 text-sm mt-1">
@@ -186,6 +187,7 @@ import Logo from '@/assets/logo.svg'
 import { defineComponent, ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: {
     Logo,
@@ -243,7 +245,7 @@ export default defineComponent({
         password.value === passwordConfirm.value &&
         isPhoneValid.value,
     )
-
+    const toast = useToast()
     // 아이디 중복 체크 함수
     const checkIdAvailability = async () => {
       // ID 중복 체크 활성화
@@ -261,7 +263,8 @@ export default defineComponent({
           idMessage.value = '사용 가능한 아이디입니다.'
         }
       } catch (error) {
-        console.error('아이디 중복입니다:', error)
+        toast.error('이미 사용 중인 아이디입니다.')
+        // console.error('아이디 중복입니다:', error)
         isIdAvailable.value = false
         idMessage.value = '이미 사용 중인 아이디입니다.'
         // 에러 응답일 경우 이미 사용 중인 아이디로 간주
@@ -330,12 +333,14 @@ export default defineComponent({
         )
 
         if (response.status === 200) {
-          alert('인증 코드가 이메일로 전송되었습니다.')
+          toast.success('인증 코드가 이메일로 전송되었습니다.')
+          // alert('인증 코드가 이메일로 전송되었습니다.')
           startTimer() // 타이머 시작
         }
       } catch (error) {
         console.error('이메일 인증 코드 전송 실패:', error)
-        alert('이메일 인증 코드 전송에 실패했습니다. 다시 시도해 주세요.')
+        toast.error('이메일 인증 코드 전송에 실패했습니다. 다시 시도해 주세요.')
+        // alert('이메일 인증 코드 전송에 실패했습니다. 다시 시도해 주세요.')
       }
     }
 
@@ -357,20 +362,23 @@ export default defineComponent({
         )
 
         if (response.status === 200) {
-          alert('인증이 완료되었습니다!')
-          clearInterval(timer)
+          toast.success('인증이 완료되었습니다!')
+          // alert('인증이 완료되었습니다!')
+          // clearInterval(timer)
           isTimerRunning.value = false // 타이머 중지
           isCodeValid.value = true // 인증 성공 시 유효성 업데이트
         }
       } catch (error) {
         console.error('인증 코드 확인 실패:', error)
-        alert('인증 코드가 올바르지 않습니다. 다시 확인해 주세요.')
+        toast.error('인증 코드가 올바르지 않습니다. 다시 확인해 주세요.')
+        // alert('인증 코드가 올바르지 않습니다. 다시 확인해 주세요.')
         isCodeValid.value = false // 인증 실패 시 유효성 업데이트
       }
     }
 
     const handleSignUp = async () => {
-      alert('회원가입이 완료되었습니다.')
+      // alert('회원가입이 완료되었습니다.')
+      toast.success('회원가입이 완료되었습니다.')
       // 비밀번호와 확인이 일치하면 회원가입 데이터 출력
       console.log('Signing up with:', {
         name: name.value,
@@ -399,7 +407,7 @@ export default defineComponent({
           },
         )
         window.location.reload()
-        console.log('회원가입 성공:', response.data)
+        // console.log('회원가입 성공:', response.data)
         // router.push('/')
       } catch (error) {
         console.error('회원가입 실패:', error)

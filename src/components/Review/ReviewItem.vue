@@ -54,7 +54,7 @@ export default defineComponent({
     const token = sessionStorage.getItem('accessToken')
     const isModalOpen = ref(false)
     const isOpen = ref(false)
-    const myUserId = ref('')
+    const myUserId = ref(0)
     const fetchMyLoginId = async () => {
       if (!token) {
         return

@@ -7,8 +7,8 @@
         </router-link>
         <nav class="flex items-center space-x-16">
           <router-link to="/map" class="text-gray-700 text-lg hover:text-green"> 지도 </router-link>
-          <router-link to="/crewPage" class="text-gray-700 text-lg hover:text-green"> 모임 </router-link>
-          <router-link to="/chat" class="text-gray-700 text-lg hover:text-green"> 채팅 </router-link>
+          <span class="text-gray-700 text-lg hover:text-green" @click="clickCrew"> 모임 </span>
+          <span class="text-gray-700 text-lg hover:text-green" @click="clickChat"> 채팅 </span>
         </nav>
       </div>
       <div class="relative flex items-center flex-1 max-w-[750px] mr-6">
@@ -83,7 +83,8 @@ import SignUp from '@/views/Account/SignUp.vue'
 import { useQuery } from '@tanstack/vue-query'
 import axios from 'axios'
 import debounce from 'lodash/debounce'
-
+import { useToast } from 'vue-toast-notification'
+import { useRouter } from 'vue-router'
 interface Review {
   title: string
   imageUrls: string
@@ -123,7 +124,24 @@ export default defineComponent({
       const token = sessionStorage.getItem('accessToken')
       isLoggedIn.value = !!token // 토큰이 있으면 true, 없으면 false
     }
+    const toast = useToast()
+    const router = useRouter()
     const token = sessionStorage.getItem('accessToken')
+    const clickCrew = () => {
+      if (!isLoggedIn.value) {
+        toast.error('로그인 후 이용해주세요.')
+        return
+      }
+      router.push('/crewPage')
+    }
+
+    const clickChat = () => {
+      if (!isLoggedIn.value) {
+        toast.error('로그인 후 이용해주세요.')
+        return
+      }
+      router.push('/chat')
+    }
     const fetchLogOut = async () => {
       try {
         await axios.post(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/logout`, {
@@ -139,16 +157,21 @@ export default defineComponent({
     }
 
     // 로그아웃
-    const handleLogout = () => {
-      fetchLogOut()
-      isLoggedIn.value = false // 상태 변경
-      alert('로그아웃되었습니다.')
+    const handleLogout = async () => {
+      await fetchLogOut() // 로그아웃 요청
+      checkLoginStatus() // 상태 다시 확인
+      toast.success('로그아웃되었습니다.')
+      // alert('로그아웃되었습니다.')
     }
 
     const keyword = ref('')
     const suggestions = ref<string[]>([])
     const searchResults = ref<Review[]>([])
     const onSearchClick = async () => {
+      if (!keyword.value.trim()) {
+        toast.error('검색어를 입력해주세요.')
+        return
+      }
       if (keyword.value.trim()) {
         try {
           const { data } = await axios.get(
@@ -218,6 +241,8 @@ export default defineComponent({
       handleLogout,
       token,
       fetchLogOut,
+      clickCrew,
+      clickChat,
     }
   },
 })

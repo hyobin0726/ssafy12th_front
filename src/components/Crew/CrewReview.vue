@@ -2,11 +2,11 @@
   <div>
     <!-- 모달 -->
     <div
-      v-if="isModalOpen"
-      class="fixed top-4 left-4 bg-white/95 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden w-[400px] z-50 border border-gray-100 animate-slideIn"
+      v-if="isModalOpen && reviews.length > 0"
+      class="fixed top-[120px] left-4 bg-white/95 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden w-[400px] z-50 border border-gray-100 animate-slideIn"
     >
       <!-- 헤더 영역 -->
-      <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-500 to-pink-500">
+      <div class="flex justify-between items-center p-4 bg-gradient-to-r from-olive to-beige">
         <h2 class="text-white font-bold text-lg animate-fadeIn">리뷰 모음</h2>
         <button
           @click="$emit('close')"

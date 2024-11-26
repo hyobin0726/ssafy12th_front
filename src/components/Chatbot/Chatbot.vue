@@ -132,6 +132,7 @@ export default defineComponent({
       isLoading.value = true
 
       try {
+        // console.log(import.meta.env.VITE_GPT_API_KEY)
         const response = await axios.post(
           'https://api.openai.com/v1/chat/completions',
           {
@@ -144,6 +145,7 @@ export default defineComponent({
           },
           {
             headers: {
+              'Content-Type': 'application/json',
               Authorization: `Bearer ${import.meta.env.VITE_GPT_API_KEY}`,
             },
           },

@@ -120,7 +120,7 @@ import FullStar from '@/assets/Review/FullStar.svg'
 import EmptyStar from '@/assets/Review/EmptyStar.svg'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import type { Crew } from '@/types/Crew'
-
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   name: 'EditReview',
   components: {
@@ -144,6 +144,7 @@ export default defineComponent({
 
   setup(props, { emit }) {
     // console.log('수정할 리뷰 데이터:', props.reviewData)
+    const toast = useToast()
     const previews = ref<string[]>(props.reviewData.imageUrls || [])
     const uploadedUrls = ref<string[]>(props.reviewData.imageUrls || [])
     const hashTags = ref<string[]>([])
@@ -215,7 +216,8 @@ export default defineComponent({
 
       const token = sessionStorage.getItem('accessToken')
       if (!token) {
-        console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+        toast.error('로그인 후 이용해주세요.')
+        // console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
         return
       }
       try {
@@ -232,6 +234,7 @@ export default defineComponent({
         // console.log('리뷰가 성공적으로 수정되었습니다.', reviewData)
         closeModal()
         location.reload()
+        toast.success('리뷰가 성공적으로 수정되었습니다.')
       } catch (error) {
         console.error('리뷰 수정 실패:', error)
       }

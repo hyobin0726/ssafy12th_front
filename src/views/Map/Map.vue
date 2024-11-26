@@ -12,7 +12,7 @@
           @onLoadKakaoMap="onLoadKakaoMap"
           v-if="loaded"
         >
-          <div class="w-[450px] absolute z-[10] p-5 h-full flex flex-col">
+          <div class="w-[450px] absolute z-[8] p-5 h-full flex flex-col">
             <div class="flex items-center gap-2">
               <input
                 v-model="searchQuery"
@@ -57,7 +57,7 @@
               <MapModal class="h-full" :map="filteredPlaces" />
             </div>
           </div>
-          <Weather :lat="mapStore.lat" :lng="mapStore.lng" class="absolute z-[10] right-2 top-16" />
+          <Weather :lat="mapStore.lat" :lng="mapStore.lng" class="absolute z-[2] right-2 top-16" />
 
           <!-- 현재위치 -->
           <KakaoMapMarker
@@ -164,7 +164,7 @@
           />
 
           <button
-            class="fixed left-[50%] top-[20%] bg-[#A8B087] text-white p-2 rounded z-[9] bg-opacity-70"
+            class="fixed left-[50%] top-[20%] bg-[#A8B087] text-white p-2 rounded z-[2] bg-opacity-70"
             style="round: 10px"
             @click="getInfo"
           >
@@ -191,6 +191,7 @@ import Location from '@/assets/Map/Location.svg'
 import { Marker } from '@/types/Marker'
 import Nav from '@/components/common/WhiteNav.vue'
 import Weather from '@/components/Map/MapWeather.vue'
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: {
     Search,
@@ -202,6 +203,7 @@ export default defineComponent({
     Weather,
   },
   setup() {
+    const toast = useToast()
     const mapStore = useMapStore()
     const searchQuery = ref('')
     const loaded = ref(false)
@@ -277,7 +279,7 @@ export default defineComponent({
 
         try {
           // API 호출
-          const response = await axios.get('http://localhost:8080/api/v1/map/search/nearby', {
+          const response = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/map/search/nearby`, {
             params: { latitude, longitude, radius },
           })
 
@@ -302,7 +304,7 @@ export default defineComponent({
     })
     const search = async () => {
       if (!searchQuery.value.trim()) {
-        console.warn('검색어를 입력해주세요.')
+        toast.error('검색어를 입력해주세요.')
         return
       }
 

@@ -47,6 +47,7 @@
 import { defineComponent, onMounted, ref } from 'vue'
 import Chatbot from '@/components/Chatbot/Chatbot.vue'
 import NavBar from '@/components/common/Nav.vue'
+
 export default defineComponent({
   name: 'Main',
   components: {

@@ -18,7 +18,7 @@
 import { defineComponent, ref } from 'vue'
 import axios from 'axios'
 import ReviewUpdate from './ReviewUpdate.vue'
-
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: { ReviewUpdate },
   props: {
@@ -34,13 +34,14 @@ export default defineComponent({
 
   emits: ['close', 'post-edit', 'post-delete'],
   setup(props) {
+    const toast = useToast()
     const isReviewUpdate = ref(false)
     const isModalOpen = ref(false)
     const fetchDeleteReview = async () => {
       try {
         const token = sessionStorage.getItem('accessToken')
         if (!token) {
-          console.error('토큰이 없습니다. 로그인 후 다시 시도하세요.')
+          toast.error('로그인 후 이용해주세요.')
           return
         }
 
@@ -49,8 +50,8 @@ export default defineComponent({
             Authorization: `Bearer ${token}`,
           },
         })
-
-        console.log('댓글이 성공적으로 삭제되었습니다.')
+        toast.success('댓글이 성공적으로 삭제되었습니다.')
+        // console.log('댓글이 성공적으로 삭제되었습니다.')
       } catch (error) {
         console.error('댓글 삭제 실패:', error)
       }

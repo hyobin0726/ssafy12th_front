@@ -9,7 +9,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 backdrop-blur-sm" />
+        <div class="fixed inset-0 bg-gradient-to-br from-green backdrop-blur-sm" />
       </TransitionChild>
 
       <div class="fixed inset-0 overflow-y-auto">
@@ -25,11 +25,18 @@
             <DialogPanel
               class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all hover:shadow-blue-500/10 animate-modal-bounce"
             >
-              <h2 class="text-2xl font-bold text-gray-900 mb-6 animate-slide-down flex items-center gap-2">
-                ✈️ 모임 관리
-                <span class="text-blue-500 text-lg animate-pulse">{{ crewName }}</span>
-              </h2>
-
+              <div class="flex justify-between">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 animate-slide-down flex items-center gap-2">
+                  ✈️ 모임 관리
+                  <span class="text-gray-800 text-lg animate-pulse">( {{ crewName }} )</span>
+                </h2>
+                <button
+                  @click="closeModal"
+                  class="w-7 h-7 flex justify-center items-center bg-gradient-to-r from-gray-300 to-gray-300 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95"
+                >
+                  X
+                </button>
+              </div>
               <div class="space-y-6">
                 <!-- 모임 이름 수정 -->
                 <div class="animate-fade-in-up" style="animation-delay: 100ms">
@@ -55,7 +62,7 @@
                     />
                     <button
                       @click="searchForUser"
-                      class="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg hover:shadow-blue-500/50"
+                      class="px-6 py-3 bg-green text-white rounded-xl hover:bg-[#BCC199] transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg hover:shadow-gray-500/50"
                     >
                       검색
                     </button>
@@ -89,7 +96,7 @@
                   </div>
 
                   <!-- 추가할 회원 -->
-                  <div class="w-1/2 p-4 bg-blue-50 rounded-xl shadow-sm">
+                  <div class="w-1/2 p-4 bg-[#E6E9D1] rounded-xl shadow-sm">
                     <h3 class="text-sm font-medium text-gray-700 mb-3">추가할 회원</h3>
                     <TransitionGroup
                       tag="ul"
@@ -117,29 +124,23 @@
                   <div class="space-x-3">
                     <button
                       @click="updateCrew"
-                      class="px-6 py-3 bg-gradient-to-r from-emerald-400 to-teal-300 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg hover:shadow-green-500/50"
+                      class="px-6 py-3 bg-gradient-to-r bg-green text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95 shadow-lg hover:shadow-green-500/50"
                     >
-                      수정하기 ✨
+                      수정하기
                     </button>
                     <button
                       @click="leaveCrew"
-                      class="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:-rotate-1 active:scale-95 shadow-lg hover:shadow-gray-500/50"
+                      class="px-6 py-3 bg-gradient-to-r from-[#8a8a8a] to-[#747474] text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:-rotate-1 active:scale-95 shadow-lg hover:shadow-gray-500/50"
                     >
-                      나가기 👋
+                      나가기
                     </button>
                   </div>
                   <div class="space-x-3">
                     <button
-                      @click="closeModal"
-                      class="px-6 py-3 bg-gradient-to-r from-gray-300 to-gray-300 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:rotate-1 active:scale-95"
-                    >
-                      취소
-                    </button>
-                    <button
                       @click="deleteCrew"
-                      class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:-rotate-1 active:scale-95 shadow-lg hover:shadow-red-500/50"
+                      class="px-6 py-3 bg-gradient-to-r from-[#f88484] to-[#f88484] text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:-rotate-1 active:scale-95 shadow-lg hover:shadow-red-500/50"
                     >
-                      삭제 🗑️
+                      삭제
                     </button>
                   </div>
                 </div>
@@ -157,7 +158,7 @@ import { defineComponent, ref, PropType } from 'vue'
 import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import axios from 'axios'
 import type { CrewUser } from '@/types/CrewUser'
-
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: {
     Dialog,
@@ -184,6 +185,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
+    const toast = useToast()
     const crewName = ref(props.crewNameProp)
     const searchUser = ref('')
     const searchError = ref('')
@@ -233,7 +235,8 @@ export default defineComponent({
     const updateCrew = async () => {
       const accessToken = sessionStorage.getItem('accessToken')
       if (!accessToken) {
-        alert('로그인이 필요합니다.')
+        // alert('로그인이 필요합니다.')
+        toast.error('로그인이 필요합니다.')
         return
       }
 
@@ -246,21 +249,23 @@ export default defineComponent({
           headers: { Authorization: `Bearer ${accessToken}` },
         })
 
-        console.log('모임 수정 성공성공성공 -  ', response)
-        alert('모임이 성공적으로 수정되었습니다.')
+        // console.log('모임 수정 성공성공성공 -  ', response)
+        // alert('모임이 성공적으로 수정되었습니다.')
+        toast.success('모임이 성공적으로 수정되었습니다.')
       } catch (error) {
         console.error('모임 수정 실패:', error)
-        alert('모임 수정에 실패했습니다. 다시 시도해주세요.')
+        toast.error('모임 수정에 실패했습니다. 다시 시도해주세요.')
       }
 
       emit('updated', { crewName: crewName.value, addedMembers: addedMembers.value })
     }
 
     const leaveCrew = async () => {
-      console.log('모임 나가기')
+      // console.log('모임 나가기')
       const accessToken = sessionStorage.getItem('accessToken')
       if (!accessToken) {
-        alert('로그인이 필요합니다.')
+        // alert('로그인이 필요합니다.')
+        toast.error('로그인이 필요합니다.')
         return
       }
 
@@ -270,21 +275,24 @@ export default defineComponent({
             Authorization: `Bearer ${accessToken}`,
           },
         })
-        console.log('모임 나가기 성공:', props.crewId)
+        // console.log('모임 나가기 성공:', props.crewId)
 
-        alert('모임에서 나갔습니다.')
+        // alert('모임에서 나갔습니다.')
+        toast.success('모임에서 나갔습니다.')
       } catch (error) {
         console.error('모임 삭제 실패:', error)
-        alert('모임 삭제에 실패했습니다. 다시 시도해주세요.')
+        toast.error('모임 삭제에 실패했습니다. 다시 시도해주세요.')
+        // alert('모임 삭제에 실패했습니다. 다시 시도해주세요.')
       }
       emit('leaved', props.crewId)
     }
 
     const deleteCrew = async () => {
-      console.log('모임 삭제하기')
+      // console.log('모임 삭제하기')
       const accessToken = sessionStorage.getItem('accessToken')
       if (!accessToken) {
-        alert('로그인이 필요합니다.')
+        toast.error('로그인이 필요합니다.')
+        // alert('로그인이 필요합니다.')
         return
       }
 
@@ -294,12 +302,14 @@ export default defineComponent({
             Authorization: `Bearer ${accessToken}`,
           },
         })
-        console.log('모임 삭제 성공:', props.crewId)
+        // console.log('모임 삭제 성공:', props.crewId)
 
-        alert('모임이 삭제되었습니다.')
+        // alert('모임이 삭제되었습니다.')
+        toast.success('모임이 삭제되었습니다.')
       } catch (error) {
         console.error('모임 삭제 실패:', error)
-        alert('모임 삭제에 실패했습니다. 다시 시도해주세요.')
+        toast.error('모임 삭제에 실패했습니다. 다시 시도해주세요.')
+        // alert('모임 삭제에 실패했습니다. 다시 시도해주세요.')
       }
 
       emit('deleted', props.crewId)

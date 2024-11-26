@@ -66,7 +66,7 @@ export default defineComponent({
       () => props.currentCrewReview,
       (newVal) => {
         if (newVal && newVal.length > 0) {
-          console.log('watch 작동 - currentCrewReview 변경됨:', newVal)
+          // console.log('watch 작동 - currentCrewReview 변경됨:', newVal)
           // filterReviews(newVal);
         }
       },
@@ -98,7 +98,7 @@ export default defineComponent({
       if (!mapContainer) return
 
       kakaoMap.value = new kakao.maps.Map(mapContainer, {
-        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+        center: new kakao.maps.LatLng(36.11655, 128.3467778),
         level: 12,
       })
 

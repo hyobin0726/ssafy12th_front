@@ -68,6 +68,7 @@ export default defineComponent({
             },
           })
           isMarked.value = false
+          toast.success('마커가 삭제되었습니다.')
           //   console.log('마커 삭제 성공')
         } else {
           axios.post(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/map/marker/${props.place.attractionId}`, markData, {
@@ -76,6 +77,7 @@ export default defineComponent({
             },
           })
           isMarked.value = true
+          toast.success('마커가 추가되었습니다.')
           //   console.log('마커 추가 성공')
         }
         emit('refreshMarkers')

@@ -52,7 +52,7 @@ export default defineComponent({
           },
         })
 
-        console.log('게시글이 성공적으로 삭제되었습니다.')
+        // console.log('게시글이 성공적으로 삭제되었습니다.')
       } catch (error) {
         console.error('게시글 삭제 실패:', error)
       }

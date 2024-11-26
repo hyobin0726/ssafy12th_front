@@ -30,7 +30,7 @@ export default defineComponent({
   },
   setup(props) {
     const token = sessionStorage.getItem('accessToken')
-    const myUserId = ref('')
+    const myUserId = ref(0)
     const fetchMyLoginId = async () => {
       if (!token) {
         return

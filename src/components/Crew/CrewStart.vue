@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex justify-center items-center bg-blue-100">
+  <div class="h-screen flex justify-center items-center bg-green opacity-80">
     <div class="text-center">
       <h1 class="text-3xl font-bold mb-4">아직 참여한 모임이 없습니다.</h1>
       <p class="text-gray-600 mb-6">새로운 모임을 생성하거나 다른 모임에 참여해 보세요!</p>

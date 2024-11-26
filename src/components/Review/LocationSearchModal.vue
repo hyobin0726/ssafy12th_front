@@ -46,6 +46,7 @@ import { ref, defineComponent } from 'vue'
 import axios from 'axios'
 import Search from '@/assets/Map/search.svg'
 import type { Map } from '@/types/Map'
+import { useToast } from 'vue-toast-notification'
 export default defineComponent({
   components: {
     Search,
@@ -55,11 +56,11 @@ export default defineComponent({
     const searchQuery = ref('')
     const searchResults = ref<Map[]>([])
     const searchPerformed = ref(false)
-
+    const toast = useToast()
     const search = async () => {
       const query = searchQuery.value.trim()
       if (!query) {
-        console.warn('검색어를 입력해주세요.')
+        toast.error('검색어를 입력해주세요.')
         return
       }
 

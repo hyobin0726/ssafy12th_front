@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <header class="absolute top-0 w-full z-50 transition-all duration-300 p-6">
+    <header class="absolute top-0 w-full z-[8] transition-all duration-300 p-6">
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center space-x-16">
           <router-link to="/" class="flex items-center">
@@ -9,8 +9,8 @@
           </router-link>
           <nav class="flex items-center space-x-16">
             <router-link to="/map" class="text-white text-lg font-medium hover:text-green"> 지도 </router-link>
-            <router-link to="/crewPage" class="text-white text-lg font-medium hover:text-green"> 모임 </router-link>
-            <router-link to="/chat" class="text-white text-lg font-medium hover:text-green"> 채팅 </router-link>
+            <span class="text-white text-lg font-medium hover:text-green" @click="clickCrew"> 모임 </span>
+            <span class="text-white text-lg font-medium hover:text-green" @click="clickChat"> 채팅 </span>
             <router-link to="/reviewList" class="text-white text-lg font-medium hover:text-green"> 리뷰 </router-link>
           </nav>
         </div>
@@ -58,7 +58,8 @@ import { defineComponent, ref, onMounted } from 'vue'
 import axios from 'axios'
 import LoginModal from '@/views/Account/Login.vue'
 import SignUp from '@/views/Account/SignUp.vue'
-
+import { useToast } from 'vue-toast-notification'
+import { useRouter } from 'vue-router'
 export default defineComponent({
   components: {
     LoginModal,
@@ -67,33 +68,52 @@ export default defineComponent({
   setup() {
     const isLoginModalOpen = ref(false)
     const isSignUpModalOpen = ref(false)
-    const isLoggedIn = ref(false) // 로그인 상태
+    const isLoggedIn = ref(false)
+    const toast = useToast()
+    const router = useRouter()
 
     // 로그인 상태 확인
     const checkLoginStatus = () => {
       const token = sessionStorage.getItem('accessToken')
-      isLoggedIn.value = !!token // 토큰이 있으면 true, 없으면 false
+      isLoggedIn.value = !!token // 토큰 유무에 따라 상태 갱신
     }
-    const token = sessionStorage.getItem('accessToken')
+
+    const clickCrew = () => {
+      if (!isLoggedIn.value) {
+        // isLoggedIn 상태 기반으로 접근 제한
+        toast.error('로그인 후 이용해주세요.')
+        return
+      }
+      router.push('/crewPage')
+    }
+
+    const clickChat = () => {
+      if (!isLoggedIn.value) {
+        // isLoggedIn 상태 기반으로 접근 제한
+        toast.error('로그인 후 이용해주세요.')
+        return
+      }
+      router.push('/chat')
+    }
+
     const fetchLogOut = async () => {
       try {
         await axios.post(`${import.meta.env.VITE_APP_BASE_URL}/api/v1/auth/logout`, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
           },
         })
-        sessionStorage.removeItem('accessToken')
-        isLoggedIn.value = false
+        sessionStorage.removeItem('accessToken') // 토큰 제거
+        isLoggedIn.value = false // 상태 갱신
+        toast.success('로그아웃되었습니다.')
       } catch (error) {
         console.error(error)
       }
     }
 
-    // 로그아웃
-    const handleLogout = () => {
-      fetchLogOut()
-      isLoggedIn.value = false // 상태 변경
-      alert('로그아웃되었습니다.')
+    const handleLogout = async () => {
+      await fetchLogOut() // 로그아웃 요청
+      checkLoginStatus() // 상태 다시 확인
     }
 
     const openLoginModal = () => {
@@ -113,7 +133,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      checkLoginStatus() // 컴포넌트 마운트 시 로그인 상태 확인
+      checkLoginStatus() // 초기 상태 확인
     })
 
     return {
@@ -125,8 +145,8 @@ export default defineComponent({
       closeSignUpModal,
       isLoggedIn,
       handleLogout,
-      token,
-      fetchLogOut,
+      clickCrew,
+      clickChat,
     }
   },
 })
