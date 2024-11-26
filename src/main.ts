@@ -5,6 +5,8 @@ import router from './router'
 import './main.css'
 import { useKakao } from 'vue3-kakao-maps/@utils'
 import { VueQueryPlugin, QueryClient, type VueQueryPluginOptions } from '@tanstack/vue-query'
+import 'vue-toast-notification/dist/theme-sugar.css'
+import VueToast from 'vue-toast-notification'
 
 useKakao(import.meta.env.VITE_KAKAO_MAPS_API_KEY)
 const queryClient = new QueryClient({
@@ -20,7 +22,7 @@ const vueQueryPluginOptions: VueQueryPluginOptions = {
   queryClient,
 }
 const app = createApp(App)
-
+app.use(VueToast)
 // Pinia 생성 및 등록
 const pinia = createPinia()
 app.use(VueQueryPlugin, vueQueryPluginOptions)

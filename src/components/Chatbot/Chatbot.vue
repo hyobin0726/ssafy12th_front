@@ -155,7 +155,7 @@ export default defineComponent({
         // 메시지 추가 후 스크롤 이동
         // scrollToBottom()
       } catch (error) {
-        console.error('API 호출 실패:', error)
+        console.error('API 호출 실패:', (error as any).response?.data || (error as any).message)
         messages.value.push({ text: '죄송합니다. 요청을 처리할 수 없습니다.', isUser: false })
       } finally {
         isLoading.value = false //로딩 종료

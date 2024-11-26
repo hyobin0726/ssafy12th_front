@@ -66,7 +66,7 @@
             <div
               :class="[
                 'inline-block px-4 py-2 rounded-lg',
-                message.senderId === currentUserId ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800',
+                message.senderId === currentUserId ? 'bg-green-500 text-gray-700' : 'bg-gray-200 text-gray-800',
               ]"
             >
               {{ message.message }}
@@ -168,6 +168,7 @@ export default defineComponent({
     const searchLoginId = ref('')
     const searchResults = ref<Member | null>(null)
     const currentUserId = ref<number>(0)
+    const isLoadingMessages = ref(false)
     const formatTimestamp = (timestamp: Timestamp) => {
       if (!timestamp) return ''
 
@@ -350,6 +351,7 @@ export default defineComponent({
       startChatWithUser,
       fetchMyId,
       formatTimestamp,
+      isLoadingMessages,
     }
   },
 })
