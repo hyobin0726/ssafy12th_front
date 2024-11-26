@@ -3,9 +3,14 @@
     <header class="absolute top-0 w-full z-[8] transition-all duration-300 p-6">
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center space-x-16">
-          <router-link to="/" class="flex items-center">
-            <!-- 임시 로고 -->
-            <span class="text-white text-lg">Home</span>
+          <router-link to="/" class="flex items-center space-x-2 justify-center">
+            <img
+              src="https://dangnagi-buket.s3.ap-northeast-2.amazonaws.com/image_1732617275874_logo.svg"
+              alt="logo"
+              class="w-[56.5px] h-[75px] object-cover"
+            />
+
+            <span class="text-white text-2xl">당나기</span>
           </router-link>
           <nav class="flex items-center space-x-16">
             <router-link to="/map" class="text-white text-lg font-medium hover:text-green"> 지도 </router-link>
@@ -60,6 +65,7 @@ import LoginModal from '@/views/Account/Login.vue'
 import SignUp from '@/views/Account/SignUp.vue'
 import { useToast } from 'vue-toast-notification'
 import { useRouter } from 'vue-router'
+
 export default defineComponent({
   components: {
     LoginModal,

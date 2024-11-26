@@ -54,7 +54,10 @@
         </header>
 
         <!-- 메시지 목록 -->
-        <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <div
+          class="flex-1 overflow-y-auto p-4"
+          style="background-image: url('https://i.pinimg.com/736x/d2/d9/a2/d2d9a219e6c9ecaefab314cb38f40631.jpg')"
+        >
           <div v-if="isLoadingMessages" class="text-center text-gray-500">메시지를 불러오는 중입니다...</div>
           <div
             v-else-if="selectedChat"

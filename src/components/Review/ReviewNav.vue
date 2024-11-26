@@ -2,8 +2,14 @@
   <header class="top-0 w-full transition-all duration-300 p-6">
     <div class="flex items-center justify-between py-4">
       <div class="flex items-center space-x-16">
-        <router-link to="/" class="flex items-center">
-          <span class="text-gray-700 text-lg">Home</span>
+        <router-link to="/" class="flex items-center space-x-2 justify-center">
+          <img
+            src="https://dangnagi-buket.s3.ap-northeast-2.amazonaws.com/image_1732617275874_logo.svg"
+            alt="logo"
+            class="w-[56.5px] h-[75px] object-cover"
+          />
+
+          <span class="text-gray-700 text-2xl">당나기</span>
         </router-link>
         <nav class="flex items-center space-x-16">
           <router-link to="/map" class="text-gray-700 text-lg hover:text-green"> 지도 </router-link>
@@ -85,6 +91,7 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import { useToast } from 'vue-toast-notification'
 import { useRouter } from 'vue-router'
+
 interface Review {
   title: string
   imageUrls: string

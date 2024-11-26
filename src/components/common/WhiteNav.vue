@@ -4,8 +4,14 @@
     <header class="absolute top-0 w-full z-[8] transition-all duration-300 p-4 bg-white shadow-lg">
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center space-x-16">
-          <router-link to="/" class="flex items-center">
-            <span class="text-gray-700 text-lg">Home</span>
+          <router-link to="/" class="flex items-center space-x-2 justify-center">
+            <img
+              src="https://dangnagi-buket.s3.ap-northeast-2.amazonaws.com/image_1732617275874_logo.svg"
+              alt="logo"
+              class="w-[30px] h-[40px] object-cover"
+            />
+
+            <span class="text-gray-700 text-2xl">당나기</span>
           </router-link>
           <nav class="flex items-center space-x-16">
             <router-link to="/map" class="text-gray-700 text-lg font-medium hover:text-green"> 지도 </router-link>
