@@ -66,7 +66,7 @@
             <div
               :class="[
                 'inline-block px-4 py-2 rounded-lg',
-                message.senderId === currentUserId ? 'bg-green-500 text-gray-700' : 'bg-gray-200 text-gray-800',
+                message.senderId === currentUserId ? ' text-gray-700 bg-gray-200' : 'opacity-90 bg-green text-gray-800',
               ]"
             >
               {{ message.message }}
