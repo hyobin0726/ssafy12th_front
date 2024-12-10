@@ -28,10 +28,11 @@
 ![ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/4d816ff8-e07b-412c-b528-4933ac051c59)
 
 #### 지도
-![2-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/99a80ae9-3fed-4ce6-a8e8-bccabb0e5598)
+![2-ezgif com-video-to-gif-converter (1)](https://github.com/user-attachments/assets/a267121f-d73c-4722-8846-0f6e4fd11909)
 
 #### 채팅
-![ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/1dc8694f-f603-401a-8427-cb8f2c7c3f9f)
+![ezgif com-video-to-gif-converter (3)](https://github.com/user-attachments/assets/7fa43b03-462b-4d97-8fbe-f2154716c7df)
+
 ### 💊 트러블슈팅
 1️⃣ 작
 2️⃣ 성
@@ -40,7 +41,7 @@
 
 ### 🤔 회고 
 
-### 📁 시연영상
+### 📁 시연영상(클릭)
 [![최종 발표 썸네일](https://github.com/user-attachments/assets/f2263d86-8a41-45a4-9d22-69f98736c21c)](https://www.youtube.com/watch?v=3P-wPzojxWc)
 ### 📝 ERD
 ![image](https://github.com/user-attachments/assets/a41eacdc-0420-4e80-babd-edbec10b3654)
